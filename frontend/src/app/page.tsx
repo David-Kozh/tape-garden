@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Music, CassetteTape, ArrowRight, Radio, Volume2, Shield } from "lucide-react";
+import { CassetteTape, ArrowRight, Radio, Volume2, Shield } from "lucide-react";
 
 export default function Home() {
   const [activePlay, setActivePlay] = useState<string | null>(null);
@@ -82,7 +82,7 @@ export default function Home() {
         <div id="explore" className="flex flex-col gap-8">
           <div className="flex justify-between items-end border-b border-zinc-900 pb-4">
             <div>
-              <h2 className="text-xl font-bold text-white">Curator's Bench</h2>
+              <h2 className="text-xl font-bold text-white">Curator&apos;s Bench</h2>
               <p className="text-xs text-zinc-500 mt-1">Sneak peek at upcoming releases currently being finalized.</p>
             </div>
             <span className="text-xs text-emerald-400/60 font-semibold tracking-wider uppercase">02 releases</span>
