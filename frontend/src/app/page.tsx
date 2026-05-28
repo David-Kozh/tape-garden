@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Music, Tape, ArrowRight, Radio, Volume2, Shield } from "lucide-react";
+import { Music, CassetteTape, ArrowRight, Radio, Volume2, Shield } from "lucide-react";
 
 export default function Home() {
   const [activePlay, setActivePlay] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 backdrop-blur-md border-b border-zinc-900/50 bg-[#08080a]/60 px-6 py-4 md:px-12 flex justify-between items-center transition-all duration-300">
         <div className="flex items-center gap-3 group cursor-pointer">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center transition-all duration-300 group-hover:bg-emerald-500/20 group-hover:scale-105">
-            <Tape className="w-4 h-4 text-emerald-400" />
+            <CassetteTape className="w-4 h-4 text-emerald-400" />
           </div>
           <span className="font-semibold text-lg tracking-tight bg-gradient-to-r from-zinc-50 to-zinc-400 bg-clip-text text-transparent group-hover:from-white group-hover:to-zinc-200">
             Tape Garden
@@ -150,7 +150,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-zinc-900/60 bg-[#060608] px-6 py-8 md:px-12 text-zinc-500 text-xs flex flex-col md:flex-row justify-between items-center gap-4 mt-auto">
         <div className="flex items-center gap-2">
-          <Tape className="w-3.5 h-3.5 text-emerald-500/60" />
+          <CassetteTape className="w-3.5 h-3.5 text-emerald-500/60" />
           <span>&copy; {new Date().getFullYear()} Tape Garden. All rights reserved.</span>
         </div>
         <div className="flex gap-6">
