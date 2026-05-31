@@ -1,0 +1,114 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if the user is an admin
+    function isAdmin() {
+      return request.auth != null && 
+        (request.auth.token.role == 'admin' || request.auth.token.admin == true);
+    }
+
+    // Helper function to check if the user is a producer
+    function isProducer() {
+      return request.auth != null && 
+        (request.auth.token.role == 'producer' || request.auth.token.producer == true);
+    }
+
+    // Helper to check if owner of the document
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // 1. Users collection security
+    match /users/{uid} {
+      // Admin can read and write all users
+      // Users can read their own profile
+      allow read: if isAdmin() || isOwner(uid);
+      
+      // Users are created by Cloud Functions (Admin SDK) during registration.
+      // Direct client creation of user profile documents is blocked for security.
+      allow create: if false;
+      
+      // Users can only update their own profile, and cannot modify critical fields like 'role'
+      allow update: if isAdmin() || (
+        isOwner(uid) && 
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'uid', 'email', 'createdAt'])
+      );
+      
+      allow delete: if isAdmin();
+    }
+
+    // 2. Beats collection security
+    match /beats/{beatId} {
+      // Anyone can read published beats
+      // Producer or Admin can read draft beats
+      allow read: if resource.data.status == 'published' || 
+        isAdmin() || 
+        (isProducer() && request.auth.uid == resource.data.producerId);
+        
+      // Only producers can create beats, and they must set themselves as the producerId
+      allow create: if isAdmin() || (
+        isProducer() && 
+        request.resource.data.producerId == request.auth.uid &&
+        request.resource.data.status == 'draft'
+      );
+      
+      // Only owner or admin can update
+      allow update: if isAdmin() || (
+        isProducer() && 
+        resource.data.producerId == request.auth.uid && 
+        request.resource.data.producerId == request.auth.uid
+      );
+      
+      allow delete: if isAdmin() || (
+        isProducer() && 
+        resource.data.producerId == request.auth.uid
+      );
+    }
+
+    // 3. Sample Packs collection security
+    match /samplePacks/{packId} {
+      // Anyone can read published sample packs
+      // Producer or Admin can read drafts
+      allow read: if resource.data.status == 'published' || 
+        isAdmin() || 
+        (isProducer() && request.auth.uid == resource.data.producerId);
+        
+      allow create: if isAdmin() || (
+        isProducer() && 
+        request.resource.data.producerId == request.auth.uid &&
+        request.resource.data.status == 'draft'
+      );
+      
+      allow update: if isAdmin() || (
+        isProducer() && 
+        resource.data.producerId == request.auth.uid && 
+        request.resource.data.producerId == request.auth.uid
+      );
+      
+      allow delete: if isAdmin() || (
+        isProducer() && 
+        resource.data.producerId == request.auth.uid
+      );
+    }
+
+    // 4. Purchases collection security
+    match /purchases/{purchaseId} {
+      // Only admin, buyer of the purchase, or producer of the item can read the purchase details
+      allow read: if isAdmin() || 
+        (request.auth != null && (
+          request.auth.uid == resource.data.buyerId || 
+          request.auth.uid == resource.data.producerId
+        ));
+        
+      // Client cannot write purchases directly (handled by Stripe webhooks/backend)
+      allow write: if false;
+    }
+
+    // 5. Applications collection security
+    match /applications/{applicationId} {
+      // Guest or user can create a pending application, but cannot read/modify it post-submission
+      allow create: if request.resource.data.status == 'pending';
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

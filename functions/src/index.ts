@@ -1,32 +1,46 @@
+import * as functions from "firebase-functions/v1";
+import * as admin from "firebase-admin";
+
+// Initialize Firebase Admin SDK
+admin.initializeApp();
+
 /**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ * Cloud Function Trigger: onUserCreated
+ * Automatically executes when a new user registers via Firebase Auth (Email/Password or Google).
+ * Provisions the user document in Firestore with role: "buyer" and sets the custom JWT claims.
  */
+export const onUserCreatedHandler = functions
+  .runWith({ maxInstances: 10 })
+  .auth.user()
+  .onCreate(async (user) => {
+    const { uid, email, displayName } = user;
+    const finalEmail = email || "";
+    const finalDisplayName = displayName || email?.split("@")[0] || "Anonymous Garden Guest";
 
-import {setGlobalOptions} from "firebase-functions";
-// import {onRequest} from "firebase-functions/https";
-// import * as logger from "firebase-functions/logger";
+    console.log(`[onUserCreated] Initializing profile for user: ${uid} (${finalEmail})`);
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+    try {
+      // 1. Assign custom JWT claims (role and boolean flag for client-side and middleware route checking)
+      await admin.auth().setCustomUserClaims(uid, {
+        role: "buyer",
+        buyer: true,
+      });
+      console.log(`[onUserCreated] Successfully set custom claims (role: buyer) for user: ${uid}`);
 
-// For cost control, you can set the maximum number of containers that can be
-// running at the same time. This helps mitigate the impact of unexpected
-// traffic spikes by instead downgrading performance. This limit is a
-// per-function limit. You can override the limit for each function using the
-// `maxInstances` option in the function's options, e.g.
-// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
-// functions should each use functions.runWith({ maxInstances: 10 }) instead.
-// In the v1 API, each function can only serve one request per container, so
-// this will be the maximum concurrent request count.
-setGlobalOptions({maxInstances: 10});
+      // 2. Provision the database profile document in the /users collection
+      const db = admin.firestore();
+      await db.collection("users").doc(uid).set({
+        uid: uid,
+        role: "buyer",
+        email: finalEmail,
+        displayName: finalDisplayName,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        stripeCustomerId: null,
+      });
+      console.log(`[onUserCreated] Successfully created Firestore users document for user: ${uid}`);
+    } catch (error) {
+      console.error(`[onUserCreated] Error provisioning user profile for ${uid}:`, error);
+      throw error;
+    }
+  });
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });

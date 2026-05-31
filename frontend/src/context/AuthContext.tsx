@@ -33,6 +33,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Force refresh the token to get the latest custom claims/roles
           const tokenResult = await firebaseUser.getIdTokenResult(true);
           
+          // Set the session cookie for Next.js middleware security
+          document.cookie = `__session=${tokenResult.token}; path=/; max-age=3600; Secure; SameSite=Strict`;
+          
           // Custom claims can be mapped directly to user role.
           // Fallback checking for explicit flags like admin/producer or default to buyer.
           const userRole = 
@@ -47,6 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setUser(null);
         setRole(null);
+        // Clear session cookie on logout
+        document.cookie = "__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       }
       setLoading(false);
     });
