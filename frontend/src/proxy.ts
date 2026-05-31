@@ -4,7 +4,7 @@ import type { UserRole } from "@/types";
 
 /**
  * Base64 JWT Payload Decoder
- * Runs natively in the Vercel Edge / Next.js middleware runtime without external dependencies.
+ * Runs natively in the Vercel Edge / Next.js proxy runtime without external dependencies.
  */
 function decodeJwt(token: string) {
   try {
@@ -22,7 +22,11 @@ function decodeJwt(token: string) {
   }
 }
 
-export function middleware(request: NextRequest) {
+/**
+ * Next.js 16 Proxy Gate
+ * Intercepts requests on protected routes and validates JWT claims from __session cookie.
+ */
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Read the official Firebase-compatible __session cookie
@@ -76,7 +80,7 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Config matcher to run middleware on specific paths (optimizes performance)
+// Config matcher to run proxy on specific paths
 export const config = {
   matcher: [
     "/checkout/:path*",

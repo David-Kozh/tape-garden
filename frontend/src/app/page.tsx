@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import { CassetteTape, ArrowRight, Radio, Volume2, Shield } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 export default function Home() {
+  const { user, role, loading, logout } = useAuth();
   const [activePlay, setActivePlay] = useState<string | null>(null);
 
   const tracks = [
@@ -51,6 +54,44 @@ export default function Home() {
             <Shield className="w-3.5 h-3.5 text-emerald-400/80" />
             Back Room
           </a>
+          
+          <div className="h-4 w-[1px] bg-zinc-800/80" />
+          
+          {loading ? (
+            <div className="w-12 h-4 bg-zinc-900 animate-pulse rounded" />
+          ) : user ? (
+            <div className="flex items-center gap-5">
+              {role === "admin" && (
+                <Link href="/admin" className="text-sm font-medium text-zinc-400 hover:text-zinc-200 transition-colors">
+                  Admin
+                </Link>
+              )}
+              {role === "producer" && (
+                <Link href="/dashboard" className="text-sm font-medium text-zinc-400 hover:text-zinc-200 transition-colors">
+                  Dashboard
+                </Link>
+              )}
+              {role === "buyer" && (
+                <Link href="/purchases" className="text-sm font-medium text-zinc-400 hover:text-zinc-200 transition-colors">
+                  My Purchases
+                </Link>
+              )}
+              <button 
+                onClick={logout}
+                className="text-xs font-semibold text-zinc-400 hover:text-red-400 transition-colors cursor-pointer"
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <Link 
+              href="/login" 
+              className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
+            >
+              Enter
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          )}
         </nav>
       </header>
 
