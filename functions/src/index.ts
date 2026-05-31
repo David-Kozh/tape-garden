@@ -10,10 +10,10 @@ admin.initializeApp();
  * Provisions the user document in Firestore with role: "buyer" and sets the custom JWT claims.
  */
 export const onUserCreatedHandler = functions
-  .runWith({ maxInstances: 10 })
+  .runWith({maxInstances: 10})
   .auth.user()
   .onCreate(async (user) => {
-    const { uid, email, displayName } = user;
+    const {uid, email, displayName} = user;
     const finalEmail = email || "";
     const finalDisplayName = displayName || email?.split("@")[0] || "Anonymous Garden Guest";
 
