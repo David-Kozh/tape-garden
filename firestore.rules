@@ -18,6 +18,17 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == uid;
     }
 
+    // Helper to validate updates to a producer profile by a non-admin
+    function isProducerProfileUpdateValid() {
+      return !('producerProfile' in resource.data) || (
+        ('producerProfile' in request.resource.data) &&
+        request.resource.data.producerProfile.status == resource.data.producerProfile.status &&
+        request.resource.data.producerProfile.allocatedBeatSlots == resource.data.producerProfile.allocatedBeatSlots &&
+        request.resource.data.producerProfile.allocatedSamplePackSlots == resource.data.producerProfile.allocatedSamplePackSlots &&
+        request.resource.data.producerProfile.lastSlotIncrementDate == resource.data.producerProfile.lastSlotIncrementDate
+      );
+    }
+
     // 1. Users collection security
     match /users/{uid} {
       // Admin can read and write all users
@@ -28,10 +39,13 @@ service cloud.firestore {
       // Direct client creation of user profile documents is blocked for security.
       allow create: if false;
       
-      // Users can only update their own profile, and cannot modify critical fields like 'role'
+      // Users can only update their own profile, and cannot modify critical fields
       allow update: if isAdmin() || (
         isOwner(uid) && 
-        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'uid', 'email', 'createdAt'])
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'uid', 'email', 'createdAt', 'stripeCustomerId', 'stripeAccountId']) &&
+        (
+          resource.data.role != 'producer' || isProducerProfileUpdateValid()
+        )
       );
       
       allow delete: if isAdmin();

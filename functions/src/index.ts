@@ -44,3 +44,93 @@ export const onUserCreatedHandler = functions
     }
   });
 
+interface CreateProducerData {
+  email: string;
+  displayName: string;
+  password?: string;
+  bio?: string;
+  socialLinks?: string[];
+  avatarUrl?: string;
+}
+
+/**
+ * Cloud Function HTTPS Callable: createProducerAccount
+ * Admin-only provisioning tool for creating producer accounts.
+ * Validates admin status, creates user in Firebase Auth, assigns custom claims,
+ * and sets up the Firestore document in /users/{uid} with default producerProfile limits.
+ */
+export const createProducerAccount = functions
+  .runWith({maxInstances: 10})
+  .https.onCall(async (data: unknown, context) => {
+    // 1. Verify that the caller is authenticated and has administrative privileges
+    if (!context.auth || (context.auth.token.role !== "admin" && !context.auth.token.admin)) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "Only authenticated administrators are authorized to provision producer accounts."
+      );
+    }
+
+    const {email, displayName, password, bio, socialLinks, avatarUrl} = (data || {}) as CreateProducerData;
+
+    // 2. Validate input fields
+    if (!email || !displayName) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Both 'email' and 'displayName' are required fields to provision a producer account."
+      );
+    }
+
+    console.log(`[createProducerAccount] Provisioning producer account for: ${email}`);
+
+    try {
+      // 3. Create Identity Platform user account
+      const userRecord = await admin.auth().createUser({
+        email,
+        displayName,
+        password: password || Math.random().toString(36).slice(-10) + "Prod!" + Math.random().toString(36).slice(-2).toUpperCase(),
+      });
+      
+      const uid = userRecord.uid;
+      console.log(`[createProducerAccount] Firebase Auth user created with UID: ${uid}`);
+
+      // 4. Assign producer custom claims
+      await admin.auth().setCustomUserClaims(uid, {
+        role: "producer",
+        producer: true,
+      });
+      console.log(`[createProducerAccount] Custom claims set on UID: ${uid}`);
+
+      // 5. Provision the users Firestore document
+      const db = admin.firestore();
+      await db.collection("users").doc(uid).set({
+        uid: uid,
+        role: "producer",
+        email: email,
+        displayName: displayName,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        stripeCustomerId: null,
+        stripeAccountId: null,
+        producerProfile: {
+          status: "approved",
+          allocatedBeatSlots: 2,
+          allocatedSamplePackSlots: 2,
+          lastSlotIncrementDate: admin.firestore.FieldValue.serverTimestamp(),
+          bio: bio || "",
+          socialLinks: socialLinks || [],
+          avatarUrl: avatarUrl || "",
+        },
+      });
+      console.log(`[createProducerAccount] Firestore users document created for UID: ${uid}`);
+
+      return {success: true, uid};
+    } catch (error) {
+      const err = error as Error;
+      console.error("[createProducerAccount] Error provisioning producer account:", err);
+      throw new functions.https.HttpsError(
+        "internal",
+        err.message || "An unexpected error occurred during producer account creation."
+      );
+    }
+  });
+
+
