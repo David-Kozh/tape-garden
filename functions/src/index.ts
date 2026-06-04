@@ -60,6 +60,7 @@ interface CreateProducerData {
  * and sets up the Firestore document in /users/{uid} with default producerProfile limits.
  */
 export const createProducerAccount = functions
+  .region("us-east1")
   .runWith({maxInstances: 10})
   .https.onCall(async (data: unknown, context) => {
     // 1. Verify that the caller is authenticated and has administrative privileges
