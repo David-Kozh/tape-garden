@@ -10,6 +10,7 @@ admin.initializeApp();
  * Provisions the user document in Firestore with role: "buyer" and sets the custom JWT claims.
  */
 export const onUserCreatedHandler = functions
+  .region("us-east4")
   .runWith({maxInstances: 10})
   .auth.user()
   .onCreate(async (user) => {
@@ -60,7 +61,7 @@ interface CreateProducerData {
  * and sets up the Firestore document in /users/{uid} with default producerProfile limits.
  */
 export const createProducerAccount = functions
-  .region("us-east1")
+  .region("us-east4")
   .runWith({maxInstances: 10})
   .https.onCall(async (data: unknown, context) => {
     // 1. Verify that the caller is authenticated and has administrative privileges
