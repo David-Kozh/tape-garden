@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -29,13 +30,13 @@ export const onUserCreatedHandler = functions
       console.log(`[onUserCreated] Successfully set custom claims (role: buyer) for user: ${uid}`);
 
       // 2. Provision the database profile document in the /users collection
-      const db = admin.firestore();
+      const db = getFirestore(admin.app(), "tape-garden-db");
       await db.collection("users").doc(uid).set({
         uid: uid,
         role: "buyer",
         email: finalEmail,
         displayName: finalDisplayName,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
         stripeCustomerId: null,
       });
       console.log(`[onUserCreated] Successfully created Firestore users document for user: ${uid}`);
@@ -103,20 +104,20 @@ export const createProducerAccount = functions
       console.log(`[createProducerAccount] Custom claims set on UID: ${uid}`);
 
       // 5. Provision the users Firestore document
-      const db = admin.firestore();
+      const db = getFirestore(admin.app(), "tape-garden-db");
       await db.collection("users").doc(uid).set({
         uid: uid,
         role: "producer",
         email: email,
         displayName: displayName,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
         stripeCustomerId: null,
         stripeAccountId: null,
         producerProfile: {
           status: "approved",
           allocatedBeatSlots: 2,
           allocatedSamplePackSlots: 2,
-          lastSlotIncrementDate: admin.firestore.FieldValue.serverTimestamp(),
+          lastSlotIncrementDate: FieldValue.serverTimestamp(),
           bio: bio || "",
           socialLinks: socialLinks || [],
           avatarUrl: avatarUrl || "",
