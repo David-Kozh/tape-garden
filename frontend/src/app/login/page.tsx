@@ -2,12 +2,12 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signInWithPopup, 
-  GoogleAuthProvider, 
-  updateProfile 
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  updateProfile
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
@@ -17,15 +17,15 @@ function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, role, loading: authLoading } = useAuth();
-  
+
   // Tabs: 'signin' | 'register'
   const [activeTab, setActiveTab] = useState<"signin" | "register">("signin");
-  
+
   // Form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  
+
   // UI states
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -55,6 +55,7 @@ function LoginContent() {
   useEffect(() => {
     const tabParam = searchParams.get("tab");
     if (tabParam === "register") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab("register");
     } else if (tabParam === "login") {
       setActiveTab("signin");
@@ -66,16 +67,17 @@ function LoginContent() {
     setError(null);
     setLoading(true);
     const provider = new GoogleAuthProvider();
-    
+
     try {
       await signInWithPopup(auth, provider);
       // Auth state update and redirection will be handled by the useEffect above
-    } catch (err: any) {
-      console.error("Google Sign-In Error:", err);
-      if (err.code === "auth/popup-closed-by-user") {
+    } catch (err: unknown) {
+      const error = err as Error & { code?: string };
+      console.error("Google Sign-In Error:", error);
+      if (error.code === "auth/popup-closed-by-user") {
         setError("Sign-in window was closed before completion.");
       } else {
-        setError(err.message || "An unexpected error occurred during Google sign-in.");
+        setError(error.message || "An unexpected error occurred during Google sign-in.");
       }
       setLoading(false);
     }
@@ -106,7 +108,7 @@ function LoginContent() {
         }
 
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        
+
         // Set display name in Firebase auth profile
         await updateProfile(userCredential.user, {
           displayName: displayName.trim()
@@ -115,11 +117,12 @@ function LoginContent() {
         // Trigger a profile refresh
         await auth.currentUser?.reload();
       }
-    } catch (err: any) {
-      console.error("Email Authentication Error:", err);
-      let friendlyMessage = err.message;
-      
-      switch (err.code) {
+    } catch (err: unknown) {
+      const error = err as Error & { code?: string };
+      console.error("Email Authentication Error:", error);
+      let friendlyMessage = error.message;
+
+      switch (error.code) {
         case "auth/invalid-email":
           friendlyMessage = "The email address is invalid.";
           break;
@@ -154,13 +157,13 @@ function LoginContent() {
 
   return (
     <div className="relative min-h-screen bg-[#08080a] text-zinc-100 selection:bg-emerald-500/20 selection:text-emerald-300 flex flex-col justify-center items-center px-4 overflow-x-hidden font-sans antialiased">
-      
+
       {/* Background Mesh Glows */}
       <div className="absolute top-[-10%] left-[-20%] w-[60%] aspect-square rounded-full bg-emerald-950/10 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-20%] w-[50%] aspect-square rounded-full bg-blue-950/10 blur-[120px] pointer-events-none" />
-      
+
       <div className="w-full max-w-md z-10 flex flex-col gap-8">
-        
+
         {/* Sleek Logo / Header */}
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-lg transition-transform hover:scale-105">
@@ -171,8 +174,8 @@ function LoginContent() {
               {activeTab === "signin" ? "Enter the Garden" : "Join the Garden"}
             </h1>
             <p className="text-sm text-zinc-500 mt-1 max-w-[280px] mx-auto">
-              {activeTab === "signin" 
-                ? "Access your curation dashboard, beats list, and downloads." 
+              {activeTab === "signin"
+                ? "Access your curation dashboard, beats list, and downloads."
                 : "Create an account to browse and acquire curated analog sound assets."
               }
             </p>
@@ -181,9 +184,9 @@ function LoginContent() {
 
         {/* Auth Container Card */}
         <div className="relative rounded-2xl border border-zinc-900 bg-zinc-950/40 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.3)] backdrop-blur-md">
-          
+
           <div className="flex flex-col gap-6">
-            
+
             {/* Google Authentication Button */}
             <button
               onClick={handleGoogleSignIn}
@@ -214,11 +217,10 @@ function LoginContent() {
                   setActiveTab("signin");
                   setError(null);
                 }}
-                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold tracking-tight transition-all duration-300 cursor-pointer ${
-                  activeTab === "signin" 
-                    ? "bg-zinc-850 text-white shadow-sm" 
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
+                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold tracking-tight transition-all duration-300 cursor-pointer ${activeTab === "signin"
+                  ? "bg-zinc-850 text-white shadow-sm"
+                  : "text-zinc-500 hover:text-zinc-300"
+                  }`}
               >
                 Sign In
               </button>
@@ -227,11 +229,10 @@ function LoginContent() {
                   setActiveTab("register");
                   setError(null);
                 }}
-                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold tracking-tight transition-all duration-300 cursor-pointer ${
-                  activeTab === "register" 
-                    ? "bg-zinc-850 text-white shadow-sm" 
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
+                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold tracking-tight transition-all duration-300 cursor-pointer ${activeTab === "register"
+                  ? "bg-zinc-850 text-white shadow-sm"
+                  : "text-zinc-500 hover:text-zinc-300"
+                  }`}
               >
                 Create Account
               </button>
@@ -247,7 +248,7 @@ function LoginContent() {
 
             {/* Custom Input Form */}
             <form onSubmit={handleEmailAuth} className="flex flex-col gap-4">
-              
+
               {/* Full Name field (Register only) */}
               {activeTab === "register" && (
                 <div className="flex flex-col gap-1.5">
