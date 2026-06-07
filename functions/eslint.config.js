@@ -23,7 +23,7 @@ module.exports = [
     rules: {
       "quotes": ["error", "double"],
       "indent": ["error", 2],
-      "object-curly-spacing": ["error", "never"],
+      "object-curly-spacing": ["error", "always"],
     },
   },
   // TypeScript-specific configuration

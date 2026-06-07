@@ -12,10 +12,10 @@ admin.initializeApp();
  */
 export const onUserCreatedHandler = functions
   .region("us-east4")
-  .runWith({maxInstances: 10})
+  .runWith({ maxInstances: 10 })
   .auth.user()
   .onCreate(async (user) => {
-    const {uid, email, displayName} = user;
+    const { uid, email, displayName } = user;
     const finalEmail = email || "";
     const finalDisplayName = displayName || email?.split("@")[0] || "Anonymous Garden Guest";
 
@@ -63,7 +63,7 @@ interface CreateProducerData {
  */
 export const createProducerAccount = functions
   .region("us-east4")
-  .runWith({maxInstances: 10})
+  .runWith({ maxInstances: 10 })
   .https.onCall(async (data: unknown, context) => {
     // 1. Verify that the caller is authenticated and has administrative privileges
     if (!context.auth || (context.auth.token.role !== "admin" && !context.auth.token.admin)) {
@@ -73,7 +73,7 @@ export const createProducerAccount = functions
       );
     }
 
-    const {email, displayName, password, bio, socialLinks, avatarUrl} = (data || {}) as CreateProducerData;
+    const { email, displayName, password, bio, socialLinks, avatarUrl } = (data || {}) as CreateProducerData;
 
     // 2. Validate input fields
     if (!email || !displayName) {
@@ -92,7 +92,7 @@ export const createProducerAccount = functions
         displayName,
         password: password || Math.random().toString(36).slice(-10) + "Prod!" + Math.random().toString(36).slice(-2).toUpperCase(),
       });
-      
+
       const uid = userRecord.uid;
       console.log(`[createProducerAccount] Firebase Auth user created with UID: ${uid}`);
 
@@ -125,7 +125,7 @@ export const createProducerAccount = functions
       });
       console.log(`[createProducerAccount] Firestore users document created for UID: ${uid}`);
 
-      return {success: true, uid};
+      return { success: true, uid };
     } catch (error) {
       const err = error as Error;
       console.error("[createProducerAccount] Error provisioning producer account:", err);
