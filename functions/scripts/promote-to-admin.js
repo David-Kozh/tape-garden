@@ -28,7 +28,8 @@ async function promoteUserToAdmin() {
     
     // Update the corresponding Firestore document in the /users collection
     console.log("Updating role in Firestore users collection...");
-    const db = admin.firestore();
+    const { getFirestore } = require("firebase-admin/firestore");
+    const db = getFirestore(admin.app(), "tape-garden-db");
     await db.collection("users").doc(user.uid).update({
       role: "admin"
     });
