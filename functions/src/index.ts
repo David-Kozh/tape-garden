@@ -86,15 +86,28 @@ export const createProducerAccount = functions
     console.log(`[createProducerAccount] Provisioning producer account for: ${email}`);
 
     try {
-      // 3. Create Identity Platform user account
-      const userRecord = await admin.auth().createUser({
-        email,
-        displayName,
-        password: password || Math.random().toString(36).slice(-10) + "Prod!" + Math.random().toString(36).slice(-2).toUpperCase(),
-      });
-
-      const uid = userRecord.uid;
-      console.log(`[createProducerAccount] Firebase Auth user created with UID: ${uid}`);
+      // 3. Retrieve or Create Identity Platform user account
+      let uid: string;
+      let isNewUser = false;
+      try {
+        const userRecord = await admin.auth().getUserByEmail(email);
+        uid = userRecord.uid;
+        console.log(`[createProducerAccount] Existing Firebase Auth user found with UID: ${uid}`);
+      } catch (error) {
+        const authErr = error as { code?: string };
+        if (authErr.code === "auth/user-not-found") {
+          const userRecord = await admin.auth().createUser({
+            email,
+            displayName,
+            password: password || Math.random().toString(36).slice(-10) + "Prod!" + Math.random().toString(36).slice(-2).toUpperCase(),
+          });
+          uid = userRecord.uid;
+          isNewUser = true;
+          console.log(`[createProducerAccount] Firebase Auth user created with UID: ${uid}`);
+        } else {
+          throw error;
+        }
+      }
 
       // 4. Assign producer custom claims
       await admin.auth().setCustomUserClaims(uid, {
@@ -103,27 +116,40 @@ export const createProducerAccount = functions
       });
       console.log(`[createProducerAccount] Custom claims set on UID: ${uid}`);
 
-      // 5. Provision the users Firestore document
+      // 5. Provision or merge the users Firestore document
       const db = getFirestore(admin.app(), "tape-garden-db");
-      await db.collection("users").doc(uid).set({
-        uid: uid,
-        role: "producer",
-        email: email,
-        displayName: displayName,
-        createdAt: FieldValue.serverTimestamp(),
-        stripeCustomerId: null,
-        stripeAccountId: null,
-        producerProfile: {
-          status: "approved",
-          allocatedBeatSlots: 2,
-          allocatedSamplePackSlots: 2,
-          lastSlotIncrementDate: FieldValue.serverTimestamp(),
-          bio: bio || "",
-          socialLinks: socialLinks || [],
-          avatarUrl: avatarUrl || "",
-        },
-      });
-      console.log(`[createProducerAccount] Firestore users document created for UID: ${uid}`);
+      const userRef = db.collection("users").doc(uid);
+      
+      const producerProfile = {
+        status: "approved",
+        allocatedBeatSlots: 2,
+        allocatedSamplePackSlots: 2,
+        lastSlotIncrementDate: FieldValue.serverTimestamp(),
+        bio: bio || "",
+        socialLinks: socialLinks || [],
+        avatarUrl: avatarUrl || "",
+      };
+
+      if (isNewUser) {
+        await userRef.set({
+          uid: uid,
+          role: "producer",
+          email: email,
+          displayName: displayName,
+          createdAt: FieldValue.serverTimestamp(),
+          stripeCustomerId: null,
+          stripeAccountId: null,
+          producerProfile: producerProfile,
+        });
+        console.log(`[createProducerAccount] Firestore users document created for UID: ${uid}`);
+      } else {
+        // Upgrade existing user by merging fields
+        await userRef.set({
+          role: "producer",
+          producerProfile: producerProfile,
+        }, { merge: true });
+        console.log(`[createProducerAccount] Firestore users document merged/updated for UID: ${uid}`);
+      }
 
       return { success: true, uid };
     } catch (error) {
