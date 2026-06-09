@@ -119,7 +119,7 @@ export const createProducerAccount = functions
       // 5. Provision or merge the users Firestore document
       const db = getFirestore(admin.app(), "tape-garden-db");
       const userRef = db.collection("users").doc(uid);
-      
+
       const producerProfile = {
         status: "approved",
         allocatedBeatSlots: 2,
@@ -146,6 +146,7 @@ export const createProducerAccount = functions
         // Upgrade existing user by merging fields
         await userRef.set({
           role: "producer",
+          stripeAccountId: null,
           producerProfile: producerProfile,
         }, { merge: true });
         console.log(`[createProducerAccount] Firestore users document merged/updated for UID: ${uid}`);
