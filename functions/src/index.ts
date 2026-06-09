@@ -46,22 +46,18 @@ export const onUserCreatedHandler = functions
     }
   });
 
-interface CreateProducerData {
-  email: string;
-  displayName: string;
-  password?: string;
-  bio?: string;
-  socialLinks?: string[];
-  avatarUrl?: string;
+interface ReviewApplicationData {
+  applicationId: string;
+  action: "approve" | "decline";
 }
 
 /**
- * Cloud Function HTTPS Callable: createProducerAccount
- * Admin-only provisioning tool for creating producer accounts.
- * Validates admin status, creates user in Firebase Auth, assigns custom claims,
- * and sets up the Firestore document in /users/{uid} with default producerProfile limits.
+ * Cloud Function HTTPS Callable: reviewApplication
+ * Admin-only tool for reviewing producer applications.
+ * Validates admin status, updates application state, and if approved,
+ * provisions the user account in Firebase Auth and Firestore.
  */
-export const createProducerAccount = functions
+export const reviewApplication = functions
   .region("us-east4")
   .runWith({ maxInstances: 10 })
   .https.onCall(async (data: unknown, context) => {
@@ -69,96 +65,122 @@ export const createProducerAccount = functions
     if (!context.auth || (context.auth.token.role !== "admin" && !context.auth.token.admin)) {
       throw new functions.https.HttpsError(
         "permission-denied",
-        "Only authenticated administrators are authorized to provision producer accounts."
+        "Only authenticated administrators are authorized to review applications."
       );
     }
 
-    const { email, displayName, password, bio, socialLinks, avatarUrl } = (data || {}) as CreateProducerData;
+    const { applicationId, action } = (data || {}) as ReviewApplicationData;
 
     // 2. Validate input fields
-    if (!email || !displayName) {
+    if (!applicationId || !["approve", "decline"].includes(action)) {
       throw new functions.https.HttpsError(
         "invalid-argument",
-        "Both 'email' and 'displayName' are required fields to provision a producer account."
+        "Valid 'applicationId' and 'action' ('approve' or 'decline') are required."
       );
     }
 
-    console.log(`[createProducerAccount] Provisioning producer account for: ${email}`);
+    console.log(`[reviewApplication] Reviewing application ${applicationId} with action: ${action}`);
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    const appRef = db.collection("applications").doc(applicationId);
 
     try {
-      // 3. Retrieve or Create Identity Platform user account
-      let uid: string;
-      let isNewUser = false;
-      try {
-        const userRecord = await admin.auth().getUserByEmail(email);
-        uid = userRecord.uid;
-        console.log(`[createProducerAccount] Existing Firebase Auth user found with UID: ${uid}`);
-      } catch (error) {
-        const authErr = error as { code?: string };
-        if (authErr.code === "auth/user-not-found") {
-          const userRecord = await admin.auth().createUser({
-            email,
-            displayName,
-            password: password || Math.random().toString(36).slice(-10) + "Prod!" + Math.random().toString(36).slice(-2).toUpperCase(),
-          });
-          uid = userRecord.uid;
-          isNewUser = true;
-          console.log(`[createProducerAccount] Firebase Auth user created with UID: ${uid}`);
-        } else {
-          throw error;
+      return await db.runTransaction(async (transaction) => {
+        const appDoc = await transaction.get(appRef);
+        if (!appDoc.exists) {
+          throw new functions.https.HttpsError("not-found", "Application not found.");
         }
-      }
 
-      // 4. Assign producer custom claims
-      await admin.auth().setCustomUserClaims(uid, {
-        role: "producer",
-        producer: true,
-      });
-      console.log(`[createProducerAccount] Custom claims set on UID: ${uid}`);
+        const appData = appDoc.data()!;
+        if (appData.status !== "pending") {
+          throw new functions.https.HttpsError("failed-precondition", "Application is no longer pending.");
+        }
 
-      // 5. Provision or merge the users Firestore document
-      const db = getFirestore(admin.app(), "tape-garden-db");
-      const userRef = db.collection("users").doc(uid);
+        const { email, displayName } = appData;
 
-      const producerProfile = {
-        status: "approved",
-        allocatedBeatSlots: 2,
-        allocatedSamplePackSlots: 2,
-        lastSlotIncrementDate: FieldValue.serverTimestamp(),
-        bio: bio || "",
-        socialLinks: socialLinks || [],
-        avatarUrl: avatarUrl || "",
-      };
+        if (action === "approve") {
+          // Provision Producer Account
+          let uid: string;
+          let isNewUser = false;
+          try {
+            const userRecord = await admin.auth().getUserByEmail(email);
+            uid = userRecord.uid;
+            console.log(`[reviewApplication] Existing Firebase Auth user found with UID: ${uid}`);
+          } catch (error) {
+            const authErr = error as { code?: string };
+            if (authErr.code === "auth/user-not-found") {
+              const userRecord = await admin.auth().createUser({
+                email,
+                displayName,
+                password: Math.random().toString(36).slice(-10) + "Prod!" + Math.random().toString(36).slice(-2).toUpperCase(),
+              });
+              uid = userRecord.uid;
+              isNewUser = true;
+              console.log(`[reviewApplication] Firebase Auth user created with UID: ${uid}`);
+            } else {
+              throw error;
+            }
+          }
 
-      if (isNewUser) {
-        await userRef.set({
-          uid: uid,
-          role: "producer",
-          email: email,
-          displayName: displayName,
-          createdAt: FieldValue.serverTimestamp(),
-          stripeCustomerId: null,
-          stripeAccountId: null,
-          producerProfile: producerProfile,
+          // Assign producer custom claims
+          await admin.auth().setCustomUserClaims(uid, {
+            role: "producer",
+            producer: true,
+          });
+
+          const userRef = db.collection("users").doc(uid);
+          const producerProfile = {
+            status: "approved",
+            allocatedBeatSlots: 2,
+            allocatedSamplePackSlots: 2,
+            lastSlotIncrementDate: FieldValue.serverTimestamp(),
+            bio: "",
+            socialLinks: [],
+            avatarUrl: "",
+          };
+
+          if (isNewUser) {
+            transaction.set(userRef, {
+              uid: uid,
+              role: "producer",
+              email: email,
+              displayName: displayName,
+              createdAt: FieldValue.serverTimestamp(),
+              stripeCustomerId: null,
+              stripeAccountId: null,
+              producerProfile: producerProfile,
+            });
+          } else {
+            transaction.set(userRef, {
+              role: "producer",
+              stripeAccountId: null,
+              producerProfile: producerProfile,
+            }, { merge: true });
+          }
+
+          console.log(`[reviewApplication] Simulated Email Send: Producer application APPROVED for ${email}.`);
+        } else {
+          console.log(`[reviewApplication] Simulated Email Send: Producer application DECLINED for ${email}.`);
+        }
+
+        // Update the application status
+        transaction.update(appRef, {
+          status: action,
+          reviewedBy: context.auth!.uid,
+          reviewedAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
         });
-        console.log(`[createProducerAccount] Firestore users document created for UID: ${uid}`);
-      } else {
-        // Upgrade existing user by merging fields
-        await userRef.set({
-          role: "producer",
-          stripeAccountId: null,
-          producerProfile: producerProfile,
-        }, { merge: true });
-        console.log(`[createProducerAccount] Firestore users document merged/updated for UID: ${uid}`);
-      }
 
-      return { success: true, uid };
+        return { success: true, applicationId, action };
+      });
     } catch (error) {
       const err = error as Error;
-      console.error("[createProducerAccount] Error provisioning producer account:", err);
+      console.error("[reviewApplication] Error reviewing application:", err);
+      // Let existing HttpsError pass through
+      if (err instanceof functions.https.HttpsError) throw err;
       throw new functions.https.HttpsError(
         "internal",
-        err.message || "An unexpected error occurred during producer account creation."
+        err.message || "An unexpected error occurred during application review."
       );
     }
   });

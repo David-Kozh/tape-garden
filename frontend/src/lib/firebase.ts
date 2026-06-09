@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getFunctions } from "firebase/functions";
 
 // Standard Firebase config loaded from client-safe Next.js environment variables.
 // These fallback safely to 'tape-garden' variables.
@@ -20,5 +21,6 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app, "tape-garden-db");
 export const storage = getStorage(app);
+export const functions = getFunctions(app, "us-east4");
 
 export default app;
