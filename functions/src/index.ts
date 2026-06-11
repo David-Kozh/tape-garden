@@ -185,4 +185,69 @@ export const reviewApplication = functions
     }
   });
 
+interface GetProducerProfileData {
+  producerId: string;
+}
 
+/**
+ * Cloud Function HTTPS Callable: getProducerProfile
+ * Public endpoint to fetch a producer's public profile data and their published beats.
+ */
+export const getProducerProfile = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10 })
+  .https.onCall(async (data: unknown) => {
+    const { producerId } = (data || {}) as GetProducerProfileData;
+
+    if (!producerId) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "The function must be called with a 'producerId'."
+      );
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    
+    try {
+      // 1. Fetch the producer profile
+      const userDoc = await db.collection("users").doc(producerId).get();
+      if (!userDoc.exists) {
+        throw new functions.https.HttpsError("not-found", "Producer not found.");
+      }
+      
+      const userData = userDoc.data()!;
+      if (userData.role !== "producer" || userData.producerProfile?.status !== "approved") {
+        throw new functions.https.HttpsError("not-found", "Producer not found or not approved.");
+      }
+
+      // 2. Fetch published beats
+      const beatsSnapshot = await db.collection("beats")
+        .where("producerId", "==", producerId)
+        .where("status", "==", "published")
+        .orderBy("createdAt", "desc")
+        .get();
+        
+      const beats = beatsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      return {
+        profile: {
+          displayName: userData.displayName,
+          bio: userData.producerProfile?.bio || "",
+          avatarUrl: userData.producerProfile?.avatarUrl || "",
+          socialLinks: userData.producerProfile?.socialLinks || [],
+        },
+        beats,
+      };
+    } catch (error) {
+      const err = error as Error;
+      console.error("[getProducerProfile] Error fetching producer profile:", err);
+      if (err instanceof functions.https.HttpsError) throw err;
+      throw new functions.https.HttpsError(
+        "internal",
+        "An unexpected error occurred while fetching the profile."
+      );
+    }
+  });
