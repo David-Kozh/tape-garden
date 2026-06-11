@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { getStorage } from "firebase-admin/storage";
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -207,14 +208,14 @@ export const getProducerProfile = functions
     }
 
     const db = getFirestore(admin.app(), "tape-garden-db");
-    
+
     try {
       // 1. Fetch the producer profile
       const userDoc = await db.collection("users").doc(producerId).get();
       if (!userDoc.exists) {
         throw new functions.https.HttpsError("not-found", "Producer not found.");
       }
-      
+
       const userData = userDoc.data()!;
       if (userData.role !== "producer" || userData.producerProfile?.status !== "approved") {
         throw new functions.https.HttpsError("not-found", "Producer not found or not approved.");
@@ -226,7 +227,7 @@ export const getProducerProfile = functions
         .where("status", "==", "published")
         .orderBy("createdAt", "desc")
         .get();
-        
+
       const beats = beatsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -251,3 +252,170 @@ export const getProducerProfile = functions
       );
     }
   });
+
+interface PublishBeatData {
+  uploadId: string;
+  metadata: {
+    title: string;
+    bpm: number;
+    key: string;
+    tags: string[];
+    licenses: {
+      type: string;
+      price: number;
+      audioPreviewFile: string;
+      stemFile: string;
+    }[];
+  };
+}
+
+/**
+ * Cloud Function HTTPS Callable: publishBeat
+ * Finalizes the beat upload flow by moving files from staging to canonical storage paths,
+ * verifying slot limits, and creating the final document in Firestore.
+ */
+export const publishBeat = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10, timeoutSeconds: 300, memory: "512MB" })
+  .https.onCall(async (data: unknown, context) => {
+    // 1. Authenticate user
+    if (!context.auth) {
+      throw new functions.https.HttpsError("unauthenticated", "You must be logged in to publish a beat.");
+    }
+    const uid = context.auth.uid;
+
+    if (!context.auth.token.producer) {
+      throw new functions.https.HttpsError("permission-denied", "Only approved producers can publish beats.");
+    }
+
+    const { uploadId, metadata } = (data || {}) as PublishBeatData;
+
+    if (!uploadId || !metadata || !metadata.title || !metadata.licenses || metadata.licenses.length === 0) {
+      throw new functions.https.HttpsError("invalid-argument", "Missing required fields to publish beat.");
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    const storage = getStorage(admin.app());
+    // Get default bucket or the emulator one
+    const bucket = storage.bucket();
+
+    try {
+      // 2. Fetch producer profile to check slots
+      const userRef = db.collection("users").doc(uid);
+      const userDoc = await userRef.get();
+
+      if (!userDoc.exists) {
+        throw new functions.https.HttpsError("not-found", "Producer profile not found.");
+      }
+
+      const userData = userDoc.data();
+      const producerProfile = userData?.producerProfile;
+
+      if (!producerProfile || producerProfile.status !== "approved") {
+        throw new functions.https.HttpsError("permission-denied", "Producer is not approved.");
+      }
+
+      const allocatedSlots = producerProfile.allocatedBeatSlots || 0;
+
+      // 3. Check published beats count
+      const beatsQuery = db.collection("beats")
+        .where("producerId", "==", uid)
+        .where("status", "==", "published");
+      const beatsSnapshot = await beatsQuery.count().get();
+      const publishedCount = beatsSnapshot.data().count;
+
+      if (publishedCount >= allocatedSlots) {
+        throw new functions.https.HttpsError("resource-exhausted", "You have reached your beat upload limit. Cannot publish.");
+      }
+
+      // 4. Validate files and move them from staging to canonical path
+      // Generate a new beat ID
+      const newBeatRef = db.collection("beats").doc();
+      const beatId = newBeatRef.id;
+
+      // We expect the frontend to tell us the names of the files in the staging folder.
+      const stagingPrefix = `uploads-staging/${uid}/${uploadId}/`;
+
+      let audioPreviewUrl = "";
+      const finalLicenses = [];
+
+      for (const license of metadata.licenses) {
+        // Move preview
+        const previewSrcPath = `${stagingPrefix}${license.audioPreviewFile}`;
+        const previewDestPath = `previews/beats/${beatId}/${license.audioPreviewFile}`;
+
+        const previewSrcFile = bucket.file(previewSrcPath);
+        const [previewExists] = await previewSrcFile.exists();
+        if (!previewExists) {
+          throw new functions.https.HttpsError("failed-precondition", `Staging file missing: ${previewSrcPath}`);
+        }
+
+        // Check size: 100MB max
+        const [previewMetadata] = await previewSrcFile.getMetadata();
+        if (Number(previewMetadata.size) > 100 * 1024 * 1024) {
+          throw new functions.https.HttpsError("invalid-argument", "Preview file exceeds 100MB limit.");
+        }
+
+        // Move preview file
+        await previewSrcFile.move(previewDestPath);
+
+        // Save preview url (assuming it's public)
+        audioPreviewUrl = previewDestPath; // or generate download URL if needed, but usually we just serve the path
+
+        // Move stems
+        const stemsSrcPath = `${stagingPrefix}${license.stemFile}`;
+        const stemsDestPath = `purchased/beats/${beatId}/${license.type}/${license.stemFile}`;
+
+        const stemsSrcFile = bucket.file(stemsSrcPath);
+        const [stemsExists] = await stemsSrcFile.exists();
+        if (!stemsExists) {
+          throw new functions.https.HttpsError("failed-precondition", `Staging file missing: ${stemsSrcPath}`);
+        }
+
+        // Check size: 500MB max
+        const [stemsFileMeta] = await stemsSrcFile.getMetadata();
+        if (Number(stemsFileMeta.size) > 500 * 1024 * 1024) {
+          throw new functions.https.HttpsError("invalid-argument", "Stems file exceeds 500MB limit.");
+        }
+
+        await stemsSrcFile.move(stemsDestPath);
+
+        finalLicenses.push({
+          type: license.type,
+          price: license.price,
+          fileUrl: stemsDestPath, // store internal path
+        });
+      }
+
+      // 5. Create Firestore document
+      await newBeatRef.set({
+        producerId: uid,
+        title: metadata.title,
+        bpm: metadata.bpm || null,
+        key: metadata.key || "",
+        tags: metadata.tags || [],
+        status: "published",
+        audioPreviewUrl: audioPreviewUrl,
+        licenses: finalLicenses,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+
+      // Attempt to clean up staging folder if there are any remnants, 
+      // but typically we can rely on a TTL policy or cron job in production.
+      try {
+        await bucket.deleteFiles({ prefix: stagingPrefix });
+      } catch (err) {
+        console.warn(`Could not completely clean up staging directory: ${stagingPrefix}`, err);
+      }
+
+      return { success: true, beatId };
+
+    } catch (error) {
+      const err = error as Error;
+      console.error("[publishBeat] Error:", err);
+      if (err instanceof functions.https.HttpsError) throw err;
+      throw new functions.https.HttpsError("internal", err.message || "An unexpected error occurred.");
+    }
+  });
+

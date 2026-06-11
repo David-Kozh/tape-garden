@@ -1,0 +1,29 @@
+rules_version = '2';
+
+// Craft rules based on data in your Firestore database
+// allow write: if firestore.get(
+//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Staging uploads
+    match /uploads-staging/{userId}/{uploadId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Previews can be read by anyone
+    match /previews/beats/{beatId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if false; // Only written by Cloud Function
+    }
+    
+    // Purchased stems/archives can only be read if authorized (to be implemented)
+    // For now, no read access to public/buyers directly via generic path, will use Signed URLs or tighten rules later
+    match /purchased/beats/{beatId}/{licenseType}/{allPaths=**} {
+      allow read, write: if false; // Accessed via Cloud Functions or signed URLs
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
