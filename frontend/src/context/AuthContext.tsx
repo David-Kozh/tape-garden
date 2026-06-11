@@ -16,7 +16,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   role: null,
   loading: true,
-  logout: async () => {},
+  logout: async () => { },
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -32,16 +32,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           // Force refresh the token to get the latest custom claims/roles
           const tokenResult = await firebaseUser.getIdTokenResult(true);
-          
+
           // Set the session cookie for Next.js middleware security
-          document.cookie = `__session=${tokenResult.token}; path=/; max-age=3600; Secure; SameSite=Strict`;
-          
+          const isSecure = window.location.protocol === "https:";
+          document.cookie = `__session=${tokenResult.token}; path=/; max-age=3600; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+
           // Custom claims can be mapped directly to user role.
           // Fallback checking for explicit flags like admin/producer or default to buyer.
-          const userRole = 
-            (tokenResult.claims.role as UserRole) || 
+          const userRole =
+            (tokenResult.claims.role as UserRole) ||
             (tokenResult.claims.admin ? "admin" : tokenResult.claims.producer ? "producer" : "buyer");
-            
+
           setRole(userRole);
         } catch (error) {
           console.error("Failed to load user custom claims:", error);

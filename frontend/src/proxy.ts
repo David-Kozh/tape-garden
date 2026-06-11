@@ -28,7 +28,7 @@ function decodeJwt(token: string) {
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+
   // Read the official Firebase-compatible __session cookie
   const sessionCookie = request.cookies.get("__session")?.value;
 
