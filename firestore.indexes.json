@@ -1,0 +1,23 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "beats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "producerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

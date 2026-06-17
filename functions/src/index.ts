@@ -225,16 +225,13 @@ export const getProducerProfile = functions
       const beatsSnapshot = await db.collection("beats")
         .where("producerId", "==", producerId)
         .where("status", "==", "published")
+        .orderBy("createdAt", "desc")
         .get();
 
       const beats = beatsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
-      })).sort((a: any, b: any) => {
-        const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
-        const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
-        return timeB - timeA;
-      });
+      }));
 
       return {
         profile: {

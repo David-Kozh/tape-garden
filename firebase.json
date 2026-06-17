@@ -1,7 +1,8 @@
 {
   "firestore": {
     "database": "tape-garden-db",
-    "rules": "firestore.rules"
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   },
   "functions": [
     {
