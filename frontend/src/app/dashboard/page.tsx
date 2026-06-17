@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getCountFromServer } from "firebase/firestore";
 import type { User } from "@/types";
-import { Clock, CheckCircle2, AlertCircle, CalendarDays, LineChart } from "lucide-react";
+import { Clock, CheckCircle2, AlertCircle, CalendarDays, LineChart, UserCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function DashboardOverview() {
   const { user } = useAuth();
@@ -81,9 +83,19 @@ export default function DashboardOverview() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Studio Overview</h1>
-        <p className="text-muted-foreground mt-1">Manage your presence and check your slot usage.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Studio Overview</h1>
+          <p className="text-muted-foreground mt-1">Manage your presence and check your slot usage.</p>
+        </div>
+        {user && (
+          <Link href={`/producers/${user.uid}`}>
+            <Button variant="outline" className="gap-2 w-full sm:w-auto">
+              <UserCircle className="w-4 h-4" />
+              View Public Profile
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
