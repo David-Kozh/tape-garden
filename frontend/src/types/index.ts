@@ -62,6 +62,7 @@ export interface Beat {
   bpm: number;
   key: string;
   tags: string[];
+  coverArtUrl?: string;
   status: "draft" | "published";
   createdAt: Date | string;
   updatedAt: Date | string;

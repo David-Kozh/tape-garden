@@ -1,22 +1,13 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PlayCircle, ShoppingCart } from "lucide-react";
-
-interface Beat {
-  id: string;
-  title: string;
-  coverArtUrl?: string;
-  bpm?: number;
-  key?: string;
-  price: number;
-  tags?: string[];
-  producerId: string;
-}
+import { BeatWithProducer } from "@/lib/services/gallery";
 
 interface BeatCardProps {
-  beat: Beat;
+  beat: BeatWithProducer;
 }
 
 export function BeatCard({ beat }: BeatCardProps) {
@@ -55,12 +46,17 @@ export function BeatCard({ beat }: BeatCardProps) {
 
       <CardContent className="p-4">
         <h3 className="font-bold text-lg truncate text-foreground">{beat.title}</h3>
+        <Link href={`/producers/${beat.producer.uid}`} className="text-sm text-muted-foreground hover:text-primary transition-colors inline-block mt-0.5">
+          {beat.producer.displayName}
+        </Link>
         <div className="flex items-center justify-between mt-2 text-sm text-muted-foreground">
           <span className="flex gap-2">
             {beat.bpm && <span>{beat.bpm} BPM</span>}
             {beat.key && <span>{beat.key}</span>}
           </span>
-          <span className="font-medium text-foreground">${beat.price}</span>
+          <span className="font-medium text-foreground">
+            ${beat.licenses?.[0]?.price ?? "29.99"}
+          </span>
         </div>
       </CardContent>
 

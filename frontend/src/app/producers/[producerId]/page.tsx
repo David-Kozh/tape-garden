@@ -18,24 +18,14 @@ interface ProducerProfile {
   socialLinks: Array<{ platform: string; url: string }>;
 }
 
-interface Beat {
-  id: string;
-  title: string;
-  coverArtUrl?: string;
-  bpm?: number;
-  key?: string;
-  price: number;
-  tags?: string[];
-  producerId: string;
-  status: string;
-}
+import { BeatWithProducer } from "@/lib/services/gallery";
 
 export default function ProducerPage() {
   const params = useParams();
   const producerId = params.producerId as string;
 
   const [profile, setProfile] = useState<ProducerProfile | null>(null);
-  const [beats, setBeats] = useState<Beat[]>([]);
+  const [beats, setBeats] = useState<BeatWithProducer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,10 +36,17 @@ export default function ProducerPage() {
       try {
         const getProducerProfile = httpsCallable(functions, "getProducerProfile");
         const result = await getProducerProfile({ producerId });
-        const data = result.data as { profile: ProducerProfile; beats: Beat[] };
-        
+        const data = result.data as { profile: ProducerProfile; beats: any[] };
+
         setProfile(data.profile);
-        setBeats(data.beats);
+        setBeats(data.beats.map(b => ({
+          ...b,
+          producer: {
+            uid: producerId,
+            displayName: data.profile.displayName,
+            avatarUrl: data.profile.avatarUrl
+          }
+        } as BeatWithProducer)));
       } catch (err: unknown) {
         console.error("Error fetching producer profile:", err);
         setError((err as Error).message || "Failed to load producer profile.");
@@ -114,7 +111,7 @@ export default function ProducerPage() {
           <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
             {profile.displayName}
           </h1>
-          
+
           {profile.bio && (
             <p className="text-muted-foreground leading-relaxed">
               {profile.bio}
@@ -124,10 +121,10 @@ export default function ProducerPage() {
           {profile.socialLinks && profile.socialLinks.length > 0 && (
             <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
               {profile.socialLinks.map((link, idx) => (
-                <a 
-                  key={idx} 
-                  href={link.url} 
-                  target="_blank" 
+                <a
+                  key={idx}
+                  href={link.url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className={buttonVariants({ variant: "secondary", size: "sm", className: "rounded-full gap-2" })}
                 >
