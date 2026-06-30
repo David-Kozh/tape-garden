@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
+import { AudioProvider } from "@/context/AudioContext";
+import { AudioPlayer } from "@/components/AudioPlayer";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -34,8 +36,13 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <AuthProvider>{children}</AuthProvider>
+      <body className="min-h-full flex flex-col pb-24">
+        <AuthProvider>
+          <AudioProvider>
+            {children}
+            <AudioPlayer />
+          </AudioProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>

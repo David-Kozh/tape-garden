@@ -85,7 +85,7 @@ export default function SettingsPage() {
                   const parsed = JSON.parse(link as unknown as string);
                   if (parsed.platform && parsed.url) return parsed;
                   return { platform: "Other", url: link };
-                } catch (e) {
+                } catch {
                   return { platform: "Other", url: link };
                 }
               }) : [],
@@ -145,9 +145,9 @@ export default function SettingsPage() {
           notify("Avatar Uploaded", "Your new avatar has been uploaded. Don't forget to save your settings.");
         }
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Upload error:", error);
-      notify("Upload Failed", error.message, "error");
+      notify("Upload Failed", (error as Error).message, "error");
       setUploadingAvatar(false);
     }
   };
@@ -165,7 +165,7 @@ export default function SettingsPage() {
         .filter(link => link.url && link.url.trim() !== "")
         .map(link => JSON.stringify(link));
 
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         displayName: data.displayName,
       };
 
@@ -176,9 +176,9 @@ export default function SettingsPage() {
 
       await updateDoc(docRef, updateData);
       notify("Success", "Profile updated successfully!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error updating profile:", error);
-      notify("Error", error.message || "Failed to update profile.", "error");
+      notify("Error", (error as Error).message || "Failed to update profile.", "error");
     } finally {
       setSaving(false);
     }

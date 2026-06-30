@@ -1,13 +1,14 @@
-import { collection, query, where, getDocs, limit, orderBy, documentId, startAfter, QueryDocumentSnapshot } from "firebase/firestore";
+import { collection, query, where, getDocs, limit, orderBy, documentId, startAfter, QueryDocumentSnapshot, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { Beat, User } from "../../types";
+import { Beat, User, BeatLicense } from "../../types";
 
-export interface BeatWithProducer extends Beat {
+export interface BeatWithProducer extends Omit<Beat, "licenses"> {
   producer: {
     uid: string;
     displayName: string;
     avatarUrl?: string;
   };
+  licenses: Omit<BeatLicense, "fileUrl">[];
 }
 
 export interface GetBeatsOptions {
@@ -72,8 +73,16 @@ export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<
 
   const beatsWithProducers: BeatWithProducer[] = beats.map(beat => {
     const producer = producersMap.get(beat.producerId);
+    
+    // Strip fileUrl for safety before returning to UI
+    const safeLicenses = beat.licenses?.map(license => ({
+      type: license.type,
+      price: license.price
+    })) as Omit<BeatLicense, "fileUrl">[];
+
     return {
       ...beat,
+      licenses: safeLicenses,
       producer: {
         uid: beat.producerId,
         displayName: producer?.displayName || "Unknown Producer",
@@ -85,6 +94,50 @@ export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<
   return {
     beats: beatsWithProducers,
     lastDoc: snapshot.docs[snapshot.docs.length - 1] || null
+  };
+}
+
+export async function getBeatById(id: string): Promise<BeatWithProducer | null> {
+  const beatRef = doc(db, "beats", id);
+  const beatSnap = await getDoc(beatRef);
+  
+  if (!beatSnap.exists()) {
+    return null;
+  }
+  
+  const beatData = { id: beatSnap.id, ...beatSnap.data() } as Beat;
+  
+  // We should not return fileUrl in public functions, so we strip it from licenses
+  const safeLicenses = beatData.licenses?.map(license => {
+    return { type: license.type, price: license.price };
+  }) as Omit<BeatLicense, "fileUrl">[]; // We strip a required field for the frontend view. It's safer to strip it here.
+  
+  const safeBeat = {
+    ...beatData,
+    licenses: safeLicenses
+  };
+
+  const producerRef = doc(db, "users", safeBeat.producerId);
+  const producerSnap = await getDoc(producerRef);
+  
+  let producerInfo = {
+    uid: safeBeat.producerId,
+    displayName: "Unknown Producer",
+    avatarUrl: undefined as string | undefined,
+  };
+
+  if (producerSnap.exists()) {
+    const producerData = producerSnap.data() as User;
+    producerInfo = {
+      uid: producerSnap.id,
+      displayName: producerData.displayName,
+      avatarUrl: producerData.producerProfile?.avatarUrl,
+    };
+  }
+
+  return {
+    ...safeBeat,
+    producer: producerInfo
   };
 }
 

@@ -36,7 +36,7 @@ export default function ProducerPage() {
       try {
         const getProducerProfile = httpsCallable(functions, "getProducerProfile");
         const result = await getProducerProfile({ producerId });
-        const data = result.data as { profile: ProducerProfile; beats: any[] };
+        const data = result.data as { profile: ProducerProfile; beats: Record<string, unknown>[] };
 
         setProfile(data.profile);
         setBeats(data.beats.map(b => ({
