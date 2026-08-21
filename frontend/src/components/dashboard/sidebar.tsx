@@ -22,7 +22,7 @@ const NAV_ITEMS = [
     title: "Uploads",
     href: "/dashboard/uploads",
     icon: Upload,
-    disabled: true,
+    disabled: false,
   },
   {
     title: "Collection",
@@ -34,7 +34,7 @@ const NAV_ITEMS = [
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
-    disabled: true,
+    disabled: false,
   },
 ];
 
