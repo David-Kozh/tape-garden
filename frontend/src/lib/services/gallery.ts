@@ -1,6 +1,8 @@
-import { collection, query, where, getDocs, limit, orderBy, documentId, startAfter, QueryDocumentSnapshot, doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase";
+"use server";
+
+import { adminDb } from "../firebase-admin";
 import { Beat, User, BeatLicense } from "../../types";
+import { Query, QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 export interface BeatWithProducer extends Omit<Beat, "licenses"> {
   producer: {
@@ -14,36 +16,40 @@ export interface BeatWithProducer extends Omit<Beat, "licenses"> {
 export interface GetBeatsOptions {
   tags?: string[];
   limitCount?: number;
-  lastDoc?: QueryDocumentSnapshot;
+  lastDocId?: string;
 }
 
-export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<{ beats: BeatWithProducer[], lastDoc: QueryDocumentSnapshot | null }> {
-  const beatsRef = collection(db, "beats");
+export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<{ beats: BeatWithProducer[], lastDocId: string | null }> {
+  const beatsRef = adminDb.collection("beats");
   
-  let q = query(
-    beatsRef,
-    where("status", "==", "published")
-  );
+  let q: Query = beatsRef.where("status", "==", "published");
 
   if (options.tags && options.tags.length > 0) {
-    // Firestore only supports one array-contains per query, so we use array-contains-any for multiple or array-contains for one
-    q = query(q, where("tags", "array-contains-any", options.tags));
+    q = q.where("tags", "array-contains-any", options.tags);
   }
 
-  q = query(q, orderBy("createdAt", "desc"));
+  q = q.orderBy("createdAt", "desc");
 
   if (options.limitCount) {
-    q = query(q, limit(options.limitCount));
+    q = q.limit(options.limitCount);
   } else {
-    q = query(q, limit(20)); // Default limit
+    q = q.limit(20);
   }
 
-  if (options.lastDoc) {
-    q = query(q, startAfter(options.lastDoc));
+  if (options.lastDocId) {
+    const lastDocSnap = await beatsRef.doc(options.lastDocId).get();
+    if (lastDocSnap.exists) {
+      q = q.startAfter(lastDocSnap);
+    }
   }
 
-  const snapshot = await getDocs(q);
-  const beats = snapshot.docs.map(doc => {
+  const snapshot = await q.get();
+  
+  if (snapshot.empty) {
+    return { beats: [], lastDocId: null };
+  }
+
+  const beats = snapshot.docs.map((doc: QueryDocumentSnapshot) => {
     const data = doc.data();
     return {
       id: doc.id,
@@ -53,37 +59,27 @@ export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<
     } as Beat;
   });
   
-  if (beats.length === 0) {
-    return { beats: [], lastDoc: null };
-  }
-
   // Extract unique producer IDs
-  const producerIds = Array.from(new Set(beats.map(b => b.producerId)));
+  const producerIds = Array.from(new Set(beats.map((b: Beat) => b.producerId)));
   
-  // Fetch producers
-  const producersMap = new Map<string, User>();
+  // Fetch producers using Promise.all to securely grab display names
+  const producersMap = new Map<string, any>();
   if (producerIds.length > 0) {
-    // Note: 'in' queries support max 10 values. If more than 10, need to chunk.
-    const chunkedProducerIds = [];
-    for (let i = 0; i < producerIds.length; i += 10) {
-      chunkedProducerIds.push(producerIds.slice(i, i + 10));
-    }
-    
-    for (const chunk of chunkedProducerIds) {
-      const usersRef = collection(db, "users");
-      const usersQ = query(usersRef, where(documentId(), "in", chunk));
-      const usersSnap = await getDocs(usersQ);
-      usersSnap.forEach(doc => {
-        producersMap.set(doc.id, { uid: doc.id, ...doc.data() } as User);
-      });
+    const producerDocs = await Promise.all(
+      producerIds.map(id => adminDb.collection("users").doc(id).get())
+    );
+    for (const doc of producerDocs) {
+      if (doc.exists) {
+        producersMap.set(doc.id, { uid: doc.id, ...doc.data() });
+      }
     }
   }
 
-  const beatsWithProducers: BeatWithProducer[] = beats.map(beat => {
+  const beatsWithProducers: BeatWithProducer[] = beats.map((beat: Beat) => {
     const producer = producersMap.get(beat.producerId);
     
     // Strip fileUrl for safety before returning to UI
-    const safeLicenses = beat.licenses?.map(license => ({
+    const safeLicenses = beat.licenses?.map((license: BeatLicense) => ({
       type: license.type,
       price: license.price
     })) as Omit<BeatLicense, "fileUrl">[];
@@ -94,26 +90,26 @@ export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<
       producer: {
         uid: beat.producerId,
         displayName: producer?.displayName || "Unknown Producer",
-        avatarUrl: producer?.producerProfile?.avatarUrl || undefined,
+        avatarUrl: producer?.producerProfile?.avatarUrl,
       }
     };
   });
 
   return JSON.parse(JSON.stringify({
     beats: beatsWithProducers,
-    lastDoc: snapshot.docs[snapshot.docs.length - 1] || null
+    lastDocId: snapshot.docs[snapshot.docs.length - 1]?.id || null
   }));
 }
 
 export async function getBeatById(id: string): Promise<BeatWithProducer | null> {
-  const beatRef = doc(db, "beats", id);
-  const beatSnap = await getDoc(beatRef);
+  const beatRef = adminDb.collection("beats").doc(id);
+  const beatSnap = await beatRef.get();
   
-  if (!beatSnap.exists()) {
+  if (!beatSnap.exists) {
     return null;
   }
   
-  const data = beatSnap.data();
+  const data = beatSnap.data()!;
   const beatData = { 
     id: beatSnap.id, 
     ...data,
@@ -124,23 +120,22 @@ export async function getBeatById(id: string): Promise<BeatWithProducer | null> 
   // We should not return fileUrl in public functions, so we strip it from licenses
   const safeLicenses = beatData.licenses?.map(license => {
     return { type: license.type, price: license.price };
-  }) as Omit<BeatLicense, "fileUrl">[]; // We strip a required field for the frontend view. It's safer to strip it here.
+  }) as Omit<BeatLicense, "fileUrl">[];
   
   const safeBeat = {
     ...beatData,
     licenses: safeLicenses
   };
 
-  const producerRef = doc(db, "users", safeBeat.producerId);
-  const producerSnap = await getDoc(producerRef);
+  const producerRef = adminDb.collection("users").doc(safeBeat.producerId);
+  const producerSnap = await producerRef.get();
   
   let producerInfo = {
     uid: safeBeat.producerId,
     displayName: "Unknown Producer",
-    avatarUrl: undefined as string | undefined,
-  };
+  } as any;
 
-  if (producerSnap.exists()) {
+  if (producerSnap.exists) {
     const producerData = producerSnap.data() as User;
     producerInfo = {
       uid: producerSnap.id,
@@ -157,32 +152,33 @@ export async function getBeatById(id: string): Promise<BeatWithProducer | null> 
 
 export interface GetProducersOptions {
   limitCount?: number;
-  lastDoc?: QueryDocumentSnapshot;
+  lastDocId?: string;
 }
 
-export async function getApprovedProducers(options: GetProducersOptions = {}): Promise<{ producers: User[], lastDoc: QueryDocumentSnapshot | null }> {
-  const usersRef = collection(db, "users");
+export async function getApprovedProducers(options: GetProducersOptions = {}): Promise<{ producers: User[], lastDocId: string | null }> {
+  const usersRef = adminDb.collection("users");
   
-  let q = query(
-    usersRef,
-    where("role", "==", "producer"),
-    where("producerProfile.status", "==", "approved"),
-    orderBy("createdAt", "desc")
-  );
+  let q: Query = usersRef
+    .where("role", "==", "producer")
+    .where("producerProfile.status", "==", "approved")
+    .orderBy("createdAt", "desc");
 
   if (options.limitCount) {
-    q = query(q, limit(options.limitCount));
+    q = q.limit(options.limitCount);
   } else {
-    q = query(q, limit(20)); // Default limit
+    q = q.limit(20);
   }
 
-  if (options.lastDoc) {
-    q = query(q, startAfter(options.lastDoc));
+  if (options.lastDocId) {
+    const lastDocSnap = await usersRef.doc(options.lastDocId).get();
+    if (lastDocSnap.exists) {
+      q = q.startAfter(lastDocSnap);
+    }
   }
 
-  const snapshot = await getDocs(q);
-  const producers = snapshot.docs.map(doc => {
-    const data = doc.data();
+  const snapshot = await q.get();
+  const producers = snapshot.docs.map((doc: QueryDocumentSnapshot) => {
+    const data = doc.data()!;
     const profile = data.producerProfile;
     return {
       uid: doc.id,
@@ -197,6 +193,6 @@ export async function getApprovedProducers(options: GetProducersOptions = {}): P
 
   return JSON.parse(JSON.stringify({
     producers,
-    lastDoc: snapshot.docs[snapshot.docs.length - 1] || null
+    lastDocId: snapshot.docs[snapshot.docs.length - 1]?.id || null
   }));
 }
