@@ -99,10 +99,10 @@ export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<
     };
   });
 
-  return {
+  return JSON.parse(JSON.stringify({
     beats: beatsWithProducers,
     lastDoc: snapshot.docs[snapshot.docs.length - 1] || null
-  };
+  }));
 }
 
 export async function getBeatById(id: string): Promise<BeatWithProducer | null> {
@@ -149,10 +149,10 @@ export async function getBeatById(id: string): Promise<BeatWithProducer | null> 
     };
   }
 
-  return {
+  return JSON.parse(JSON.stringify({
     ...safeBeat,
     producer: producerInfo
-  };
+  }));
 }
 
 export interface GetProducersOptions {
@@ -195,8 +195,8 @@ export async function getApprovedProducers(options: GetProducersOptions = {}): P
     } as User;
   });
 
-  return {
+  return JSON.parse(JSON.stringify({
     producers,
     lastDoc: snapshot.docs[snapshot.docs.length - 1] || null
-  };
+  }));
 }
