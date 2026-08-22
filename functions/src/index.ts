@@ -360,7 +360,7 @@ export const publishBeat = functions
         await previewSrcFile.move(previewDestPath);
 
         // Save preview url (assuming it's public)
-        audioPreviewUrl = previewDestPath; // or generate download URL if needed, but usually we just serve the path
+        audioPreviewUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(previewDestPath)}?alt=media`;
 
         // Move stems
         const stemsSrcPath = `${stagingPrefix}${license.stemFile}`;

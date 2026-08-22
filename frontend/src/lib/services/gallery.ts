@@ -43,7 +43,15 @@ export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<
   }
 
   const snapshot = await getDocs(q);
-  const beats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Beat));
+  const beats = snapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
+      updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : data.updatedAt
+    } as Beat;
+  });
   
   if (beats.length === 0) {
     return { beats: [], lastDoc: null };
@@ -105,7 +113,13 @@ export async function getBeatById(id: string): Promise<BeatWithProducer | null> 
     return null;
   }
   
-  const beatData = { id: beatSnap.id, ...beatSnap.data() } as Beat;
+  const data = beatSnap.data();
+  const beatData = { 
+    id: beatSnap.id, 
+    ...data,
+    createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
+    updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : data.updatedAt
+  } as Beat;
   
   // We should not return fileUrl in public functions, so we strip it from licenses
   const safeLicenses = beatData.licenses?.map(license => {
@@ -167,7 +181,19 @@ export async function getApprovedProducers(options: GetProducersOptions = {}): P
   }
 
   const snapshot = await getDocs(q);
-  const producers = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() } as User));
+  const producers = snapshot.docs.map(doc => {
+    const data = doc.data();
+    const profile = data.producerProfile;
+    return {
+      uid: doc.id,
+      ...data,
+      createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
+      producerProfile: profile ? {
+        ...profile,
+        lastSlotIncrementDate: profile.lastSlotIncrementDate?.toDate ? profile.lastSlotIncrementDate.toDate().toISOString() : profile.lastSlotIncrementDate
+      } : null
+    } as User;
+  });
 
   return {
     producers,

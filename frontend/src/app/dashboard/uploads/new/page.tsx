@@ -26,7 +26,7 @@ export default function NewBeatUpload() {
   const [key, setKey] = useState("");
   const [tags, setTags] = useState("");
   const [price, setPrice] = useState("29.99");
-  
+
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [stemsFile, setStemsFile] = useState<File | null>(null);
 
@@ -149,12 +149,12 @@ export default function NewBeatUpload() {
       // Upload Preview
       setUploadStatus("Uploading preview audio...");
       await uploadFile(previewFile, `uploads-staging/${user.uid}/${uploadId}/${previewFileName}`);
-      setUploadProgress(50); // Hardcoded mid-point for UX
+      setUploadProgress(35); // Hardcoded mid-point for UX
 
       // Upload Stems
       setUploadStatus("Uploading stems archive...");
       await uploadFile(stemsFile, `uploads-staging/${user.uid}/${uploadId}/${stemsFileName}`);
-      setUploadProgress(100);
+      setUploadProgress(90);
 
       setUploadStatus("Finalizing beat publication...");
 
@@ -177,7 +177,7 @@ export default function NewBeatUpload() {
           ]
         }
       });
-
+      setUploadProgress(100);
       setUploadStatus("Success! Redirecting...");
       setTimeout(() => {
         router.push("/dashboard");
@@ -265,7 +265,7 @@ export default function NewBeatUpload() {
                 disabled={isUploading}
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label htmlFor="bpm" className="text-sm font-medium">BPM</label>
@@ -320,9 +320,9 @@ export default function NewBeatUpload() {
                 Audio Preview * <span className="text-xs text-muted-foreground font-normal">(Max 100MB)</span>
               </label>
               <div className="flex items-center gap-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => fileInputRef1.current?.click()}
                   disabled={isUploading}
                 >
@@ -347,9 +347,9 @@ export default function NewBeatUpload() {
                 Stems Archive (.zip) * <span className="text-xs text-muted-foreground font-normal">(Max 500MB)</span>
               </label>
               <div className="flex items-center gap-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   onClick={() => fileInputRef2.current?.click()}
                   disabled={isUploading}
                 >
@@ -407,8 +407,8 @@ export default function NewBeatUpload() {
                   <span className="font-medium">{Math.round(uploadProgress)}%</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                  <div 
-                    className="bg-primary h-2 rounded-full transition-all duration-300" 
+                  <div
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
                     style={{ width: `${uploadProgress}%` }}
                   ></div>
                 </div>
@@ -419,9 +419,9 @@ export default function NewBeatUpload() {
               </p>
             )}
           </div>
-          <Button 
-            type="submit" 
-            size="lg" 
+          <Button
+            type="submit"
+            size="lg"
             disabled={isUploading || !title || !previewFile || !stemsFile || !price}
             className="gap-2"
           >
