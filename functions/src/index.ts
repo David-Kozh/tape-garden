@@ -543,14 +543,14 @@ export const updateProducerAccount = functions
             // Re-enable Auth
             await admin.auth().updateUser(producerId, { disabled: false });
 
-            // Restore items
+            // Restore items to hidden instead of published
             const beatsQuery = await db.collection("beats")
               .where("producerId", "==", producerId)
               .where("status", "==", "suspended")
               .get();
               
             beatsQuery.forEach((doc) => {
-              transaction.update(doc.ref, { status: "published", updatedAt: FieldValue.serverTimestamp() });
+              transaction.update(doc.ref, { status: "hidden", updatedAt: FieldValue.serverTimestamp() });
             });
 
             const packsQuery = await db.collection("samplePacks")
@@ -559,7 +559,7 @@ export const updateProducerAccount = functions
               .get();
 
             packsQuery.forEach((doc) => {
-              transaction.update(doc.ref, { status: "published", updatedAt: FieldValue.serverTimestamp() });
+              transaction.update(doc.ref, { status: "hidden", updatedAt: FieldValue.serverTimestamp() });
             });
           }
         }

@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
 import type { Beat, SamplePack } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Upload, Music, Archive } from "lucide-react";
+import { Upload, Music, Archive, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 export default function UploadsDashboard() {
   const { user } = useAuth();
@@ -35,6 +36,23 @@ export default function UploadsDashboard() {
     }
     fetchUploads();
   }, [user]);
+
+  const toggleStatus = async (collectionName: "beats" | "samplePacks", id: string, currentStatus: string) => {
+    const newStatus = currentStatus === "published" ? "hidden" : "published";
+    try {
+      await updateDoc(doc(db, collectionName, id), { status: newStatus });
+      
+      if (collectionName === "beats") {
+        setBeats(beats.map(b => b.id === id ? { ...b, status: newStatus } : b));
+      } else {
+        setPacks(packs.map(p => p.id === id ? { ...p, status: newStatus } : p));
+      }
+      toast.success(`Item successfully ${newStatus === "published" ? "published" : "hidden"}.`);
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status.");
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -76,6 +94,18 @@ export default function UploadsDashboard() {
                         <p className="font-medium text-foreground">{beat.title}</p>
                         <p className="text-xs text-muted-foreground capitalize">{beat.status} • {beat.bpm} BPM</p>
                       </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-muted-foreground hover:text-foreground"
+                        onClick={() => toggleStatus("beats", beat.id, beat.status)}
+                      >
+                        {beat.status === "published" ? (
+                          <><EyeOff className="w-4 h-4 mr-2" /> Hide</>
+                        ) : (
+                          <><Eye className="w-4 h-4 mr-2" /> Publish</>
+                        )}
+                      </Button>
                     </li>
                   ))}
                 </ul>
@@ -102,6 +132,18 @@ export default function UploadsDashboard() {
                         <p className="font-medium text-foreground">{pack.title}</p>
                         <p className="text-xs text-muted-foreground capitalize">{pack.status} • ${pack.price}</p>
                       </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-muted-foreground hover:text-foreground"
+                        onClick={() => toggleStatus("samplePacks", pack.id, pack.status)}
+                      >
+                        {pack.status === "published" ? (
+                          <><EyeOff className="w-4 h-4 mr-2" /> Hide</>
+                        ) : (
+                          <><Eye className="w-4 h-4 mr-2" /> Publish</>
+                        )}
+                      </Button>
                     </li>
                   ))}
                 </ul>

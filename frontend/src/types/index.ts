@@ -63,7 +63,7 @@ export interface Beat {
   key: string;
   tags: string[];
   coverArtUrl?: string;
-  status: "draft" | "published";
+  status: "draft" | "published" | "hidden" | "suspended";
   createdAt: Date | string;
   updatedAt: Date | string;
   
@@ -85,7 +85,7 @@ export interface SamplePack {
   description: string;
   tags: string[];
   price: number;
-  status: "draft" | "published";
+  status: "draft" | "published" | "hidden" | "suspended";
   createdAt: Date | string;
   updatedAt: Date | string;
   
