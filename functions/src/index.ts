@@ -419,3 +419,163 @@ export const publishBeat = functions
     }
   });
 
+/**
+ * Cloud Function HTTPS Callable: getAdminProducers
+ * Admin-only endpoint to list all producers with their upload counts.
+ */
+export const getAdminProducers = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10 })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth || (context.auth.token.role !== "admin" && !context.auth.token.admin)) {
+      throw new functions.https.HttpsError("permission-denied", "Only admins can view producers.");
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    
+    try {
+      const usersSnap = await db.collection("users").where("role", "==", "producer").get();
+      
+      const producers = await Promise.all(usersSnap.docs.map(async (doc) => {
+        const userData = doc.data();
+        
+        // Count published beats
+        const beatsSnap = await db.collection("beats")
+          .where("producerId", "==", doc.id)
+          .where("status", "==", "published")
+          .count().get();
+          
+        // Count published sample packs
+        const packsSnap = await db.collection("samplePacks")
+          .where("producerId", "==", doc.id)
+          .where("status", "==", "published")
+          .count().get();
+
+        return {
+          uid: doc.id,
+          email: userData.email,
+          displayName: userData.displayName,
+          createdAt: userData.createdAt,
+          producerProfile: userData.producerProfile || {},
+          stats: {
+            publishedBeatsCount: beatsSnap.data().count,
+            publishedSamplePacksCount: packsSnap.data().count
+          }
+        };
+      }));
+
+      return { producers };
+    } catch (error) {
+      console.error("[getAdminProducers] Error:", error);
+      throw new functions.https.HttpsError("internal", "Failed to fetch producers");
+    }
+  });
+
+interface UpdateProducerAccountData {
+  producerId: string;
+  status: "approved" | "suspended" | "pending" | "declined";
+  allocatedBeatSlots: number;
+  allocatedSamplePackSlots: number;
+}
+
+/**
+ * Cloud Function HTTPS Callable: updateProducerAccount
+ * Admin-only endpoint to modify producer slots or suspend their account.
+ */
+export const updateProducerAccount = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10 })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth || (context.auth.token.role !== "admin" && !context.auth.token.admin)) {
+      throw new functions.https.HttpsError("permission-denied", "Only admins can update producers.");
+    }
+
+    const { producerId, status, allocatedBeatSlots, allocatedSamplePackSlots } = (data || {}) as UpdateProducerAccountData;
+
+    if (!producerId) {
+      throw new functions.https.HttpsError("invalid-argument", "Missing producerId");
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    const userRef = db.collection("users").doc(producerId);
+
+    try {
+      await db.runTransaction(async (transaction) => {
+        const userDoc = await transaction.get(userRef);
+        if (!userDoc.exists) {
+          throw new functions.https.HttpsError("not-found", "Producer not found.");
+        }
+
+        const userData = userDoc.data()!;
+        if (userData.role !== "producer") {
+          throw new functions.https.HttpsError("failed-precondition", "User is not a producer.");
+        }
+
+        const currentProfile = userData.producerProfile || {};
+        const oldStatus = currentProfile.status;
+
+        // Perform status transition logic
+        if (oldStatus !== status) {
+          if (status === "suspended") {
+            // Disable Auth
+            await admin.auth().updateUser(producerId, { disabled: true });
+
+            // Query items to soft delete
+            const beatsQuery = await db.collection("beats")
+              .where("producerId", "==", producerId)
+              .where("status", "==", "published")
+              .get();
+              
+            beatsQuery.forEach((doc) => {
+              transaction.update(doc.ref, { status: "suspended", updatedAt: FieldValue.serverTimestamp() });
+            });
+
+            const packsQuery = await db.collection("samplePacks")
+              .where("producerId", "==", producerId)
+              .where("status", "==", "published")
+              .get();
+
+            packsQuery.forEach((doc) => {
+              transaction.update(doc.ref, { status: "suspended", updatedAt: FieldValue.serverTimestamp() });
+            });
+
+          } else if (oldStatus === "suspended" && status === "approved") {
+            // Re-enable Auth
+            await admin.auth().updateUser(producerId, { disabled: false });
+
+            // Restore items
+            const beatsQuery = await db.collection("beats")
+              .where("producerId", "==", producerId)
+              .where("status", "==", "suspended")
+              .get();
+              
+            beatsQuery.forEach((doc) => {
+              transaction.update(doc.ref, { status: "published", updatedAt: FieldValue.serverTimestamp() });
+            });
+
+            const packsQuery = await db.collection("samplePacks")
+              .where("producerId", "==", producerId)
+              .where("status", "==", "suspended")
+              .get();
+
+            packsQuery.forEach((doc) => {
+              transaction.update(doc.ref, { status: "published", updatedAt: FieldValue.serverTimestamp() });
+            });
+          }
+        }
+
+        // Update User Doc
+        transaction.update(userRef, {
+          "producerProfile.status": status !== undefined ? status : currentProfile.status,
+          "producerProfile.allocatedBeatSlots": allocatedBeatSlots !== undefined ? allocatedBeatSlots : currentProfile.allocatedBeatSlots,
+          "producerProfile.allocatedSamplePackSlots": allocatedSamplePackSlots !== undefined ? allocatedSamplePackSlots : currentProfile.allocatedSamplePackSlots,
+        });
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error("[updateProducerAccount] Error:", error);
+      if (error instanceof functions.https.HttpsError) throw error;
+      throw new functions.https.HttpsError("internal", "An error occurred while updating the producer account.");
+    }
+  });

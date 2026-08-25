@@ -63,7 +63,7 @@ export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<
   const producerIds = Array.from(new Set(beats.map((b: Beat) => b.producerId)));
   
   // Fetch producers using Promise.all to securely grab display names
-  const producersMap = new Map<string, any>();
+  const producersMap = new Map<string, Partial<User> & { uid: string }>();
   if (producerIds.length > 0) {
     const producerDocs = await Promise.all(
       producerIds.map(id => adminDb.collection("users").doc(id).get())
@@ -130,10 +130,10 @@ export async function getBeatById(id: string): Promise<BeatWithProducer | null> 
   const producerRef = adminDb.collection("users").doc(safeBeat.producerId);
   const producerSnap = await producerRef.get();
   
-  let producerInfo = {
+  let producerInfo: { uid: string; displayName: string; avatarUrl?: string } = {
     uid: safeBeat.producerId,
     displayName: "Unknown Producer",
-  } as any;
+  };
 
   if (producerSnap.exists) {
     const producerData = producerSnap.data() as User;
