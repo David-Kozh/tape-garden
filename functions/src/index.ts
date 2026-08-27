@@ -166,7 +166,7 @@ export const reviewApplication = functions
 
         // Update the application status
         transaction.update(appRef, {
-          status: action,
+          status: action === "approve" ? "approved" : "declined",
           reviewedBy: context.auth!.uid,
           reviewedAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
