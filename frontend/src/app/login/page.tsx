@@ -41,7 +41,7 @@ function LoginContent() {
       } else {
         // Redirection based on role claim
         if (role === "admin") {
-          router.push("/admin");
+          router.push("/admin/users");
         } else if (role === "producer") {
           router.push("/dashboard");
         } else {
@@ -322,7 +322,7 @@ function LoginContent() {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
-                    Curation loading...
+                    loading...
                   </>
                 ) : (
                   <>

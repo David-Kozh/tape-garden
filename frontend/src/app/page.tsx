@@ -62,8 +62,8 @@ export default function Home() {
           ) : user ? (
             <div className="flex items-center gap-5">
               {role === "admin" && (
-                <Link href="/admin" className="text-sm font-medium text-zinc-400 hover:text-zinc-200 transition-colors">
-                  Admin
+                <Link href="/admin/users" className="text-sm font-medium text-zinc-400 hover:text-zinc-200 transition-colors">
+                  Admin Portal
                 </Link>
               )}
               {role === "producer" && (
