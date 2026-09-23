@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
+
 import { useState } from "react";
 import { ManagedProducer } from "../page";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -65,6 +67,14 @@ export function ProducerAdminActions({ producer, onUpdate }: ProducerAdminAction
 
   return (
     <div className="flex justify-end gap-2">
+      <Link 
+        href={`/producers/${producer.uid}`} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className={buttonVariants({ variant: "outline", size: "sm" })}
+      >
+        View Page
+      </Link>
       <Button variant="outline" size="sm" onClick={() => setIsEditOpen(true)}>
         Edit Slots
       </Button>
