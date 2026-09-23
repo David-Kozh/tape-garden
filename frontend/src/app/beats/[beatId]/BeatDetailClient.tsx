@@ -2,6 +2,7 @@
 
 import { BeatWithProducer } from "@/lib/services/gallery";
 import { useAudio } from "@/context/AudioContext";
+import { useCart } from "@/context/CartContext";
 import { Play, Pause, User, Music2, Tag, Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 interface BeatDetailClientProps {
   beat: BeatWithProducer;
@@ -16,6 +18,7 @@ interface BeatDetailClientProps {
 
 export function BeatDetailClient({ beat }: BeatDetailClientProps) {
   const { currentBeat, isPlaying, play, togglePlayPause } = useAudio();
+  const { addItem } = useCart();
 
   const isCurrentBeat = currentBeat?.id === beat.id;
 
@@ -25,6 +28,19 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
     } else {
       play(beat);
     }
+  };
+
+  const handleAddToCart = (license: any) => {
+    addItem({
+      itemId: beat.id,
+      itemType: "beat",
+      licenseType: license.type,
+      price: license.price,
+      title: beat.title,
+      producerId: beat.producer.uid,
+      coverArtUrl: beat.coverArtUrl,
+    });
+    toast.success(`Added ${beat.title} (${license.type}) to cart`);
   };
 
   return (
@@ -137,7 +153,7 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" disabled>Add to Cart</Button>
+                <Button className="w-full" onClick={() => handleAddToCart(license)}>Add to Cart</Button>
               </CardFooter>
             </Card>
           ))}

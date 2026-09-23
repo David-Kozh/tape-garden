@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { PlayCircle, PauseCircle, ShoppingCart } from "lucide-react";
 import { BeatWithProducer } from "@/lib/services/gallery";
 import { useAudio } from "@/context/AudioContext";
@@ -91,10 +92,10 @@ export function BeatCard({ beat }: BeatCardProps) {
       </CardContent>
 
       <CardFooter className="p-4 pt-0 gap-2 relative z-20">
-        <Button className="w-full gap-2" variant="default">
+        <Link href={`/beats/${beat.id}`} className={cn(buttonVariants({ variant: "default" }), "w-full gap-2")}>
           <ShoppingCart className="w-4 h-4" />
           Add
-        </Button>
+        </Link>
       </CardFooter>
     </Card>
   );

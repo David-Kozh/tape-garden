@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import { AudioProvider } from "@/context/AudioContext";
+import { CartProvider } from "@/context/CartContext";
 import { AudioPlayer } from "@/components/AudioPlayer";
+import { Navbar } from "@/components/layout/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -38,10 +40,13 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col pb-24">
         <AuthProvider>
-          <AudioProvider>
-            {children}
-            <AudioPlayer />
-          </AudioProvider>
+          <CartProvider>
+            <AudioProvider>
+              <Navbar />
+              {children}
+              <AudioPlayer />
+            </AudioProvider>
+          </CartProvider>
         </AuthProvider>
         <Toaster />
       </body>
