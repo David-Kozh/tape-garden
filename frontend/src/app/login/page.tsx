@@ -67,6 +67,7 @@ function LoginContent() {
     setError(null);
     setLoading(true);
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
 
     try {
       await signInWithPopup(auth, provider);
