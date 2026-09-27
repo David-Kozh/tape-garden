@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Upload, Music, Archive, Eye, EyeOff, Trash2 } from "lucide-react";
+import { Upload, Music, Archive, Eye, EyeOff, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 export default function UploadsDashboard() {
@@ -119,6 +119,11 @@ export default function UploadsDashboard() {
                         <p className="text-xs text-muted-foreground capitalize">{beat.status} • {beat.bpm} BPM</p>
                       </div>
                       <div className="flex gap-2">
+                        <Link href={`/dashboard/uploads/${beat.id}/edit`}>
+                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                        </Link>
                         <Button 
                           variant="ghost" 
                           size="sm" 
