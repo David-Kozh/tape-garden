@@ -9,31 +9,31 @@ const PaperTexture = dynamic(
 
 export function TexturedBackground() {
   return (
-    <div className="fixed inset-0 -z-50 pointer-events-none opacity-70">
+    <div className="fixed inset-0 z-50 pointer-events-none opacity-70 mix-blend-multiply">
       <PaperTexture
         width="100%"
         height="100%"
-        colorBack="#ffffff"
-        colorPaper="#fdfbf7"
-        colorShadow="#e8e5dc"
+        colorBack="#d3d2ab"
+        colorPaper="#ffffff"
+        colorShadow="#cccccc"
         blending={1}
-        distortion={0.5}
-        angle={45}
-        seed={42}
-        roughness={0.7}
-        roughnessSize={0.3}
-        roughnessRows={0}
-        fiber={0.5}
-        fiberSize={0.4}
-        folds={0.2}
+        distortion={0.25}
+        angle={300}
+        seed={4}
+        roughness={0.3}
+        roughnessSize={0.2}
+        roughnessRows={0.25}
+        fiber={0.3}
+        fiberSize={0.75}
+        folds={0}
         foldSizeX={1}
         foldSizeY={1}
-        wrinkles={0.3}
+        wrinkles={0}
         wrinkleSize={0.5}
-        crumples={0.1}
+        crumples={0}
         crumpleCount={4}
-        drops={0.1}
-        scale={1.2}
+        drops={0}
+        scale={1}
         fit="cover"
       />
     </div>
