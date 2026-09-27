@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { Trash2, ArrowRight, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { format } from "date-fns";
 
 export default function CheckoutPage() {
   const { items, removeItem, cartTotal } = useCart();
@@ -19,7 +18,7 @@ export default function CheckoutPage() {
         </div>
         <h1 className="text-3xl font-bold tracking-tight mb-4">Your cart is empty</h1>
         <p className="text-muted-foreground mb-8 max-w-md">
-          Looks like you haven't added anything to your cart yet. Discover exclusive beats and sample packs in the gallery.
+          Looks like you haven&apos;t added anything to your cart yet. Discover exclusive beats and sample packs in the gallery.
         </p>
         <Link href="/#explore" className={cn(buttonVariants({ size: "lg" }), "gap-2")}>
           <ArrowLeft className="w-4 h-4" /> Back to Gallery
@@ -97,7 +96,7 @@ export default function CheckoutPage() {
             </Button>
             
             <p className="text-xs text-center text-muted-foreground mt-4">
-              By proceeding, you agree to Tape Garden's Terms of Service and licensing agreements.
+              By proceeding, you agree to Tape Garden&apos;s Terms of Service and licensing agreements.
             </p>
           </div>
         </div>

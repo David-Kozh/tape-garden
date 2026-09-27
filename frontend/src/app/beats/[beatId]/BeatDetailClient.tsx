@@ -30,7 +30,7 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
     }
   };
 
-  const handleAddToCart = (license: any) => {
+  const handleAddToCart = (license: { type: string; price: number }) => {
     addItem({
       itemId: beat.id,
       itemType: "beat",

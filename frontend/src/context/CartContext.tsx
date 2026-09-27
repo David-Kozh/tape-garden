@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, ReactNode, useCallback, useSyncExternalStore } from "react";
 
 export type ItemType = "beat" | "samplePack";
 
@@ -27,52 +27,76 @@ const CartContext = createContext<CartContextProps | undefined>(undefined);
 
 const CART_STORAGE_KEY = "tapegarden_cart";
 
-export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
+// We keep a cached reference to avoid returning a new array reference on every render,
+// which is required by useSyncExternalStore to prevent infinite re-renders.
+const emptyCart: CartItem[] = [];
+let cachedString: string | null = null;
+let cachedParsed: CartItem[] = emptyCart;
 
-  // Load from local storage on mount
-  useEffect(() => {
-    const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-    if (storedCart) {
-      try {
-        setItems(JSON.parse(storedCart));
-      } catch (e) {
-        console.error("Failed to parse cart from local storage", e);
-      }
+function subscribe(callback: () => void) {
+  if (typeof window === "undefined") return () => { };
+
+  // Listen for changes from other tabs
+  window.addEventListener('storage', callback);
+  // Listen for changes triggered within the same tab
+  window.addEventListener('cart-local-update', callback);
+
+  return () => {
+    window.removeEventListener('storage', callback);
+    window.removeEventListener('cart-local-update', callback);
+  };
+}
+
+function getSnapshot(): CartItem[] {
+  if (typeof window === "undefined") return emptyCart;
+
+  const currentString = localStorage.getItem(CART_STORAGE_KEY);
+  if (currentString !== cachedString) {
+    cachedString = currentString;
+    try {
+      cachedParsed = currentString ? JSON.parse(currentString) : emptyCart;
+    } catch {
+      cachedParsed = emptyCart;
     }
-    setIsInitialized(true);
+  }
+  return cachedParsed;
+}
+
+function getServerSnapshot(): CartItem[] {
+  return emptyCart;
+}
+
+export function CartProvider({ children }: { children: ReactNode }) {
+  // useSyncExternalStore subscribes to localStorage changes automatically
+  const storeItems = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  // Let useSyncExternalStore handle the client transition automatically
+  const items = storeItems;
+
+  const updateStore = useCallback((newItems: CartItem[]) => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newItems));
+    // Dispatch custom event so the current tab's subscriber picks up the change
+    window.dispatchEvent(new Event('cart-local-update'));
   }, []);
 
-  // Save to local storage whenever items change
-  useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-    }
-  }, [items, isInitialized]);
-
-  const addItem = (item: CartItem) => {
-    setItems((prevItems) => {
-      // Prevent adding exact same item (same id and same license type)
-      const exists = prevItems.some(
-        (i) => i.itemId === item.itemId && i.licenseType === item.licenseType
-      );
-      if (exists) return prevItems;
-      return [...prevItems, item];
-    });
-  };
-
-  const removeItem = (itemId: string, licenseType?: string) => {
-    setItems((prevItems) => 
-      prevItems.filter(
-        (item) => !(item.itemId === itemId && item.licenseType === licenseType)
-      )
+  const addItem = useCallback((item: CartItem) => {
+    const exists = storeItems.some(
+      (i) => i.itemId === item.itemId && i.licenseType === item.licenseType
     );
-  };
+    if (exists) return;
+    updateStore([...storeItems, item]);
+  }, [storeItems, updateStore]);
 
-  const clearCart = () => {
-    setItems([]);
-  };
+  const removeItem = useCallback((itemId: string, licenseType?: string) => {
+    const newItems = storeItems.filter(
+      (item) => !(item.itemId === itemId && item.licenseType === licenseType)
+    );
+    updateStore(newItems);
+  }, [storeItems, updateStore]);
+
+  const clearCart = useCallback(() => {
+    updateStore([]);
+  }, [updateStore]);
 
   const cartTotal = items.reduce((total, item) => total + item.price, 0);
   const itemCount = items.length;

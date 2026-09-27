@@ -1,12 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CassetteTape, ArrowRight, Radio, Volume2, Shield } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-import Link from "next/link";
+import { CassetteTape, ArrowRight, Radio, Volume2 } from "lucide-react";
 
 export default function Home() {
-  const { user, role, loading, logout } = useAuth();
   const [activePlay, setActivePlay] = useState<string | null>(null);
 
   const tracks = [
