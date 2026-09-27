@@ -44,7 +44,7 @@ export default function DashboardOverview() {
         const beatsQuery = query(
           collection(db, "beats"),
           where("producerId", "==", user.uid),
-          where("status", "==", "published")
+          where("status", "in", ["published", "draft"])
         );
         const beatsSnapshot = await getCountFromServer(beatsQuery);
         setBeatsUsed(beatsSnapshot.data().count);
@@ -53,7 +53,7 @@ export default function DashboardOverview() {
         const packsQuery = query(
           collection(db, "samplePacks"),
           where("producerId", "==", user.uid),
-          where("status", "==", "published")
+          where("status", "in", ["published", "draft"])
         );
         const packsSnapshot = await getCountFromServer(packsQuery);
         setPacksUsed(packsSnapshot.data().count);

@@ -317,15 +317,15 @@ export const publishBeat = functions
 
       const allocatedSlots = producerProfile.allocatedBeatSlots || 0;
 
-      // 3. Check published beats count
+      // 3. Check consumed slots count (published + draft)
       const beatsQuery = db.collection("beats")
         .where("producerId", "==", uid)
-        .where("status", "==", "published");
+        .where("status", "in", ["published", "draft"]);
       const beatsSnapshot = await beatsQuery.count().get();
-      const publishedCount = beatsSnapshot.data().count;
+      const consumedSlotsCount = beatsSnapshot.data().count;
 
-      if (publishedCount >= allocatedSlots) {
-        throw new functions.https.HttpsError("resource-exhausted", "You have reached your beat upload limit. Cannot publish.");
+      if (consumedSlotsCount >= allocatedSlots) {
+        throw new functions.https.HttpsError("resource-exhausted", "You have reached your catalog slot limit. Cannot upload new beat.");
       }
 
       // 4. Validate files and move them from staging to canonical path

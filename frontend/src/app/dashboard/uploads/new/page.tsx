@@ -62,7 +62,7 @@ export default function NewBeatUpload() {
         const beatsQuery = query(
           collection(db, "beats"),
           where("producerId", "==", user.uid),
-          where("status", "==", "published")
+          where("status", "in", ["published", "draft"])
         );
         const beatsSnapshot = await getCountFromServer(beatsQuery);
         const usedSlots = beatsSnapshot.data().count;
