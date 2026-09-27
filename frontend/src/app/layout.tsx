@@ -6,6 +6,7 @@ import { CartProvider } from "@/context/CartContext";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { Navbar } from "@/components/layout/Navbar";
 import { Toaster } from "@/components/ui/sonner";
+import { TexturedBackground } from "@/components/layout/TexturedBackground";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,7 +39,8 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col pb-24">
+      <body className="min-h-full flex flex-col pb-24 relative">
+        <TexturedBackground />
         <AuthProvider>
           <CartProvider>
             <AudioProvider>
