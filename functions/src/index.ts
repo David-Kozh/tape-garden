@@ -579,3 +579,86 @@ export const updateProducerAccount = functions
       throw new functions.https.HttpsError("internal", "An error occurred while updating the producer account.");
     }
   });
+
+interface DeleteBeatData {
+  beatId: string;
+}
+
+/**
+ * Cloud Function HTTPS Callable: deleteBeat
+ * Deletes a beat (hard delete if no purchases, soft delete if purchases exist).
+ */
+export const deleteBeat = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10 })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError("unauthenticated", "You must be logged in to delete a beat.");
+    }
+    const uid = context.auth.uid;
+    const { beatId } = (data || {}) as DeleteBeatData;
+
+    if (!beatId) {
+      throw new functions.https.HttpsError("invalid-argument", "Missing beatId.");
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    const storage = getStorage(admin.app());
+    const bucket = storage.bucket();
+
+    try {
+      const beatRef = db.collection("beats").doc(beatId);
+      const beatDoc = await beatRef.get();
+
+      if (!beatDoc.exists) {
+        throw new functions.https.HttpsError("not-found", "Beat not found.");
+      }
+
+      const beatData = beatDoc.data()!;
+      if (beatData.producerId !== uid) {
+        throw new functions.https.HttpsError("permission-denied", "You can only delete your own beats.");
+      }
+
+      // Check for purchases
+      const purchasesQuery = db.collection("purchases")
+        .where("itemId", "==", beatId)
+        .where("itemType", "==", "beat");
+      
+      const purchasesSnap = await purchasesQuery.limit(1).get();
+
+      if (!purchasesSnap.empty) {
+        // Soft delete
+        await beatRef.update({
+          status: "removed",
+          updatedAt: FieldValue.serverTimestamp()
+        });
+        return { success: true, type: "soft" };
+      } else {
+        // Hard delete
+        // Delete files from Storage
+        const prefixPreview = `previews/beats/${beatId}/`;
+        const prefixPurchased = `purchased/beats/${beatId}/`;
+
+        try {
+          await bucket.deleteFiles({ prefix: prefixPreview });
+        } catch (err) {
+          console.warn(`[deleteBeat] Could not clean up preview directory: ${prefixPreview}`, err);
+        }
+        
+        try {
+          await bucket.deleteFiles({ prefix: prefixPurchased });
+        } catch (err) {
+          console.warn(`[deleteBeat] Could not clean up purchased directory: ${prefixPurchased}`, err);
+        }
+
+        // Delete Firestore document
+        await beatRef.delete();
+        return { success: true, type: "hard" };
+      }
+    } catch (error) {
+      const err = error as Error;
+      console.error("[deleteBeat] Error:", err);
+      if (err instanceof functions.https.HttpsError) throw err;
+      throw new functions.https.HttpsError("internal", err.message || "An error occurred while deleting the beat.");
+    }
+  });

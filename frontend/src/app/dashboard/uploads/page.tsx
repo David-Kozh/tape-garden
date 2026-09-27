@@ -3,12 +3,24 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { db } from "@/lib/firebase";
+import { db, functions } from "@/lib/firebase";
 import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
 import type { Beat, SamplePack } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Upload, Music, Archive, Eye, EyeOff } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Upload, Music, Archive, Eye, EyeOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function UploadsDashboard() {
@@ -21,11 +33,11 @@ export default function UploadsDashboard() {
     async function fetchUploads() {
       if (!user) return;
       try {
-        const beatsQuery = query(collection(db, "beats"), where("producerId", "==", user.uid));
+        const beatsQuery = query(collection(db, "beats"), where("producerId", "==", user.uid), where("status", "in", ["draft", "published"]));
         const beatsSnapshot = await getDocs(beatsQuery);
         setBeats(beatsSnapshot.docs.map(d => ({ id: d.id, ...d.data() }) as Beat));
 
-        const packsQuery = query(collection(db, "samplePacks"), where("producerId", "==", user.uid));
+        const packsQuery = query(collection(db, "samplePacks"), where("producerId", "==", user.uid), where("status", "in", ["draft", "published"]));
         const packsSnapshot = await getDocs(packsQuery);
         setPacks(packsSnapshot.docs.map(d => ({ id: d.id, ...d.data() }) as SamplePack));
       } catch (error) {
@@ -38,7 +50,7 @@ export default function UploadsDashboard() {
   }, [user]);
 
   const toggleStatus = async (collectionName: "beats" | "samplePacks", id: string, currentStatus: string) => {
-    const newStatus = currentStatus === "published" ? "hidden" : "published";
+    const newStatus = currentStatus === "published" ? "draft" : "published";
     try {
       await updateDoc(doc(db, collectionName, id), { status: newStatus });
       
@@ -47,10 +59,22 @@ export default function UploadsDashboard() {
       } else {
         setPacks(packs.map(p => p.id === id ? { ...p, status: newStatus } : p));
       }
-      toast.success(`Item successfully ${newStatus === "published" ? "published" : "hidden"}.`);
+      toast.success(`Item successfully ${newStatus === "published" ? "published" : "changed to draft"}.`);
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update status.");
+    }
+  };
+
+  const handleDeleteBeat = async (beatId: string) => {
+    try {
+      const deleteBeatFn = httpsCallable(functions, "deleteBeat");
+      await deleteBeatFn({ beatId });
+      setBeats(beats.filter(b => b.id !== beatId));
+      toast.success("Beat successfully deleted.");
+    } catch (error) {
+      console.error("Error deleting beat:", error);
+      toast.error("Failed to delete beat.");
     }
   };
 
@@ -94,18 +118,41 @@ export default function UploadsDashboard() {
                         <p className="font-medium text-foreground">{beat.title}</p>
                         <p className="text-xs text-muted-foreground capitalize">{beat.status} • {beat.bpm} BPM</p>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-muted-foreground hover:text-foreground"
-                        onClick={() => toggleStatus("beats", beat.id, beat.status)}
-                      >
-                        {beat.status === "published" ? (
-                          <><EyeOff className="w-4 h-4 mr-2" /> Hide</>
-                        ) : (
-                          <><Eye className="w-4 h-4 mr-2" /> Publish</>
-                        )}
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-muted-foreground hover:text-foreground"
+                          onClick={() => toggleStatus("beats", beat.id, beat.status)}
+                        >
+                          {beat.status === "published" ? (
+                            <><EyeOff className="w-4 h-4 mr-2" /> Hide</>
+                          ) : (
+                            <><Eye className="w-4 h-4 mr-2" /> Publish</>
+                          )}
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger render={
+                            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          } />
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. If this beat has not been purchased, it will be permanently deleted and your upload slot will be freed. If it has been purchased, it will be hidden from the public gallery but remain accessible to buyers.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteBeat(beat.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </li>
                   ))}
                 </ul>
