@@ -49,6 +49,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             Producers
           </Link>
+          <Link
+            href="/admin/sales"
+            className={`pb-1 border-b-2 ${pathname === "/admin/sales" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            Sales
+          </Link>
         </nav>
       </header>
       <main className="flex-1 p-6 max-w-7xl w-full mx-auto">

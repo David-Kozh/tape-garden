@@ -6,9 +6,9 @@ import { useAuth } from "@/context/AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getCountFromServer } from "firebase/firestore";
 import type { User } from "@/types";
-import { Clock, CheckCircle2, AlertCircle, CalendarDays, LineChart, UserCircle } from "lucide-react";
+import { Clock, CheckCircle2, AlertCircle, CalendarDays, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import { BasicSalesStats } from "@/components/dashboard/BasicSalesStats";
 export default function DashboardOverview() {
   const { user } = useAuth();
   
@@ -209,30 +209,8 @@ export default function DashboardOverview() {
         </div>
       </div>
 
-      {/* Sales Chart Placeholder */}
-      <div className="bg-card border border-border rounded-xl p-6 shadow-sm opacity-50 relative overflow-hidden group">
-        <div className="absolute inset-0 bg-background/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
-          <p className="bg-card border border-border px-4 py-2 rounded-full text-sm font-medium shadow-sm flex items-center gap-2">
-            <LineChart className="w-4 h-4 text-muted-foreground" />
-            Sales data coming soon
-          </p>
-        </div>
-        <h3 className="font-semibold text-lg mb-6 flex items-center gap-2 relative z-0">
-          <span className="bg-accent/10 p-2 rounded-md text-accent">
-            <LineChart className="w-5 h-5" />
-          </span>
-          Basic Sales Stats
-        </h3>
-        <div className="h-48 border-b border-l border-border/50 relative z-0 flex items-end">
-          <div className="w-full h-1/2 border-t border-dashed border-border/30 mb-auto mt-auto absolute top-1/2 w-full"></div>
-          {/* Faux bars */}
-          <div className="w-full flex justify-around items-end h-full pt-4 pb-0 px-2 gap-2">
-            {[30, 40, 25, 60, 45, 80, 50].map((h, i) => (
-              <div key={i} className="w-full bg-muted rounded-t-sm" style={{ height: `${h}%` }}></div>
-            ))}
-          </div>
-        </div>
-      </div>
+      {/* Sales Chart */}
+      <BasicSalesStats />
 
     </div>
   );

@@ -131,3 +131,27 @@ export interface Application {
   createdAt: Date | string;
   updatedAt: Date | string;
 }
+
+/**
+ * 6. Producer Sales Summary Collection
+ * Matches collection `/producerSalesSummary`
+ */
+export interface ProducerSalesSummary {
+  id: string; // e.g. "{producerId}_YYYY-MM"
+  producerId: string; // Reference to `users.uid`
+  period: string; // e.g. "YYYY-MM"
+  totalTransactions: number;
+  updatedAt: Date | string;
+}
+
+/**
+ * 7. Admin Sales Summary Collection
+ * Matches collection `/adminSalesSummary`
+ */
+export interface AdminSalesSummary {
+  id: string; // e.g. "all-time" or "YYYY-MM"
+  totalRevenue: number;
+  totalTransactions: number;
+  totalPlatformFees: number;
+  updatedAt: Date | string;
+}

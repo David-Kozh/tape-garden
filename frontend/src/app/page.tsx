@@ -43,9 +43,9 @@ export default function Home() {
           />
 
           {/* Blurred Background Orbs for Legibility */}
-          <div className="absolute -top-[10%] -left-[5%] w-[500px] h-[500px] bg-background blur-[50px] rounded-full z-[1] pointer-events-none opacity-25" />
-          <div className="absolute top-[10%] left-[0%] w-[800px] h-[400px] bg-background blur-[50px] rounded-[100%] z-[1] pointer-events-none opacity-60" />
-          <div className="absolute -bottom-[40%] left-[0%] w-[300px] h-[400px] bg-background blur-[60px] rounded-full z-[1] pointer-events-none opacity-25" />
+          <div className="absolute -top-[-45%] -left-[-40%] w-[400px] h-[150px] bg-background blur-[50px] rounded-full z-[1] pointer-events-none opacity-35" />
+          <div className="absolute top-[10%] left-[0%] w-[850px] h-[400px] bg-background blur-[70px] rounded-[100%] z-[1] pointer-events-none opacity-90" />
+          <div className="absolute -bottom-[40%] left-[0%] w-[300px] h-[400px] bg-background blur-[60px] rounded-full z-[1] pointer-events-none opacity-70" />
 
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start gap-8 w-full">
             {/* Left Side Copy */}
@@ -57,13 +57,13 @@ export default function Home() {
                 </span>
               </h1>
 
-              <p className="text-base md:text-lg text-zinc-600 leading-relaxed font-normal max-w-2xl">
+              <p className="text-base md:text-lg text-zinc-700 leading-relaxed font-normal max-w-2xl">
                 A deliberately minimal space designed for music producers to show their best work.
                 Storefronts built like an art-gallery, not a marketplace -- no extra noise.
               </p>
 
               <div className="flex items-center gap-4 mt-2">
-                <Link href="#" className={buttonVariants({ variant: "default", size: "lg", className: "!bg-emerald-700 !border-emerald-700 hover:!bg-emerald-600 hover:!border-emerald-600 text-white/90 rounded-md !px-8 shadow-md !font-bold !text-md" })}>
+                <Link href="/beats" className={buttonVariants({ variant: "default", size: "lg", className: "!bg-emerald-700 !border-emerald-700 hover:!bg-emerald-600 hover:!border-emerald-600 text-white/90 rounded-md !px-8 shadow-md !font-bold !text-md" })}>
                   Browse
                 </Link>
                 <Link href="/login" className={buttonVariants({ variant: "ghost", size: "lg", className: "!border-emerald-600 !text-emerald-700 hover:!bg-emerald-600 hover:!text-white/90 rounded-md !px-8 !font-bold !text-md" })}>
