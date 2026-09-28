@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="100%" height="100%">
+  <!-- Definitions & Masks -->
+  <defs>
+    <!-- Label Clip to round the corners -->
+    <clipPath id="label-clip">
+      <rect x="140" y="105" width="720" height="325" rx="16" ry="16" />
+    </clipPath>
+  </defs>
+
+  <!-- Outer Cassette Shell -->
+  <path d="
+    M 125,65
+    L 875,65
+    A 30,30 0 0 1 905,95
+    L 905,385
+    L 915,385
+    A 8,8 0 0 1 923,393
+    L 923,512
+    A 8,8 0 0 1 915,520
+    L 905,520
+    L 905,530
+    A 30,30 0 0 1 875,560
+    L 125,560
+    A 30,30 0 0 1 95,530
+    L 95,520
+    L 85,520
+    A 8,8 0 0 1 77,512
+    L 77,393
+    A 8,8 0 0 1 85,385
+    L 95,385
+    L 95,95
+    A 30,30 0 0 1 125,65 Z"
+    fill="#212930" />
+
+  <!-- Label Background -->
+  <rect x="140" y="105" width="720" height="325" rx="16" fill="#F4EBD9" />
+
+  <!-- Colored Stripes (Clipped to Label) -->
+  <g clip-path="url(#label-clip)">
+    <!-- Red Stripe -->
+    <rect x="140" y="218" width="720" height="35" fill="#E84833" />
+    <!-- Orange Stripe -->
+    <rect x="140" y="253" width="720" height="35" fill="#F59322" />
+    <!-- Green Stripe -->
+    <rect x="140" y="288" width="720" height="35" fill="#6FB73E" />
+  </g>
+
+  <!-- Center Window Outer Housing -->
+  <rect x="258" y="198" width="484" height="142" rx="12" fill="#212930" />
+
+  <!-- Left Hub Hole -->
+  <circle cx="330" cy="269" r="44" fill="#F4EBD9" />
+
+  <!-- Right Hub Hole -->
+  <circle cx="670" cy="269" r="44" fill="#F4EBD9" />
+
+  <!-- Center Tape Window Cutout -->
+  <path d="
+    M 462,223
+    L 538,223
+    C 530,248 530,290 538,315
+    L 462,315
+    C 470,290 470,248 462,223 Z"
+    fill="#F4EBD9" />
+
+  <!-- Bottom Trapezoid Recess -->
+  <!-- Cutout Border Line -->
+  <polygon points="216,572 258,442 742,442 784,572" fill="#F4EBD9" />
+  <!-- Inner Recess -->
+  <polygon points="228,560 264,454 736,454 772,560" fill="#212930" />
+
+  <!-- Bottom Screws / Guide Holes -->
+  <circle cx="310" cy="522" r="21" fill="#F4EBD9" />
+  <circle cx="690" cy="522" r="21" fill="#F4EBD9" />
+</svg>

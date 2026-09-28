@@ -34,16 +34,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <header className="border-b px-6 py-4 flex items-center justify-between">
-        <h1 className="text-xl font-medium tracking-tight">Tape Garden <span className="text-muted-foreground text-sm font-normal ml-2">Admin</span></h1>
+      <header className="border-b px-8 lg:px-24 py-4 flex items-center justify-between">
+        <span className="text-muted-foreground text-lg font-medium italic ml-2">Admin</span>
         <nav className="flex space-x-4 text-sm font-medium">
-          <Link 
+          <Link
             href="/admin/applications"
             className={`pb-1 border-b-2 ${pathname === "/admin/applications" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           >
             Applications
           </Link>
-          <Link 
+          <Link
             href="/admin/users"
             className={`pb-1 border-b-2 ${pathname === "/admin/users" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           >

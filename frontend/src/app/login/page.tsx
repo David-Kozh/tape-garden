@@ -11,7 +11,8 @@ import {
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useAuth } from "@/context/AuthContext";
-import { CassetteTape, Mail, Lock, User, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 function LoginContent() {
   const router = useRouter();
@@ -150,41 +151,43 @@ function LoginContent() {
   // Prevent flash of empty form while redirecting authenticated users
   if (authLoading || (user && !loading)) {
     return (
-      <div className="min-h-screen bg-[#08080a] flex items-center justify-center text-zinc-100">
-        <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+      <div className="flex-1 w-full flex items-center justify-center text-zinc-900 py-24">
+        <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen bg-[#08080a] text-zinc-100 selection:bg-emerald-500/20 selection:text-emerald-300 flex flex-col justify-center items-center px-4 overflow-x-hidden font-sans antialiased">
-
-      {/* Background Mesh Glows */}
-      <div className="absolute top-[-10%] left-[-20%] w-[60%] aspect-square rounded-full bg-emerald-950/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-20%] w-[50%] aspect-square rounded-full bg-blue-950/10 blur-[120px] pointer-events-none" />
+    <div className="flex-1 w-full relative text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-center items-center px-4 overflow-x-hidden font-sans antialiased py-12 md:py-24">
 
       <div className="w-full max-w-md z-10 flex flex-col gap-8">
 
         {/* Sleek Logo / Header */}
         <div className="flex flex-col items-center gap-4 text-center">
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shadow-lg transition-transform hover:scale-105">
-            <CassetteTape className="w-6 h-6 text-emerald-400" />
+          <div className="w-18 h-12 rounded-lg bg-zinc-100/30 border border-emerald-500/20 flex items-center justify-center shadow-sm overflow-hidden p-0.5">
+            <Image
+              src="/logo.svg"
+              alt="Tape Garden Logo"
+              width={128}
+              height={128}
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">
               {activeTab === "signin" ? "Enter the Garden" : "Join the Garden"}
             </h1>
-            <p className="text-sm text-zinc-500 mt-1 max-w-[280px] mx-auto">
+            <p className="text-md text-zinc-500 mt-1 max-w-[480px] mx-auto">
               {activeTab === "signin"
-                ? "Access your curation dashboard, beats list, and downloads."
-                : "Create an account to browse and acquire curated analog sound assets."
+                ? "Access your dashboard, beats, and purchases."
+                : "Create an account to browse and acquire curated sound assets."
               }
             </p>
           </div>
         </div>
 
         {/* Auth Container Card */}
-        <div className="relative rounded-2xl border border-zinc-900 bg-zinc-950/40 p-8 shadow-[0_8px_30px_rgb(0,0,0,0.3)] backdrop-blur-md">
+        <div className="relative rounded-2xl border border-zinc-200/80 bg-white/60 p-8 shadow-sm backdrop-blur-md">
 
           <div className="flex flex-col gap-6">
 
@@ -193,34 +196,34 @@ function LoginContent() {
               onClick={handleGoogleSignIn}
               disabled={loading}
               id="google-signin-btn"
-              className="w-full py-3 px-4 rounded-xl bg-zinc-900/60 border border-zinc-800 hover:bg-zinc-800/80 hover:border-zinc-700 text-zinc-200 text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer"
+              className="w-full py-4 px-4 rounded-xl bg-white border border-zinc-300 hover:bg-zinc-50 hover:border-zinc-400 text-zinc-700 text-md font-semibold transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer shadow-sm"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
-                <path
-                  fill="#EA4335"
-                  d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.859-3.578-7.859-8s3.529-8 7.859-8c2.46 0 4.105 1.025 5.047 1.926l3.227-3.104C18.28 1.926 15.47 1 12.24 1 5.922 1 1 5.922 1 12s4.922 11 11.24 11c6.6 0 11-4.636 11-11.186 0-.75-.082-1.32-.18-1.815H12.24z"
-                />
+              <svg className="w-6 h-6" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
               Continue with Google
             </button>
 
             {/* Visual Separator */}
             <div className="flex items-center gap-4 py-1">
-              <div className="h-[1px] flex-1 bg-zinc-900" />
-              <span className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest">or email</span>
-              <div className="h-[1px] flex-1 bg-zinc-900" />
+              <div className="h-[1px] flex-1 bg-zinc-300" />
+              <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest">or email</span>
+              <div className="h-[1px] flex-1 bg-zinc-300" />
             </div>
 
             {/* Email/Password Custom Tabs */}
-            <div className="flex rounded-lg bg-zinc-900/40 p-1 border border-zinc-900/80">
+            <div className="flex rounded-lg bg-zinc-100/80 p-1 border border-zinc-200">
               <button
                 onClick={() => {
                   setActiveTab("signin");
                   setError(null);
                 }}
                 className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold tracking-tight transition-all duration-300 cursor-pointer ${activeTab === "signin"
-                  ? "bg-zinc-850 text-white shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-300"
+                  ? "bg-white text-emerald-800 shadow-sm border border-zinc-200/50"
+                  : "text-zinc-500 hover:text-zinc-700"
                   }`}
               >
                 Sign In
@@ -231,8 +234,8 @@ function LoginContent() {
                   setError(null);
                 }}
                 className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold tracking-tight transition-all duration-300 cursor-pointer ${activeTab === "register"
-                  ? "bg-zinc-850 text-white shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-300"
+                  ? "bg-white text-emerald-800 shadow-sm border border-zinc-200/50"
+                  : "text-zinc-500 hover:text-zinc-700"
                   }`}
               >
                 Create Account
@@ -241,7 +244,7 @@ function LoginContent() {
 
             {/* Alert / Error Box */}
             {error && (
-              <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-950/20 border border-red-900/30 text-red-400 text-xs animate-fade-in">
+              <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs animate-fade-in">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span className="leading-relaxed">{error}</span>
               </div>
@@ -253,11 +256,11 @@ function LoginContent() {
               {/* Full Name field (Register only) */}
               {activeTab === "register" && (
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="name-input" className="text-xs text-zinc-500 font-medium px-1">
+                  <label htmlFor="name-input" className="text-xs text-zinc-700 font-medium px-1">
                     Display Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                     <input
                       type="text"
                       id="name-input"
@@ -266,7 +269,7 @@ function LoginContent() {
                       placeholder="e.g. John Doe"
                       disabled={loading}
                       required={activeTab === "register"}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-950/60 border border-zinc-900 focus:border-emerald-500/50 focus:bg-zinc-950 hover:border-zinc-800 transition-all text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-emerald-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
                     />
                   </div>
                 </div>
@@ -274,11 +277,11 @@ function LoginContent() {
 
               {/* Email Address */}
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="email-input" className="text-xs text-zinc-500 font-medium px-1">
+                <label htmlFor="email-input" className="text-xs text-zinc-700 font-medium px-1">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                   <input
                     type="email"
                     id="email-input"
@@ -287,7 +290,7 @@ function LoginContent() {
                     placeholder="you@domain.com"
                     disabled={loading}
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-950/60 border border-zinc-900 focus:border-emerald-500/50 focus:bg-zinc-950 hover:border-zinc-800 transition-all text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-emerald-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
                   />
                 </div>
               </div>
@@ -295,12 +298,12 @@ function LoginContent() {
               {/* Password */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex justify-between items-center px-1">
-                  <label htmlFor="password-input" className="text-xs text-zinc-500 font-medium">
+                  <label htmlFor="password-input" className="text-xs text-zinc-700 font-medium">
                     Password
                   </label>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
                   <input
                     type="password"
                     id="password-input"
@@ -309,7 +312,7 @@ function LoginContent() {
                     placeholder="••••••••"
                     disabled={loading}
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-950/60 border border-zinc-900 focus:border-emerald-500/50 focus:bg-zinc-950 hover:border-zinc-800 transition-all text-sm text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-emerald-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
                   />
                 </div>
               </div>
@@ -318,17 +321,17 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:hover:shadow-none cursor-pointer"
+                className="w-full mt-2 py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-md disabled:opacity-50 cursor-pointer"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
                     loading...
                   </>
                 ) : (
                   <>
                     {activeTab === "signin" ? "Sign In" : "Register and Enter"}
-                    <ArrowRight className="w-4 h-4 text-zinc-950" />
+                    <ArrowRight className="w-4 h-4 text-white" />
                   </>
                 )}
               </button>
@@ -340,7 +343,7 @@ function LoginContent() {
         {/* Back Link to Gallery */}
         <button
           onClick={() => router.push("/")}
-          className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors text-center font-medium cursor-pointer"
+          className="text-xs text-zinc-600 hover:text-zinc-800 transition-colors text-center font-medium cursor-pointer"
         >
           ← Return to Curator&apos;s Bench
         </button>
@@ -353,8 +356,8 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#08080a] flex items-center justify-center text-zinc-100">
-        <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+      <div className="flex-1 w-full flex items-center justify-center text-zinc-900 py-24">
+        <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
       </div>
     }>
       <LoginContent />

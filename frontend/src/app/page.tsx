@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CassetteTape, ArrowRight, Radio, Volume2 } from "lucide-react";
+import Link from "next/link";
+import { CassetteTape, ArrowRight, Flower2, Volume2 } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function Home() {
   const [activePlay, setActivePlay] = useState<string | null>(null);
@@ -26,39 +28,62 @@ export default function Home() {
   ];
 
   return (
-    <div className="relative min-h-screen text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-between overflow-x-hidden font-inter antialiased">
+    <div className="flex-1 w-full relative text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-between overflow-x-hidden font-inter antialiased px-2">
 
       {/* Main Section */}
-      <main className="flex-1 max-w-5xl mx-auto px-6 py-12 w-full flex flex-col justify-center gap-16 relative z-10">
+      <main className="flex-1 max-w-5xl mx-auto w-full flex flex-col justify-around gap-16 relative z-10 pt-4">
 
         {/* Hero Copy */}
-        <div className="max-w-2xl flex flex-col gap-6 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-300/50 border border-emerald-500/20 text-emerald-700 text-xs font-semibold w-fit">
-            <Radio className="w-3 h-3 animate-pulse" />
-            Now In Scaffolding Phase
+        <div
+          className="w-full flex flex-col gap-6 animate-fade-in relative p-8 md:p-12 lg:p-16 rounded-3xl overflow-hidden border border-zinc-200/50 shadow-sm"
+        >
+          <div
+            className="absolute inset-0 z-0 opacity-75 pointer-events-none mix-blend-overlay"
+            style={{ backgroundImage: "url('/background.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
+          />
+
+          {/* Blurred Background Orbs for Legibility */}
+          <div className="absolute -top-[10%] -left-[5%] w-[500px] h-[500px] bg-background blur-[50px] rounded-full z-[1] pointer-events-none opacity-25" />
+          <div className="absolute top-[10%] left-[0%] w-[800px] h-[400px] bg-background blur-[50px] rounded-[100%] z-[1] pointer-events-none opacity-60" />
+          <div className="absolute -bottom-[40%] left-[0%] w-[300px] h-[400px] bg-background blur-[60px] rounded-full z-[1] pointer-events-none opacity-25" />
+
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start gap-8 w-full">
+            {/* Left Side Copy */}
+            <div className="flex flex-col gap-8 max-w-3xl">
+              <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-zinc-900 leading-tight">
+                Curated Beats.<br />
+                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
+                  Grow Your Garden.
+                </span>
+              </h1>
+
+              <p className="text-base md:text-lg text-zinc-600 leading-relaxed font-normal max-w-2xl">
+                A deliberately minimal space designed for music producers to show their best work.
+                Storefronts built like an art-gallery, not a marketplace -- no extra noise.
+              </p>
+
+              <div className="flex items-center gap-4 mt-2">
+                <Link href="#" className={buttonVariants({ variant: "default", size: "lg", className: "!bg-emerald-700 !border-emerald-700 hover:!bg-emerald-600 hover:!border-emerald-600 text-white/90 rounded-md !px-8 shadow-md !font-bold !text-md" })}>
+                  Browse
+                </Link>
+                <Link href="/login" className={buttonVariants({ variant: "ghost", size: "lg", className: "!border-emerald-600 !text-emerald-700 hover:!bg-emerald-600 hover:!text-white/90 rounded-md !px-8 !font-bold !text-md" })}>
+                  Login
+                </Link>
+              </div>
+            </div>
+
+            {/* Right Side Tag */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-300/50 border border-emerald-500/20 text-emerald-700 text-xs lg:text-sm font-semibold whitespace-nowrap shrink-0 md:mt-3">
+              <Flower2 className="w-4 h-4 animate-pulse" />
+              Now Entering Alpha
+            </div>
           </div>
-
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-zinc-900 leading-tight">
-            Curated Beats.<br />
-            <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
-              Boutique Sound Packs.
-            </span>
-          </h1>
-
-          <p className="text-base md:text-lg text-zinc-600 leading-relaxed font-normal">
-            An intentional, unhurried space designed for music producers and sound curators.
-            No aggressive call-to-actions, no noisy storefronts. Just rare warmth, analog depth,
-            and pure artistic craft.
-          </p>
         </div>
 
         {/* Minimal Curator Section */}
-        <div id="explore" className="flex flex-col gap-8">
-          <div className="flex justify-between items-end border-b border-zinc-300 pb-4">
-            <div>
-              <h2 className="text-xl font-bold text-zinc-900">Curator&apos;s Bench</h2>
-              <p className="text-xs text-zinc-500 mt-1">Sneak peek at upcoming releases currently being finalized.</p>
-            </div>
+        <div id="explore" className="flex flex-col gap-8 pb-6">
+          <div className="flex justify-between items-end border-b border-zinc-400/80 pb-2">
+            <h2 className="text-xl font-bold text-zinc-900">Curator&apos;s Bench</h2>
             <span className="text-xs text-emerald-600/80 font-semibold tracking-wider uppercase">02 releases</span>
           </div>
 
@@ -122,7 +147,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-300/60 px-6 py-8 md:px-12 text-zinc-500 text-xs flex flex-col md:flex-row justify-between items-center gap-4 mt-auto">
+      <footer className="border-t border-zinc-400/40 px-6 pt-6 md:px-12 text-zinc-500 text-xs flex flex-col md:flex-row justify-between items-center gap-4 mt-auto">
         <div className="flex items-center gap-2">
           <CassetteTape className="w-3.5 h-3.5 text-emerald-600/60" />
           <span>&copy; {new Date().getFullYear()} Tape Garden. All rights reserved.</span>
@@ -130,7 +155,8 @@ export default function Home() {
         <div className="flex gap-6">
           <a href="#" className="hover:text-zinc-900 transition-colors">Terms</a>
           <a href="#" className="hover:text-zinc-900 transition-colors">Privacy</a>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 transition-colors">GitHub</a>
+          <Link href="/apply" className="hover:text-zinc-900 transition-colors">Apply</Link>
+          <a href="https://github.com/David-Kozh/tape-garden" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 transition-colors">GitHub</a>
         </div>
       </footer>
     </div>
