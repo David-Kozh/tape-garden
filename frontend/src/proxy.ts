@@ -33,9 +33,9 @@ export function proxy(request: NextRequest) {
   const sessionCookie = request.cookies.get("__session")?.value;
 
   // Path groups definitions
-  const isProducerPath = pathname.startsWith("/dashboard") || pathname.startsWith("/sample-packs");
+  const isProducerPath = pathname.startsWith("/sample-packs") || pathname === "/dashboard" || pathname.startsWith("/dashboard/uploads");
   const isAdminPath = pathname.startsWith("/admin");
-  const isAuthProtectedPath = pathname.startsWith("/checkout") || pathname.startsWith("/purchases") || isProducerPath || isAdminPath;
+  const isAuthProtectedPath = pathname.startsWith("/checkout") || pathname.startsWith("/dashboard") || isProducerPath || isAdminPath;
 
   // If visiting an authenticated route without a session, redirect to /login
   if (isAuthProtectedPath && !sessionCookie) {
@@ -84,7 +84,6 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     "/checkout/:path*",
-    "/purchases/:path*",
     "/dashboard/:path*",
     "/sample-packs/:path*",
     "/admin/:path*",

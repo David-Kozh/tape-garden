@@ -17,35 +17,39 @@ const NAV_ITEMS = [
     href: "/dashboard",
     icon: LayoutDashboard,
     disabled: false,
+    roles: ["producer", "admin"],
   },
   {
     title: "Uploads",
     href: "/dashboard/uploads",
     icon: Upload,
     disabled: false,
+    roles: ["producer", "admin"],
   },
   {
     title: "Collection",
     href: "/dashboard/collection",
     icon: Library,
-    disabled: true,
+    disabled: false,
+    roles: ["buyer", "producer", "admin"],
   },
   {
     title: "Settings",
     href: "/dashboard/settings",
     icon: Settings,
     disabled: false,
+    roles: ["buyer", "producer", "admin"],
   },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { role, logout } = useAuth();
 
   return (
     <aside className="hidden md:flex flex-col w-64 border-r border-border bg-sidebar px-4 py-6 h-[calc(100vh-64px)] lg:h-[calc(100vh-73px)] sticky top-[64px] lg:top-[73px]">
       <div className="flex-1 space-y-1 mt-6">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter(item => item.roles.includes(role || "buyer")).map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
 

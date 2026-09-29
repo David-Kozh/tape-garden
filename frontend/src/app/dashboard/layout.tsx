@@ -10,18 +10,16 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, role, loading } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
         router.replace("/login");
-      } else if (role !== "producer" && role !== "admin") {
-        router.replace("/");
       }
     }
-  }, [user, role, loading, router]);
+  }, [user, loading, router]);
 
   if (loading) {
     return (
@@ -31,7 +29,7 @@ export default function DashboardLayout({
     );
   }
 
-  if (!user || (role !== "producer" && role !== "admin")) {
+  if (!user) {
     return null; // Will redirect via useEffect
   }
 

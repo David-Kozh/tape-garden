@@ -104,8 +104,10 @@ export interface Purchase {
   id: string;
   buyerId: string; // Reference to users.uid
   producerId: string; // Reference to users.uid
+  producerName?: string; // Denormalized for display
   itemType: ItemType;
   itemId: string; // Reference to beats.id or samplePacks.id
+  itemName?: string; // Denormalized for display
   licenseType?: LicenseType; // Present only if itemType == 'beat'
   price: number; // Total amount paid by buyer
   platformFee: number; // Platform fee percentage / cut

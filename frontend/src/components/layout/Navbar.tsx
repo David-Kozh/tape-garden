@@ -86,7 +86,7 @@ export function Navbar() {
               )}
               {role === "buyer" && (
                 <DropdownMenuItem className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                  <Link href="/purchases" className="w-full font-medium text-zinc-700">
+                  <Link href="/dashboard/collection" className="w-full font-medium text-zinc-700">
                     My Purchases
                   </Link>
                 </DropdownMenuItem>

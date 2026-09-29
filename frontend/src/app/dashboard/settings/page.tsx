@@ -43,7 +43,7 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function SettingsPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, role, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -209,8 +209,9 @@ export default function SettingsPage() {
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             
-            {/* Avatar Section */}
-            <div className="flex items-start gap-6">
+            {/* Avatar Section - Producer Only */}
+            {(role === "producer" || role === "admin") && (
+              <div className="flex items-start gap-6">
               <Avatar className="h-24 w-24">
                 <AvatarImage src={avatarUrl || ""} alt="Avatar" />
                 <AvatarFallback className="text-xl">
@@ -245,6 +246,7 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+            )}
 
             {/* Display Name */}
             <div className="space-y-2">
@@ -261,8 +263,9 @@ export default function SettingsPage() {
               )}
             </div>
 
-            {/* Bio */}
-            <div className="space-y-2">
+            {/* Bio - Producer Only */}
+            {(role === "producer" || role === "admin") && (
+              <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
               <Textarea 
                 id="bio" 
@@ -276,8 +279,10 @@ export default function SettingsPage() {
                 </p>
               )}
             </div>
+            )}
 
-            {/* Social Links */}
+            {/* Social Links - Producer Only */}
+            {(role === "producer" || role === "admin") && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label>Social Links</Label>
@@ -339,6 +344,7 @@ export default function SettingsPage() {
                 )}
               </div>
             </div>
+            )}
 
             <div className="flex justify-end pt-4">
               <Button type="submit" disabled={saving || uploadingAvatar}>

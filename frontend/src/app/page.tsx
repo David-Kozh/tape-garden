@@ -42,10 +42,12 @@ export default function Home() {
             style={{ backgroundImage: "url('/background.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
           />
 
-          {/* Blurred Background Orbs for Legibility */}
-          <div className="absolute -top-[-45%] -left-[-40%] w-[400px] h-[150px] bg-background blur-[50px] rounded-full z-[1] pointer-events-none opacity-35" />
-          <div className="absolute top-[10%] left-[0%] w-[850px] h-[400px] bg-background blur-[70px] rounded-[100%] z-[1] pointer-events-none opacity-90" />
-          <div className="absolute -bottom-[40%] left-[0%] w-[300px] h-[400px] bg-background blur-[60px] rounded-full z-[1] pointer-events-none opacity-70" />
+          {/* Blurred Background Orbs for Legibility 
+            //! Problem: Resized pages shift the layout such that these are out of position.
+          */}
+          <div className="absolute -top-[-45%] -left-[-28%] w-[500px] h-[150px] bg-background blur-[30px] rounded-full z-[1] pointer-events-none opacity-80" />
+          <div className="absolute top-[40%] left-[-2%] w-[400px] h-[250px] bg-background blur-[30px] rounded-full z-[1] pointer-events-none opacity-80" />
+          <div className="absolute -bottom-[-23%] left-[5%] w-[750px] h-[120px] bg-background blur-[10px] rounded-md z-[1] pointer-events-none opacity-30" />
 
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start gap-8 w-full">
             {/* Left Side Copy */}
