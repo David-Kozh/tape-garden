@@ -59,6 +59,8 @@
 }
 
 :root {
+  --navbar-height: 81px;
+
   --beat-paper: #F7D4BC;
   --beat-graphite: #211F1C;
   --beat-gold: #DD9326;
@@ -150,5 +152,6 @@
 
   html {
     @apply font-body;
+    scroll-padding-top: var(--navbar-height);
   }
 }

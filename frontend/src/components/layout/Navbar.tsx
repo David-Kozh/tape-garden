@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { ArrowRight, ShoppingCart, Menu } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -16,6 +17,7 @@ import {
 export function Navbar() {
   const { user, role, loading, logout } = useAuth();
   const { itemCount } = useCart();
+  const router = useRouter();
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md border-b border-zinc-400/60 bg-white/10 px-6 py-4 md:px-12 flex justify-between items-center transition-all duration-300">
@@ -64,31 +66,31 @@ export function Navbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white border-zinc-200/60 shadow-lg backdrop-blur-md">
               {role === "admin" && (
-                <DropdownMenuItem className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                  <Link href="/admin/users" className="w-full font-medium text-zinc-700">
+                <DropdownMenuItem onClick={() => router.push("/admin/users")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                  <span className="w-full font-medium text-zinc-700">
                     Admin Portal
-                  </Link>
+                  </span>
                 </DropdownMenuItem>
               )}
               {role === "producer" && (
                 <>
-                  <DropdownMenuItem className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                    <Link href="/dashboard" className="w-full font-medium text-zinc-700">
+                  <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                    <span className="w-full font-medium text-zinc-700">
                       Dashboard
-                    </Link>
+                    </span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                    <Link href="/#backroom" className="w-full font-medium text-zinc-700">
+                  <DropdownMenuItem onClick={() => router.push("/#backroom")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                    <span className="w-full font-medium text-zinc-700">
                       Back Room
-                    </Link>
+                    </span>
                   </DropdownMenuItem>
                 </>
               )}
               {role === "buyer" && (
-                <DropdownMenuItem className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                  <Link href="/dashboard/collection" className="w-full font-medium text-zinc-700">
+                <DropdownMenuItem onClick={() => router.push("/dashboard/collection")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                  <span className="w-full font-medium text-zinc-700">
                     My Purchases
-                  </Link>
+                  </span>
                 </DropdownMenuItem>
               )}
               {role && <DropdownMenuSeparator className="bg-zinc-200/60" />}

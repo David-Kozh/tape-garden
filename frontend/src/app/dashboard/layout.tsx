@@ -34,20 +34,18 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex flex-1 w-full bg-background">
       <Sidebar />
       
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header (placeholder for now if we want mobile sidebar toggle) */}
         <div className="md:hidden border-b border-border p-4 flex items-center justify-between bg-sidebar">
           <span className="font-bold text-lg">Tape Garden Studio</span>
         </div>
         
-        <div className="flex-1 overflow-auto">
-          <div className="container mx-auto p-4 md:p-8 max-w-5xl">
-            {children}
-          </div>
+        <div className="container mx-auto p-4 md:p-8 max-w-5xl">
+          {children}
         </div>
       </main>
     </div>
