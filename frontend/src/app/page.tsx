@@ -38,44 +38,44 @@ export default function Home() {
           className="w-full flex flex-col gap-6 animate-fade-in relative p-8 md:p-12 lg:p-16 rounded-3xl overflow-hidden border border-zinc-200/50 shadow-sm"
         >
           <div
-            className="absolute inset-0 z-0 opacity-75 pointer-events-none mix-blend-overlay"
+            className="absolute inset-0 z-0 opacity-90 pointer-events-none mix-blend-overlay"
             style={{ backgroundImage: "url('/background.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
           />
 
-          {/* Blurred Background Orbs for Legibility 
-            //! Problem: Resized pages shift the layout such that these are out of position.
-          */}
-          <div className="absolute -top-[-45%] -left-[-28%] w-[500px] h-[150px] bg-background blur-[30px] rounded-full z-[1] pointer-events-none opacity-80" />
-          <div className="absolute top-[40%] left-[-2%] w-[400px] h-[250px] bg-background blur-[30px] rounded-full z-[1] pointer-events-none opacity-80" />
-          <div className="absolute -bottom-[-23%] left-[5%] w-[750px] h-[120px] bg-background blur-[10px] rounded-md z-[1] pointer-events-none opacity-30" />
 
-          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start gap-8 w-full">
+
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start gap-2 w-full">
             {/* Left Side Copy */}
             <div className="flex flex-col gap-8 max-w-3xl">
               <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-zinc-900 leading-tight">
                 Curated Beats.<br />
-                <span className="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent">
-                  Grow Your Garden.
+                <span className="relative inline-block mt-1">
+                  <div className="absolute inset-x-[-7%] top-[-20%] bottom-[-35%] bg-background opacity-60 blur-[40px] -z-10 rounded-full pointer-events-none" />
+                  <span className="bg-gradient-to-r from-emerald-700 via-teal-600 to-emerald-600 bg-clip-text text-transparent relative z-10">
+                    Grow Your Garden.
+                  </span>
                 </span>
               </h1>
 
-              <p className="text-base md:text-lg text-zinc-700 leading-relaxed font-normal max-w-2xl">
-                A deliberately minimal space designed for music producers to show their best work.
-                Storefronts built like an art-gallery, not a marketplace -- no extra noise.
-              </p>
+              <div className="flex flex-col gap-8 p-6 md:p-8 rounded-2xl bg-gray-600/40 backdrop-blur-sm border border-white/30 shadow-sm max-w-2xl">
+                <p className="text-base lg:text-lg text-white/90 leading-relaxed font-medium">
+                  A deliberately minimal space designed for music producers to show their best work.
+                  <span className="font-bold"> Storefronts</span> built like an <span className="italic">art-gallery</span>, not a marketplace -- no extra noise.
+                </p>
 
-              <div className="flex items-center gap-4 mt-2">
-                <Link href="/beats" className={buttonVariants({ variant: "default", size: "lg", className: "!bg-emerald-700 !border-emerald-700 hover:!bg-emerald-600 hover:!border-emerald-600 text-white/90 rounded-md !px-8 shadow-md !font-bold !text-md" })}>
-                  Browse
-                </Link>
-                <Link href="/login" className={buttonVariants({ variant: "ghost", size: "lg", className: "!border-emerald-600 !text-emerald-700 hover:!bg-emerald-600 hover:!text-white/90 rounded-md !px-8 !font-bold !text-md" })}>
-                  Login
-                </Link>
+                <div className="flex items-center gap-4">
+                  <Link href="/beats" className={buttonVariants({ variant: "default", size: "lg", className: "!bg-emerald-600 !border-emerald-600 hover:!bg-emerald-800 hover:!border-emerald-400 text-white/90 rounded-md !px-8 shadow-md !font-bold !text-md" })}>
+                    Browse
+                  </Link>
+                  <Link href="/login" className={buttonVariants({ variant: "ghost", size: "lg", className: "!border-emerald-300 !text-emerald-300 hover:!bg-emerald-800 hover:!text-white/90 rounded-md !px-8 !font-bold !text-md" })}>
+                    Login
+                  </Link>
+                </div>
               </div>
             </div>
 
             {/* Right Side Tag */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-300/50 border border-emerald-500/20 text-emerald-700 text-xs lg:text-sm font-semibold whitespace-nowrap shrink-0 md:mt-3">
+            <div className="order-first md:order-last inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-300/50 border border-emerald-500/20 text-emerald-700 text-xs lg:text-sm font-semibold whitespace-nowrap shrink-0 md:mt-3">
               <Flower2 className="w-4 h-4 animate-pulse" />
               Now Entering Alpha
             </div>
