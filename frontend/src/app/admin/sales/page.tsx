@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
 import { doc, getDoc, collection, query, orderBy, limit, getDocs, Timestamp } from "firebase/firestore";
 import { Purchase, User, AdminSalesSummary } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,15 @@ export default function AdminSalesDashboard() {
   useEffect(() => {
     async function fetchSalesData() {
       try {
+        // DEBUG: Check current user's token claims
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const tokenResult = await currentUser.getIdTokenResult(true);
+          console.log("[DEBUG] User UID:", currentUser.uid);
+          console.log("[DEBUG] Token claims:", JSON.stringify(tokenResult.claims, null, 2));
+        } else {
+          console.log("[DEBUG] No current user!");
+        }
         // 1. Fetch Admin Sales Summary (all-time)
         const allTimeRef = doc(db, "adminSalesSummary", "all-time");
         const allTimeSnap = await getDoc(allTimeRef);
