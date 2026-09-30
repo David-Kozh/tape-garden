@@ -72,6 +72,9 @@ export interface Beat {
 
   // Available licenses
   licenses: BeatLicense[];
+  
+  // Admin curation
+  curated?: boolean;
 }
 
 /**
@@ -132,6 +135,22 @@ export interface Application {
   reviewedAt?: Date | string;
   createdAt: Date | string;
   updatedAt: Date | string;
+}
+
+/**
+ * 8. Flagged Beats Collection
+ * Matches collection `/flaggedBeats`
+ */
+export interface FlaggedBeat {
+  beatId: string;
+  flaggedBy: string; // Admin UID
+  flaggedAt: Date | string;
+  reason: string;
+  status: "pending" | "reviewed";
+  // Denormalized for admin queue display:
+  title: string;
+  producerId: string;
+  producerName: string;
 }
 
 /**

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db, auth } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, orderBy, limit, getDocs, Timestamp } from "firebase/firestore";
 import { Purchase, User, AdminSalesSummary } from "@/types";
+import { formatCents } from "@/lib/utils/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DollarSign, Activity, CreditCard, ArrowRightLeft } from "lucide-react";
@@ -18,15 +19,6 @@ export default function AdminSalesDashboard() {
   useEffect(() => {
     async function fetchSalesData() {
       try {
-        // DEBUG: Check current user's token claims
-        const currentUser = auth.currentUser;
-        if (currentUser) {
-          const tokenResult = await currentUser.getIdTokenResult(true);
-          console.log("[DEBUG] User UID:", currentUser.uid);
-          console.log("[DEBUG] Token claims:", JSON.stringify(tokenResult.claims, null, 2));
-        } else {
-          console.log("[DEBUG] No current user!");
-        }
         // 1. Fetch Admin Sales Summary (all-time)
         const allTimeRef = doc(db, "adminSalesSummary", "all-time");
         const allTimeSnap = await getDoc(allTimeRef);
@@ -104,7 +96,7 @@ export default function AdminSalesDashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">${formatCents(totalRevenue)}</div>
             <p className="text-xs text-muted-foreground mt-1">All-time gross volume</p>
           </CardContent>
         </Card>
@@ -115,7 +107,7 @@ export default function AdminSalesDashboard() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalPlatformFees.toFixed(2)}</div>
+            <div className="text-2xl font-bold">${formatCents(totalPlatformFees)}</div>
             <p className="text-xs text-muted-foreground mt-1">All-time collected</p>
           </CardContent>
         </Card>
@@ -126,7 +118,7 @@ export default function AdminSalesDashboard() {
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${recentPlatformFees.toFixed(2)}</div>
+            <div className="text-2xl font-bold">${formatCents(recentPlatformFees)}</div>
             <p className="text-xs text-muted-foreground mt-1">Current month</p>
           </CardContent>
         </Card>
@@ -191,8 +183,8 @@ export default function AdminSalesDashboard() {
                           {purchase.licenseType}
                         </span>}
                       </TableCell>
-                      <TableCell className="text-right font-medium">${purchase.price.toFixed(2)}</TableCell>
-                      <TableCell className="text-right text-muted-foreground">${purchase.platformFee.toFixed(2)}</TableCell>
+                      <TableCell className="text-right font-medium">${formatCents(purchase.price)}</TableCell>
+                      <TableCell className="text-right text-muted-foreground">${formatCents(purchase.platformFee)}</TableCell>
                       <TableCell className="text-center">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
                           purchase.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :

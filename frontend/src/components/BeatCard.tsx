@@ -2,13 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { PlayCircle, PauseCircle, ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { PlayCircle, PauseCircle, MoreVertical, Flag, Star } from "lucide-react";
 import { BeatWithProducer } from "@/lib/services/gallery";
 import { useAudio } from "@/context/AudioContext";
+import { useAuth } from "@/context/AuthContext";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { flagBeat, toggleCurated } from "@/lib/services/adminClient";
+import { toast } from "sonner";
 
 interface BeatCardProps {
   beat: BeatWithProducer;
@@ -16,8 +23,39 @@ interface BeatCardProps {
 
 export function BeatCard({ beat }: BeatCardProps) {
   const { currentBeat, isPlaying, play, togglePlayPause } = useAudio();
-  
+  const { role } = useAuth();
+
   const isCurrentBeat = currentBeat?.id === beat.id;
+  const [isCurated, setIsCurated] = useState(beat.curated ?? false);
+  const [isFlagDialogOpen, setIsFlagDialogOpen] = useState(false);
+  const [flagReason, setFlagReason] = useState("");
+
+  const handleToggleCurated = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await toggleCurated(beat.id, !isCurated);
+      setIsCurated(!isCurated);
+      toast.success(isCurated ? "Removed from curated" : "Added to curated");
+    } catch {
+      toast.error("Failed to update curated status");
+    }
+  };
+
+  const handleFlagSubmit = async () => {
+    if (!flagReason.trim()) {
+      toast.error("Please enter a reason");
+      return;
+    }
+    try {
+      await flagBeat(beat.id, flagReason);
+      toast.success("Beat flagged for moderation");
+      setIsFlagDialogOpen(false);
+      setFlagReason("");
+    } catch {
+      toast.error("Failed to flag beat");
+    }
+  };
 
   const handlePlayClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -46,12 +84,12 @@ export function BeatCard({ beat }: BeatCardProps) {
             No Cover
           </div>
         )}
-        
+
         {/* Play Overlay */}
         <div className="absolute inset-0 bg-background/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
-          <Button 
-            size="icon" 
-            variant="secondary" 
+          <Button
+            size="icon"
+            variant="secondary"
             className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
             onClick={handlePlayClick}
           >
@@ -62,7 +100,7 @@ export function BeatCard({ beat }: BeatCardProps) {
             )}
           </Button>
         </div>
-        
+
         {/* Tags */}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap z-20 pointer-events-none">
           {beat.tags?.slice(0, 2).map((tag) => (
@@ -71,6 +109,27 @@ export function BeatCard({ beat }: BeatCardProps) {
             </Badge>
           ))}
         </div>
+
+        {/* Admin Menu */}
+        {role === "admin" && (
+          <div className="absolute top-2 right-2 z-30 bg-black">
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background" />}>
+                <MoreVertical className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleToggleCurated}>
+                  <Star className="mr-2 h-4 w-4" />
+                  {isCurated ? "Remove from Curated" : "Add to Curated"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsFlagDialogOpen(true)} className="text-destructive focus:text-destructive">
+                  <Flag className="mr-2 h-4 w-4" />
+                  Flag for Moderation
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       </div>
 
       <CardContent className="p-4 relative z-20">
@@ -91,12 +150,33 @@ export function BeatCard({ beat }: BeatCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="p-4 pt-0 gap-2 relative z-20">
-        <Link href={`/beats/${beat.id}`} className={cn(buttonVariants({ variant: "default" }), "w-full gap-2")}>
-          <ShoppingCart className="w-4 h-4" />
-          Add
-        </Link>
-      </CardFooter>
+      <Dialog open={isFlagDialogOpen} onOpenChange={setIsFlagDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Flag Beat for Moderation</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to flag &quot;{beat.title}&quot;?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="reason">Reason for flagging</Label>
+              <Textarea
+                id="reason"
+                value={flagReason}
+                onChange={(e) => setFlagReason(e.target.value)}
+                placeholder="e.g. Copyright infringement, inappropriate content..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose render={<Button variant="outline" />}>
+              Cancel
+            </DialogClose>
+            <Button variant="destructive" onClick={handleFlagSubmit}>Submit Flag</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

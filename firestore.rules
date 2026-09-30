@@ -70,7 +70,8 @@ service cloud.firestore {
       allow update: if isAdmin() || (
         isProducer() && 
         resource.data.producerId == request.auth.uid && 
-        request.resource.data.producerId == request.auth.uid
+        request.resource.data.producerId == request.auth.uid &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['curated'])
       );
       
       allow delete: if isAdmin() || (
@@ -140,6 +141,12 @@ service cloud.firestore {
         (isProducer() && resource.data.producerId == request.auth.uid);
       // Written by Cloud Functions (Admin SDK) only
       allow write: if false;
+    }
+
+    // 8. Flagged Beats collection security
+    match /flaggedBeats/{beatId} {
+      // Only admins can read and write the moderation queue
+      allow read, write: if isAdmin();
     }
   }
 }
