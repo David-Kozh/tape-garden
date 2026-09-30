@@ -55,6 +55,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             Sales
           </Link>
+          <Link
+            href="/admin/moderation"
+            className={`pb-1 border-b-2 ${pathname === "/admin/moderation" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            Moderation
+          </Link>
         </nav>
       </header>
       <main className="flex-1 p-6 max-w-7xl w-full mx-auto">

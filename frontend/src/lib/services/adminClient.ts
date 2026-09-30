@@ -1,5 +1,5 @@
 import { db, auth } from "../firebase";
-import { doc, updateDoc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
+import { doc, updateDoc, setDoc, serverTimestamp, getDoc, deleteDoc } from "firebase/firestore";
 import { Beat } from "@/types";
 
 /**
@@ -42,4 +42,21 @@ export async function flagBeat(beatId: string, reason: string = "Admin moderatio
     producerId: beatData.producerId,
     producerName
   });
+}
+
+/**
+ * Resolves a flagged beat by either dismissing the flag or removing the beat.
+ */
+export async function resolveFlaggedBeat(beatId: string, action: 'dismiss' | 'remove') {
+  if (!auth.currentUser) throw new Error("Not authenticated");
+  
+  const flaggedRef = doc(db, "flaggedBeats", beatId);
+  
+  if (action === 'dismiss') {
+    await deleteDoc(flaggedRef);
+  } else if (action === 'remove') {
+    const beatRef = doc(db, "beats", beatId);
+    await updateDoc(beatRef, { status: "suspended" });
+    await updateDoc(flaggedRef, { status: "reviewed" });
+  }
 }
