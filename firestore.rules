@@ -124,5 +124,22 @@ service cloud.firestore {
       allow create: if request.resource.data.status == 'pending';
       allow read, update, delete: if isAdmin();
     }
+
+    // 6. Admin Sales Summary collection security
+    match /adminSalesSummary/{docId} {
+      // Only admins can read admin-level sales summaries
+      allow read: if isAdmin();
+      // Written by Cloud Functions (Admin SDK) only
+      allow write: if false;
+    }
+
+    // 7. Producer Sales Summary collection security
+    match /producerSalesSummary/{docId} {
+      // Admin can read all; producers can read their own summaries
+      allow read: if isAdmin() || 
+        (isProducer() && resource.data.producerId == request.auth.uid);
+      // Written by Cloud Functions (Admin SDK) only
+      allow write: if false;
+    }
   }
 }
