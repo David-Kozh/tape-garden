@@ -699,8 +699,13 @@ export const onPurchaseCreatedHandler = functions
 
     try {
       await db.runTransaction(async (transaction) => {
-        // Update Producer Summary (YYYY-MM)
+        // 1. Perform all reads first
         const prodDoc = await transaction.get(producerSummaryRef);
+        const adminPeriodDoc = await transaction.get(adminSummaryPeriodRef);
+        const adminAllTimeDoc = await transaction.get(adminSummaryAllTimeRef);
+
+        // 2. Perform all writes
+        // Update Producer Summary (YYYY-MM)
         if (prodDoc.exists) {
           transaction.update(producerSummaryRef, {
             totalTransactions: FieldValue.increment(1),
@@ -719,7 +724,6 @@ export const onPurchaseCreatedHandler = functions
         }
 
         // Update Admin Summary (YYYY-MM)
-        const adminPeriodDoc = await transaction.get(adminSummaryPeriodRef);
         if (adminPeriodDoc.exists) {
           transaction.update(adminSummaryPeriodRef, {
             totalTransactions: FieldValue.increment(1),
@@ -738,7 +742,6 @@ export const onPurchaseCreatedHandler = functions
         }
 
         // Update Admin Summary (All-Time)
-        const adminAllTimeDoc = await transaction.get(adminSummaryAllTimeRef);
         if (adminAllTimeDoc.exists) {
           transaction.update(adminSummaryAllTimeRef, {
             totalTransactions: FieldValue.increment(1),
