@@ -662,3 +662,102 @@ export const deleteBeat = functions
       throw new functions.https.HttpsError("internal", err.message || "An error occurred while deleting the beat.");
     }
   });
+
+/**
+ * Cloud Function Trigger: onPurchaseCreated
+ * Automatically executes when a new purchase document is created.
+ * Aggregates purchase data into ProducerSalesSummary and AdminSalesSummary.
+ */
+export const onPurchaseCreatedHandler = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10 })
+  .firestore
+  .document("purchases/{purchaseId}")
+  .onCreate(async (snap, context) => {
+    const purchaseData = snap.data();
+    if (!purchaseData) return;
+
+    // Optional safety guard in case 'pending' purchases are recorded.
+    if (purchaseData.status !== "completed") {
+      console.log(`[onPurchaseCreated] Purchase ${context.params.purchaseId} is not completed. Skipping aggregation.`);
+      return;
+    }
+
+    const { producerId, price, platformFee, producerPayout } = purchaseData;
+    if (!producerId) return;
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    
+    // We aggregate by period (YYYY-MM) and 'all-time'
+    const now = new Date();
+    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    
+    const producerSummaryRef = db.collection("producerSalesSummary").doc(`${producerId}_${period}`);
+    const adminSummaryPeriodRef = db.collection("adminSalesSummary").doc(period);
+    const adminSummaryAllTimeRef = db.collection("adminSalesSummary").doc("all-time");
+
+    try {
+      await db.runTransaction(async (transaction) => {
+        // Update Producer Summary (YYYY-MM)
+        const prodDoc = await transaction.get(producerSummaryRef);
+        if (prodDoc.exists) {
+          transaction.update(producerSummaryRef, {
+            totalTransactions: FieldValue.increment(1),
+            totalRevenue: FieldValue.increment(producerPayout || 0),
+            updatedAt: FieldValue.serverTimestamp()
+          });
+        } else {
+          transaction.set(producerSummaryRef, {
+            id: `${producerId}_${period}`,
+            producerId: producerId,
+            period: period,
+            totalTransactions: 1,
+            totalRevenue: producerPayout || 0,
+            updatedAt: FieldValue.serverTimestamp()
+          });
+        }
+
+        // Update Admin Summary (YYYY-MM)
+        const adminPeriodDoc = await transaction.get(adminSummaryPeriodRef);
+        if (adminPeriodDoc.exists) {
+          transaction.update(adminSummaryPeriodRef, {
+            totalTransactions: FieldValue.increment(1),
+            totalRevenue: FieldValue.increment(price || 0),
+            totalPlatformFees: FieldValue.increment(platformFee || 0),
+            updatedAt: FieldValue.serverTimestamp()
+          });
+        } else {
+          transaction.set(adminSummaryPeriodRef, {
+            id: period,
+            totalTransactions: 1,
+            totalRevenue: price || 0,
+            totalPlatformFees: platformFee || 0,
+            updatedAt: FieldValue.serverTimestamp()
+          });
+        }
+
+        // Update Admin Summary (All-Time)
+        const adminAllTimeDoc = await transaction.get(adminSummaryAllTimeRef);
+        if (adminAllTimeDoc.exists) {
+          transaction.update(adminSummaryAllTimeRef, {
+            totalTransactions: FieldValue.increment(1),
+            totalRevenue: FieldValue.increment(price || 0),
+            totalPlatformFees: FieldValue.increment(platformFee || 0),
+            updatedAt: FieldValue.serverTimestamp()
+          });
+        } else {
+          transaction.set(adminSummaryAllTimeRef, {
+            id: "all-time",
+            totalTransactions: 1,
+            totalRevenue: price || 0,
+            totalPlatformFees: platformFee || 0,
+            updatedAt: FieldValue.serverTimestamp()
+          });
+        }
+      });
+      console.log(`[onPurchaseCreated] Successfully aggregated purchase ${context.params.purchaseId}`);
+    } catch (error) {
+      console.error(`[onPurchaseCreated] Error aggregating purchase ${context.params.purchaseId}:`, error);
+      throw error;
+    }
+  });

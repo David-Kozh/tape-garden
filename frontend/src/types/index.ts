@@ -25,7 +25,7 @@ export interface User {
   email: string;
   displayName: string;
   createdAt: Date | string; // ISO 8601 string or Date object
-  
+
   // Payment Integrations
   stripeCustomerId?: string; // For users who make purchases
   stripeAccountId?: string; // Stripe Connect ID (Producers only)
@@ -66,13 +66,13 @@ export interface Beat {
   status: "draft" | "published" | "hidden" | "suspended";
   createdAt: Date | string;
   updatedAt: Date | string;
-  
+
   // Audio file stored in GCS (Public-readable/cached preview)
   audioPreviewUrl: string;
 
   // Available licenses
   licenses: BeatLicense[];
-  
+
   // Admin curation
   curated?: boolean;
 }
@@ -91,10 +91,10 @@ export interface SamplePack {
   status: "draft" | "published" | "hidden" | "suspended";
   createdAt: Date | string;
   updatedAt: Date | string;
-  
+
   // Audio preview medley (Public-readable/cached GCS)
   audioPreviewUrl: string;
-  
+
   // GCS path to downloadable archive ZIP (Private GCS)
   fileUrl: string;
 }
@@ -162,6 +162,7 @@ export interface ProducerSalesSummary {
   producerId: string; // Reference to `users.uid`
   period: string; // e.g. "YYYY-MM"
   totalTransactions: number;
+  totalRevenue: number;
   updatedAt: Date | string;
 }
 

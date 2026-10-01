@@ -5,7 +5,6 @@ import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, orderBy, Timestamp } from "firebase/firestore";
 import { FlaggedBeat } from "@/types";
 import { resolveFlaggedBeat } from "@/lib/services/adminClient";
-import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, CheckCircle, Trash2 } from "lucide-react";
@@ -17,29 +16,29 @@ export default function AdminModerationDashboard() {
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
+    async function fetchFlaggedBeats() {
+      try {
+        setLoading(true);
+        const q = query(
+          collection(db, "flaggedBeats"),
+          where("status", "==", "pending"),
+          orderBy("flaggedAt", "desc")
+        );
+        const snapshot = await getDocs(q);
+        const data = snapshot.docs.map(doc => doc.data() as FlaggedBeat);
+        setFlaggedBeats(data);
+      } catch (error) {
+        console.error("Error fetching flagged beats:", error);
+        toast.error("Error fetching moderation queue", {
+          description: "Failed to load flagged beats.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchFlaggedBeats();
   }, []);
-
-  async function fetchFlaggedBeats() {
-    try {
-      setLoading(true);
-      const q = query(
-        collection(db, "flaggedBeats"),
-        where("status", "==", "pending"),
-        orderBy("flaggedAt", "desc")
-      );
-      const snapshot = await getDocs(q);
-      const data = snapshot.docs.map(doc => doc.data() as FlaggedBeat);
-      setFlaggedBeats(data);
-    } catch (error) {
-      console.error("Error fetching flagged beats:", error);
-      toast.error("Error fetching moderation queue", {
-        description: "Failed to load flagged beats.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handleResolve(beatId: string, action: 'dismiss' | 'remove') {
     try {
