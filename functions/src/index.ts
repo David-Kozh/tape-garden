@@ -765,3 +765,113 @@ export const onPurchaseCreatedHandler = functions
       throw error;
     }
   });
+
+interface GenerateDownloadUrlData {
+  purchaseId: string;
+}
+
+/**
+ * Cloud Function HTTPS Callable: generateDownloadUrl
+ * Generates a time-limited pre-signed URL for a purchased item.
+ */
+export const generateDownloadUrl = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10 })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError("unauthenticated", "You must be logged in to download items.");
+    }
+    const uid = context.auth.uid;
+    const { purchaseId } = (data || {}) as GenerateDownloadUrlData;
+
+    if (!purchaseId) {
+      throw new functions.https.HttpsError("invalid-argument", "Missing purchaseId.");
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    const storage = getStorage(admin.app());
+    const bucket = storage.bucket();
+
+    try {
+      // 1. Fetch purchase and check ownership
+      const purchaseRef = db.collection("purchases").doc(purchaseId);
+      const purchaseDoc = await purchaseRef.get();
+
+      if (!purchaseDoc.exists) {
+        throw new functions.https.HttpsError("not-found", "Purchase not found.");
+      }
+
+      const purchaseData = purchaseDoc.data()!;
+      if (purchaseData.buyerId !== uid) {
+        throw new functions.https.HttpsError("permission-denied", "You do not own this purchase.");
+      }
+      if (purchaseData.status !== "completed") {
+        throw new functions.https.HttpsError("failed-precondition", "Purchase is not completed.");
+      }
+
+      // 2. Rate limiting check (e.g. max 20 per hour)
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      const downloadLogsQuery = await db.collection("downloadLogs")
+        .where("buyerId", "==", uid)
+        .where("timestamp", ">=", oneHourAgo)
+        .count()
+        .get();
+
+      if (downloadLogsQuery.data().count >= 20) {
+        throw new functions.https.HttpsError("resource-exhausted", "Rate limit exceeded. Please try again later.");
+      }
+
+      // 3. Resolve the file URL
+      let fileUrl = "";
+      if (purchaseData.itemType === "beat") {
+        const beatDoc = await db.collection("beats").doc(purchaseData.itemId).get();
+        if (!beatDoc.exists) {
+          throw new functions.https.HttpsError("not-found", "Purchased beat not found.");
+        }
+        const beatData = beatDoc.data()!;
+        const license = beatData.licenses?.find((l: { type: string; fileUrl: string; }) => l.type === purchaseData.licenseType);
+        if (!license || !license.fileUrl) {
+          throw new functions.https.HttpsError("not-found", "Beat license file not found.");
+        }
+        fileUrl = license.fileUrl;
+      } else if (purchaseData.itemType === "samplePack") {
+        const packDoc = await db.collection("samplePacks").doc(purchaseData.itemId).get();
+        if (!packDoc.exists) {
+          throw new functions.https.HttpsError("not-found", "Purchased sample pack not found.");
+        }
+        const packData = packDoc.data()!;
+        if (!packData.fileUrl) {
+          throw new functions.https.HttpsError("not-found", "Sample pack file not found.");
+        }
+        fileUrl = packData.fileUrl;
+      } else {
+        throw new functions.https.HttpsError("invalid-argument", "Unknown itemType.");
+      }
+
+      // 4. Generate signed URL
+      const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+      const [downloadUrl] = await bucket.file(fileUrl).getSignedUrl({
+        action: "read",
+        expires: expiresAt,
+      });
+
+      // 5. Log the download
+      await db.collection("downloadLogs").add({
+        purchaseId,
+        buyerId: uid,
+        itemId: purchaseData.itemId,
+        itemType: purchaseData.itemType,
+        timestamp: FieldValue.serverTimestamp(),
+      });
+
+      return {
+        downloadUrl,
+        expiresAt,
+      };
+
+    } catch (error) {
+      console.error("[generateDownloadUrl] Error:", error);
+      if (error instanceof functions.https.HttpsError) throw error;
+      throw new functions.https.HttpsError("internal", "An error occurred generating the download link.");
+    }
+  });

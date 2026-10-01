@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { db } from "@/lib/firebase";
+import { db, functions } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
 import Link from "next/link";
-import { Download, Library, ExternalLink } from "lucide-react";
+import { Download, Library, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Purchase {
@@ -25,6 +26,7 @@ export default function CollectionPage() {
   const { user } = useAuth();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPurchases() {
@@ -59,9 +61,21 @@ export default function CollectionPage() {
   }, [user]);
 
   const handleDownload = async (purchaseId: string) => {
-    // TODO: Call cloud function to get signed URL
-    console.log("Download", purchaseId);
-    alert("Secure download via signed URL will be implemented alongside backend storage rules.");
+    try {
+      setDownloadingId(purchaseId);
+      const generateDownloadUrl = httpsCallable(functions, "generateDownloadUrl");
+      const result = await generateDownloadUrl({ purchaseId });
+      const { downloadUrl } = result.data as { downloadUrl: string, expiresAt: number };
+      
+      // Open the URL in a new tab to trigger download
+      window.open(downloadUrl, "_blank");
+    } catch (error: unknown) {
+      console.error("Error generating download URL:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to generate download link.";
+      alert(errorMessage);
+    } finally {
+      setDownloadingId(null);
+    }
   };
 
   if (loading) {
@@ -138,9 +152,14 @@ export default function CollectionPage() {
                         size="sm" 
                         className="gap-2"
                         onClick={() => handleDownload(purchase.id)}
+                        disabled={downloadingId === purchase.id}
                       >
-                        <Download className="w-4 h-4" />
-                        Download
+                        {downloadingId === purchase.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4" />
+                        )}
+                        {downloadingId === purchase.id ? "Preparing..." : "Download"}
                       </Button>
                     </td>
                   </tr>
