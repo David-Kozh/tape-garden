@@ -672,6 +672,7 @@ export const onPurchaseCreatedHandler = functions
   .region("us-east4")
   .runWith({ maxInstances: 10 })
   .firestore
+  .database("tape-garden-db")
   .document("purchases/{purchaseId}")
   .onCreate(async (snap, context) => {
     const purchaseData = snap.data();
