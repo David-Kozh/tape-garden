@@ -48,7 +48,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "buyerId", "order": "ASCENDING" },
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
+        { "fieldPath": "timestamp", "order": "ASCENDING" }
       ]
     }
   ],
