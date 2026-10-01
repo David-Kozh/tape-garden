@@ -690,7 +690,7 @@ export const onPurchaseCreatedHandler = functions
     
     // We aggregate by period (YYYY-MM) and 'all-time'
     const now = new Date();
-    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
     
     const producerSummaryRef = db.collection("producerSalesSummary").doc(`${producerId}_${period}`);
     const adminSummaryPeriodRef = db.collection("adminSalesSummary").doc(period);

@@ -1,5 +1,5 @@
-const { initializeApp, getApp } = require('firebase-admin/app');
-const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const { initializeApp, getApp } = require("firebase-admin/app");
+const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 
 initializeApp();
 
@@ -7,7 +7,7 @@ const db = getFirestore(getApp(), "tape-garden-db");
 
 async function seed() {
   try {
-    const purchaseRef = db.collection('purchases').doc();
+    const purchaseRef = db.collection("purchases").doc();
     const mockPurchase = {
       id: purchaseRef.id,
       buyerId: "EJJISAENOGeJXeT5HCPQgm11rCp2",
@@ -28,8 +28,7 @@ async function seed() {
     await purchaseRef.set(mockPurchase);
     console.log(`Successfully seeded purchase: ${purchaseRef.id}`);
 
-    // Give the cloud function a second to process
-    setTimeout(() => process.exit(0), 1000);
+    process.exit(0);
   } catch (err) {
     console.error("Error seeding purchase:", err);
     process.exit(1);
