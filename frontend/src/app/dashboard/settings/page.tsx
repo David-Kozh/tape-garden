@@ -102,7 +102,7 @@ export default function SettingsPage() {
             setStripeAccountId(data.stripeAccountId);
           }
           if (data.producerProfile?.stripeStatus) {
-            let currentStatus = data.producerProfile.stripeStatus;
+            const currentStatus = data.producerProfile.stripeStatus;
             setStripeStatus(currentStatus);
             
             // Auto-verify if stuck in pending
