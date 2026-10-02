@@ -102,7 +102,22 @@ export default function SettingsPage() {
             setStripeAccountId(data.stripeAccountId);
           }
           if (data.producerProfile?.stripeStatus) {
-            setStripeStatus(data.producerProfile.stripeStatus);
+            let currentStatus = data.producerProfile.stripeStatus;
+            setStripeStatus(currentStatus);
+            
+            // Auto-verify if stuck in pending
+            if (currentStatus === "pending") {
+              try {
+                const verifyStripeAccount = httpsCallable(functions, "verifyStripeAccount");
+                const res = await verifyStripeAccount();
+                const verifyData = res.data as { status: string };
+                if (verifyData.status === "active") {
+                  setStripeStatus("active");
+                }
+              } catch (e) {
+                console.error("Error verifying Stripe account status:", e);
+              }
+            }
           }
         }
       } catch (error) {

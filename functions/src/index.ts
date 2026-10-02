@@ -978,6 +978,46 @@ export const getStripeDashboardLink = functions
     }
   });
 
+/**
+ * Cloud Function HTTPS Callable: verifyStripeAccount
+ * Manually checks the status of a Stripe Connect account.
+ */
+export const verifyStripeAccount = functions
+  .region("us-east4")
+  .runWith({ secrets: [stripeSecretKey] })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth || !context.auth.token.producer) {
+      throw new functions.https.HttpsError("permission-denied", "Only producers can verify Stripe account.");
+    }
+    const uid = context.auth.uid;
+    const db = getFirestore(admin.app(), "tape-garden-db");
+
+    try {
+      const userRef = db.collection("users").doc(uid);
+      const userDoc = await userRef.get();
+      const userData = userDoc.data();
+
+      if (!userData || !userData.stripeAccountId) {
+        return { status: "not_connected" };
+      }
+
+      const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: "2026-09-30.endive" });
+      const account = await stripe.accounts.retrieve(userData.stripeAccountId);
+
+      if (account.details_submitted && account.payouts_enabled) {
+        await userRef.update({
+          "producerProfile.stripeStatus": "active"
+        });
+        return { status: "active" };
+      } else {
+        return { status: "pending" };
+      }
+    } catch (error) {
+      console.error("[verifyStripeAccount] Error:", error);
+      throw new functions.https.HttpsError("internal", "An error occurred verifying Stripe account.");
+    }
+  });
+
 interface CartItem {
   itemId: string;
   itemType: "beat" | "samplePack";
