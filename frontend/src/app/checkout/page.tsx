@@ -27,7 +27,7 @@ export default function CheckoutPage() {
         licenseType: item.licenseType,
       }));
 
-      const result = await createCheckoutSession({ items: formattedItems });
+      const result = await createCheckoutSession({ items: formattedItems, origin: window.location.origin });
       const { url } = result.data as { url: string };
       
       if (url) {

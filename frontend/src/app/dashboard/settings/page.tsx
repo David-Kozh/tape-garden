@@ -122,7 +122,7 @@ export default function SettingsPage() {
     setStripeLoading(true);
     try {
       const createStripeConnectAccount = httpsCallable(functions, "createStripeConnectAccount");
-      const result = await createStripeConnectAccount();
+      const result = await createStripeConnectAccount({ origin: window.location.origin });
       const { url } = result.data as { url: string };
       window.location.href = url;
     } catch (error: unknown) {
@@ -136,7 +136,7 @@ export default function SettingsPage() {
     setStripeLoading(true);
     try {
       const getStripeDashboardLink = httpsCallable(functions, "getStripeDashboardLink");
-      const result = await getStripeDashboardLink();
+      const result = await getStripeDashboardLink({ origin: window.location.origin });
       const { url } = result.data as { url: string };
       window.open(url, "_blank");
       setStripeLoading(false);

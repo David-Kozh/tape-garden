@@ -924,7 +924,11 @@ export const createStripeConnectAccount = functions
       }
 
       // Generate account link
-      const origin = process.env.NODE_ENV === "production" ? "https://tapegarden.com" : "http://localhost:3000";
+      const dataOrigin = (data as Record<string, unknown>)?.origin as string | undefined;
+      if (!dataOrigin) {
+        throw new functions.https.HttpsError("invalid-argument", "The 'origin' parameter is required.");
+      }
+      const origin = dataOrigin;
       const accountLink = await stripe.accountLinks.create({
         account: stripeAccountId,
         refresh_url: `${origin}/dashboard/settings?stripe=refresh`,
@@ -1083,7 +1087,11 @@ export const createCheckoutSession = functions
       }
 
       const transferGroup = `cart_${Math.random().toString(36).substring(2, 15)}`;
-      const origin = process.env.NODE_ENV === "production" ? "https://tapegarden.com" : "http://localhost:3000";
+      const dataOrigin = (data as Record<string, unknown>)?.origin as string | undefined;
+      if (!dataOrigin) {
+        throw new functions.https.HttpsError("invalid-argument", "The 'origin' parameter is required.");
+      }
+      const origin = dataOrigin;
 
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
