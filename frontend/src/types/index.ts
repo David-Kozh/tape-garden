@@ -39,6 +39,7 @@ export interface User {
     bio: string;
     socialLinks: string[];
     avatarUrl: string;
+    stripeStatus?: "pending" | "active" | null;
   } | null;
 }
 

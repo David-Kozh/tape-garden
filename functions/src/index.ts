@@ -2,6 +2,11 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
+import { defineSecret } from "firebase-functions/params";
+import Stripe from "stripe";
+
+const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
+const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -432,19 +437,19 @@ export const getAdminProducers = functions
     }
 
     const db = getFirestore(admin.app(), "tape-garden-db");
-    
+
     try {
       const usersSnap = await db.collection("users").where("role", "==", "producer").get();
-      
+
       const producers = await Promise.all(usersSnap.docs.map(async (doc) => {
         const userData = doc.data();
-        
+
         // Count published beats
         const beatsSnap = await db.collection("beats")
           .where("producerId", "==", doc.id)
           .where("status", "==", "published")
           .count().get();
-          
+
         // Count published sample packs
         const packsSnap = await db.collection("samplePacks")
           .where("producerId", "==", doc.id)
@@ -525,7 +530,7 @@ export const updateProducerAccount = functions
               .where("producerId", "==", producerId)
               .where("status", "==", "published")
               .get();
-              
+
             beatsQuery.forEach((doc) => {
               transaction.update(doc.ref, { status: "suspended", updatedAt: FieldValue.serverTimestamp() });
             });
@@ -548,7 +553,7 @@ export const updateProducerAccount = functions
               .where("producerId", "==", producerId)
               .where("status", "==", "suspended")
               .get();
-              
+
             beatsQuery.forEach((doc) => {
               transaction.update(doc.ref, { status: "hidden", updatedAt: FieldValue.serverTimestamp() });
             });
@@ -623,7 +628,7 @@ export const deleteBeat = functions
       const purchasesQuery = db.collection("purchases")
         .where("itemId", "==", beatId)
         .where("itemType", "==", "beat");
-      
+
       const purchasesSnap = await purchasesQuery.limit(1).get();
 
       if (!purchasesSnap.empty) {
@@ -644,7 +649,7 @@ export const deleteBeat = functions
         } catch (err) {
           console.warn(`[deleteBeat] Could not clean up preview directory: ${prefixPreview}`, err);
         }
-        
+
         try {
           await bucket.deleteFiles({ prefix: prefixPurchased });
         } catch (err) {
@@ -688,11 +693,11 @@ export const onPurchaseCreatedHandler = functions
     if (!producerId) return;
 
     const db = getFirestore(admin.app(), "tape-garden-db");
-    
+
     // We aggregate by period (YYYY-MM) and 'all-time'
     const now = new Date();
     const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    
+
     const producerSummaryRef = db.collection("producerSalesSummary").doc(`${producerId}_${period}`);
     const adminSummaryPeriodRef = db.collection("adminSalesSummary").doc(period);
     const adminSummaryAllTimeRef = db.collection("adminSalesSummary").doc("all-time");
@@ -809,7 +814,7 @@ export const generateDownloadUrl = functions
         throw new functions.https.HttpsError("failed-precondition", "Purchase is not completed.");
       }
 
-      // 2. Rate limiting check (e.g. max 20 per hour)
+      // 2. Rate limiting check (max 3 per hour for now)
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
       const downloadLogsQuery = await db.collection("downloadLogs")
         .where("buyerId", "==", uid)
@@ -817,7 +822,7 @@ export const generateDownloadUrl = functions
         .count()
         .get();
 
-      if (downloadLogsQuery.data().count >= 20) {
+      if (downloadLogsQuery.data().count >= 3) {
         throw new functions.https.HttpsError("resource-exhausted", "Rate limit exceeded. Please try again later.");
       }
 
@@ -873,5 +878,333 @@ export const generateDownloadUrl = functions
       console.error("[generateDownloadUrl] Error:", error);
       if (error instanceof functions.https.HttpsError) throw error;
       throw new functions.https.HttpsError("internal", "An error occurred generating the download link.");
+    }
+  });
+
+/**
+ * Cloud Function HTTPS Callable: createStripeConnectAccount
+ * Creates an Express account for a producer and returns an onboarding URL.
+ * 
+ * Testing required.
+ * 
+ */
+export const createStripeConnectAccount = functions
+  .region("us-east4")
+  .runWith({ secrets: [stripeSecretKey] })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth || !context.auth.token.producer) {
+      throw new functions.https.HttpsError("permission-denied", "Only producers can connect Stripe.");
+    }
+    const uid = context.auth.uid;
+    const db = getFirestore(admin.app(), "tape-garden-db");
+
+    try {
+      const userRef = db.collection("users").doc(uid);
+      const userDoc = await userRef.get();
+      if (!userDoc.exists) {
+        throw new functions.https.HttpsError("not-found", "User not found.");
+      }
+
+      const userData = userDoc.data()!;
+      let stripeAccountId = userData.stripeAccountId;
+
+      const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: "2026-09-30.endive" });
+
+      if (!stripeAccountId) {
+        const account = await stripe.accounts.create({
+          type: "express",
+          email: userData.email,
+        });
+        stripeAccountId = account.id;
+
+        await userRef.update({
+          stripeAccountId: stripeAccountId,
+          "producerProfile.stripeStatus": "pending",
+        });
+      }
+
+      // Generate account link
+      const origin = process.env.NODE_ENV === "production" ? "https://tapegarden.com" : "http://localhost:3000";
+      const accountLink = await stripe.accountLinks.create({
+        account: stripeAccountId,
+        refresh_url: `${origin}/dashboard/settings?stripe=refresh`,
+        return_url: `${origin}/dashboard/settings?stripe=return`,
+        type: "account_onboarding",
+      });
+
+      return { url: accountLink.url };
+    } catch (error) {
+      console.error("[createStripeConnectAccount] Error:", error);
+      throw new functions.https.HttpsError("internal", "An error occurred creating Stripe Connect account.");
+    }
+  });
+
+/**
+ * Cloud Function HTTPS Callable: getStripeDashboardLink
+ * Returns a login link to the producer's Express dashboard.
+ * 
+ * Testing required.
+ * 
+ */
+export const getStripeDashboardLink = functions
+  .region("us-east4")
+  .runWith({ secrets: [stripeSecretKey] })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth || !context.auth.token.producer) {
+      throw new functions.https.HttpsError("permission-denied", "Only producers can view Stripe dashboard.");
+    }
+    const uid = context.auth.uid;
+    const db = getFirestore(admin.app(), "tape-garden-db");
+
+    try {
+      const userDoc = await db.collection("users").doc(uid).get();
+      const stripeAccountId = userDoc.data()?.stripeAccountId;
+
+      if (!stripeAccountId) {
+        throw new functions.https.HttpsError("failed-precondition", "Stripe account not connected.");
+      }
+
+      const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: "2026-09-30.endive" });
+      const loginLink = await stripe.accounts.createLoginLink(stripeAccountId);
+
+      return { url: loginLink.url };
+    } catch (error) {
+      console.error("[getStripeDashboardLink] Error:", error);
+      throw new functions.https.HttpsError("internal", "An error occurred fetching Stripe dashboard link.");
+    }
+  });
+
+interface CartItem {
+  itemId: string;
+  itemType: "beat" | "samplePack";
+  licenseType?: string; // only for beats
+}
+
+/**
+ * Cloud Function HTTPS Callable: createCheckoutSession
+ * Processes items from a multi-producer cart and creates a Stripe Checkout session
+ * using Separate Charges and Transfers.
+ * 
+ * Testing required.
+ * 
+ */
+export const createCheckoutSession = functions
+  .region("us-east4")
+  .runWith({ secrets: [stripeSecretKey] })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError("unauthenticated", "Must be logged in to checkout.");
+    }
+    const uid = context.auth.uid;
+    const { items } = (data || {}) as { items: CartItem[] };
+
+    if (!items || !items.length) {
+      throw new functions.https.HttpsError("invalid-argument", "Cart is empty.");
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: "2026-09-30.endive" });
+
+    try {
+      const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+      const serializedCartItems = [];
+
+      // Calculate totals and verify items securely
+      for (const item of items) {
+        if (item.itemType === "beat") {
+          const beatDoc = await db.collection("beats").doc(item.itemId).get();
+          if (!beatDoc.exists) continue;
+          const beatData = beatDoc.data()!;
+
+          // Verify producer stripe status
+          const producerDoc = await db.collection("users").doc(beatData.producerId).get();
+          const producerData = producerDoc.data()!;
+          if (producerData.producerProfile?.stripeStatus !== "active") {
+            throw new functions.https.HttpsError("failed-precondition", `Producer for beat ${beatData.title} cannot accept payments.`);
+          }
+
+          const license = beatData.licenses?.find((l: { type: string; price: number }) => l.type === item.licenseType);
+          if (!license) continue;
+
+          lineItems.push({
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: `${beatData.title} (${item.licenseType} License)`,
+              },
+              unit_amount: Math.round(license.price * 100),
+            },
+            quantity: 1,
+          });
+
+          serializedCartItems.push({
+            itemId: item.itemId,
+            itemType: "beat",
+            licenseType: item.licenseType,
+            producerId: beatData.producerId,
+            producerStripeAccountId: producerData.stripeAccountId,
+            price: license.price,
+          });
+
+        } else if (item.itemType === "samplePack") {
+          const packDoc = await db.collection("samplePacks").doc(item.itemId).get();
+          if (!packDoc.exists) continue;
+          const packData = packDoc.data()!;
+
+          const producerDoc = await db.collection("users").doc(packData.producerId).get();
+          const producerData = producerDoc.data()!;
+          if (producerData.producerProfile?.stripeStatus !== "active") {
+            throw new functions.https.HttpsError("failed-precondition", `Producer for sample pack ${packData.title} cannot accept payments.`);
+          }
+
+          lineItems.push({
+            price_data: {
+              currency: "usd",
+              product_data: {
+                name: packData.title,
+              },
+              unit_amount: Math.round(packData.price * 100),
+            },
+            quantity: 1,
+          });
+
+          serializedCartItems.push({
+            itemId: item.itemId,
+            itemType: "samplePack",
+            producerId: packData.producerId,
+            producerStripeAccountId: producerData.stripeAccountId,
+            price: packData.price,
+          });
+        }
+      }
+
+      if (lineItems.length === 0) {
+        throw new functions.https.HttpsError("failed-precondition", "No valid items in cart.");
+      }
+
+      const transferGroup = `cart_${Math.random().toString(36).substring(2, 15)}`;
+      const origin = process.env.NODE_ENV === "production" ? "https://tapegarden.com" : "http://localhost:3000";
+
+      const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        line_items: lineItems,
+        success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/cart`,
+        payment_intent_data: {
+          transfer_group: transferGroup,
+        },
+        metadata: {
+          buyerId: uid,
+          transferGroup: transferGroup,
+          cart: JSON.stringify(serializedCartItems),
+        },
+      });
+
+      return { url: session.url };
+    } catch (error) {
+      console.error("[createCheckoutSession] Error:", error);
+      if (error instanceof functions.https.HttpsError) throw error;
+      throw new functions.https.HttpsError("internal", "Failed to create checkout session.");
+    }
+  });
+
+/**
+ * Cloud Function HTTPS Request: stripeWebhook
+ * Handles Stripe events (Checkout complete, Account updated).
+ * 
+ * Testing required.
+ * 
+ */
+export const stripeWebhook = functions
+  .region("us-east4")
+  .runWith({ secrets: [stripeSecretKey, stripeWebhookSecret] })
+  .https.onRequest(async (req, res) => {
+    const sig = req.headers["stripe-signature"];
+    const endpointSecret = stripeWebhookSecret.value();
+    const stripe = new Stripe(stripeSecretKey.value(), { apiVersion: "2026-09-30.endive" });
+
+    let event: Stripe.Event;
+
+    try {
+      if (!sig) throw new Error("Missing signature");
+      event = stripe.webhooks.constructEvent(req.rawBody, sig, endpointSecret);
+    } catch (err) {
+      console.error(`Webhook signature verification failed: ${(err as Error).message}`);
+      res.status(400).send(`Webhook Error: ${(err as Error).message}`);
+      return;
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+
+    try {
+      if (event.type === "account.updated") {
+        const account = event.data.object as Stripe.Account;
+        if (account.details_submitted && account.payouts_enabled) {
+          // Find the producer and update their status
+          const usersSnap = await db.collection("users").where("stripeAccountId", "==", account.id).get();
+          if (!usersSnap.empty) {
+            await usersSnap.docs[0].ref.update({
+              "producerProfile.stripeStatus": "active"
+            });
+            console.log(`[stripeWebhook] Producer ${usersSnap.docs[0].id} Stripe status set to active.`);
+          }
+        }
+      }
+      else if (event.type === "checkout.session.completed") {
+        const session = event.data.object as Stripe.Checkout.Session;
+
+        // We ensure payment intent succeeded, though session.completed usually means success for cards
+        if (session.payment_status === "paid" && session.metadata?.cart) {
+          const cart = JSON.parse(session.metadata.cart);
+          const buyerId = session.metadata.buyerId;
+          const transferGroup = session.metadata.transferGroup;
+
+          for (const item of cart) {
+            const purchaseId = `${session.id}_${item.itemId}`;
+            const purchaseRef = db.collection("purchases").doc(purchaseId);
+
+            await db.runTransaction(async (transaction) => {
+              const doc = await transaction.get(purchaseRef);
+              if (!doc.exists) {
+                // Calculate split
+                const platformFee = item.price * 0.10;
+                const producerPayout = item.price * 0.90;
+
+                // Execute transfer
+                const transfer = await stripe.transfers.create({
+                  amount: Math.round(producerPayout * 100),
+                  currency: "usd",
+                  destination: item.producerStripeAccountId,
+                  transfer_group: transferGroup,
+                });
+
+                transaction.set(purchaseRef, {
+                  buyerId,
+                  producerId: item.producerId,
+                  itemId: item.itemId,
+                  itemType: item.itemType,
+                  licenseType: item.licenseType || null,
+                  price: item.price,
+                  platformFee,
+                  producerPayout,
+                  currency: "usd",
+                  stripeSessionId: session.id,
+                  stripePaymentIntentId: session.payment_intent,
+                  stripeTransferId: transfer.id,
+                  status: "completed",
+                  payoutStatus: "paid",
+                  createdAt: FieldValue.serverTimestamp(),
+                });
+              }
+            });
+          }
+          console.log(`[stripeWebhook] Checkout session ${session.id} fully processed.`);
+        }
+      }
+
+      res.status(200).send({ received: true });
+    } catch (error) {
+      console.error(`[stripeWebhook] Error processing event ${event.id}:`, error);
+      res.status(500).send("Internal Server Error");
     }
   });

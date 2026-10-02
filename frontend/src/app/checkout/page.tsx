@@ -6,9 +6,42 @@ import { cn } from "@/lib/utils";
 import { Trash2, ArrowRight, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+import { functions } from "@/lib/firebase";
+import { httpsCallable } from "firebase/functions";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export default function CheckoutPage() {
   const { items, removeItem, cartTotal } = useCart();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const handleCheckout = async () => {
+    setIsCheckingOut(true);
+    try {
+      const createCheckoutSession = httpsCallable(functions, "createCheckoutSession");
+      
+      const formattedItems = items.map(item => ({
+        itemId: item.itemId,
+        itemType: item.itemType,
+        licenseType: item.licenseType,
+      }));
+
+      const result = await createCheckoutSession({ items: formattedItems });
+      const { url } = result.data as { url: string };
+      
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error("Failed to retrieve checkout URL.");
+      }
+    } catch (error: unknown) {
+      console.error("Checkout error:", error);
+      const err = error as Error;
+      toast.error("Checkout Failed", { description: err.message || "An unexpected error occurred." });
+      setIsCheckingOut(false);
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -91,8 +124,10 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <Button size="lg" className="w-full gap-2" onClick={() => console.log('Proceeding to payment...')}>
-              Proceed to Payment <ArrowRight className="w-4 h-4" />
+            <Button size="lg" className="w-full gap-2" onClick={handleCheckout} disabled={isCheckingOut}>
+              {isCheckingOut && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isCheckingOut ? "Processing..." : "Proceed to Payment"}
+              {!isCheckingOut && <ArrowRight className="w-4 h-4" />}
             </Button>
             
             <p className="text-xs text-center text-muted-foreground mt-4">
