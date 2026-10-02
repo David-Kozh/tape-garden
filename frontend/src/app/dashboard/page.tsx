@@ -3,22 +3,26 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { db } from "@/lib/firebase";
+import { db, functions } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getCountFromServer } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
 import type { User } from "@/types";
-import { Clock, CheckCircle2, AlertCircle, CalendarDays, UserCircle } from "lucide-react";
+import { Clock, CheckCircle2, AlertCircle, UserCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BasicSalesStats } from "@/components/dashboard/BasicSalesStats";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 export default function DashboardOverview() {
   const { user, role } = useAuth();
   const router = useRouter();
   
   const [profile, setProfile] = useState<User["producerProfile"] | null>(null);
-  const [memberSince, setMemberSince] = useState<Date | null>(null);
   const [beatsUsed, setBeatsUsed] = useState<number>(0);
   const [packsUsed, setPacksUsed] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const [stripeAccountId, setStripeAccountId] = useState<string | null>(null);
+  const [stripeStatus, setStripeStatus] = useState<string | null>(null);
+  const [stripeLoading, setStripeLoading] = useState(false);
 
   useEffect(() => {
     if (role && role !== "producer" && role !== "admin") {
@@ -39,12 +43,26 @@ export default function DashboardOverview() {
           const userData = userDoc.data() as User;
           setProfile(userData.producerProfile || null);
           
-          if (userData.createdAt) {
-            setMemberSince(
-              userData.createdAt instanceof Date 
-                ? userData.createdAt 
-                : new Date(userData.createdAt as string)
-            );
+          if (userData.stripeAccountId) {
+            setStripeAccountId(userData.stripeAccountId);
+          }
+          if (userData.producerProfile?.stripeStatus) {
+            const currentStatus = userData.producerProfile.stripeStatus;
+            setStripeStatus(currentStatus);
+            
+            // Auto-verify if stuck in pending
+            if (currentStatus === "pending") {
+              try {
+                const verifyStripeAccount = httpsCallable(functions, "verifyStripeAccount");
+                const res = await verifyStripeAccount();
+                const verifyData = res.data as { status: string };
+                if (verifyData.status === "active") {
+                  setStripeStatus("active");
+                }
+              } catch (e) {
+                console.error("Error verifying Stripe account status:", e);
+              }
+            }
           }
         }
 
@@ -75,6 +93,35 @@ export default function DashboardOverview() {
 
     fetchDashboardData();
   }, [user, role]);
+
+  const handleConnectStripe = async () => {
+    setStripeLoading(true);
+    try {
+      const createStripeConnectAccount = httpsCallable(functions, "createStripeConnectAccount");
+      const result = await createStripeConnectAccount({ origin: window.location.origin });
+      const { url } = result.data as { url: string };
+      window.location.href = url;
+    } catch (error: unknown) {
+      const err = error as Error;
+      toast.error("Error", { description: err.message || "Failed to connect to Stripe." });
+      setStripeLoading(false);
+    }
+  };
+
+  const handleViewStripeDashboard = async () => {
+    setStripeLoading(true);
+    try {
+      const getStripeDashboardLink = httpsCallable(functions, "getStripeDashboardLink");
+      const result = await getStripeDashboardLink({ origin: window.location.origin });
+      const { url } = result.data as { url: string };
+      window.open(url, "_blank");
+      setStripeLoading(false);
+    } catch (error: unknown) {
+      const err = error as Error;
+      toast.error("Error", { description: err.message || "Failed to load Stripe dashboard." });
+      setStripeLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -111,48 +158,41 @@ export default function DashboardOverview() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Account Status Card */}
+        {/* Stripe Payouts Card */}
         <div className="bg-card border border-border rounded-xl p-6 shadow-sm flex flex-col">
           <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
             <span className="bg-primary/10 p-2 rounded-md text-primary">
               <CheckCircle2 className="w-5 h-5" />
             </span>
-            Account Status
+            Stripe Payouts
           </h3>
           
-          <div className="flex-1 flex flex-col justify-center space-y-6">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Status</p>
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-3 w-3">
-                  {profile?.status === "approved" ? (
-                    <>
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                    </>
-                  ) : profile?.status === "suspended" ? (
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
-                  ) : (
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
-                  )}
-                </span>
-                <span className="font-medium capitalize text-lg">
-                  {profile?.status || "Unknown"}
-                </span>
+          <div className="flex-1 flex flex-col justify-center">
+            {!stripeAccountId ? (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground">You are not connected to Stripe. Connect your account to receive payouts for beat and sample pack sales.</p>
+                <Button onClick={handleConnectStripe} disabled={stripeLoading} className="w-full">
+                  {stripeLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Connect Stripe
+                </Button>
               </div>
-            </div>
-            
-            <div>
-              <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1.5">
-                <CalendarDays className="w-4 h-4" /> Member Since
-              </p>
-              <p className="font-medium">
-                {memberSince ? memberSince.toLocaleDateString(undefined, {
-                  month: 'long',
-                  year: 'numeric'
-                }) : "Unknown"}
-              </p>
-            </div>
+            ) : stripeStatus === "pending" ? (
+              <div className="space-y-4">
+                <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">Your Stripe account is pending verification. Please complete onboarding.</p>
+                <Button onClick={handleConnectStripe} disabled={stripeLoading} variant="outline" className="w-full">
+                  {stripeLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Resume Onboarding
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-sm text-green-600 dark:text-green-400 font-medium">Your Stripe account is active and ready to receive payouts.</p>
+                <Button onClick={handleViewStripeDashboard} disabled={stripeLoading} variant="outline" className="w-full">
+                  {stripeLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  View Stripe Dashboard
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 

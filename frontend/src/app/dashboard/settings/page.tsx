@@ -2,10 +2,9 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { db, storage, functions } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { httpsCallable } from "firebase/functions";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -49,9 +48,6 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [stripeAccountId, setStripeAccountId] = useState<string | null>(null);
-  const [stripeStatus, setStripeStatus] = useState<string | null>(null);
-  const [stripeLoading, setStripeLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProfileFormValues>({
@@ -98,27 +94,6 @@ export default function SettingsPage() {
           if (data.producerProfile?.avatarUrl) {
             setAvatarUrl(data.producerProfile.avatarUrl);
           }
-          if (data.stripeAccountId) {
-            setStripeAccountId(data.stripeAccountId);
-          }
-          if (data.producerProfile?.stripeStatus) {
-            const currentStatus = data.producerProfile.stripeStatus;
-            setStripeStatus(currentStatus);
-            
-            // Auto-verify if stuck in pending
-            if (currentStatus === "pending") {
-              try {
-                const verifyStripeAccount = httpsCallable(functions, "verifyStripeAccount");
-                const res = await verifyStripeAccount();
-                const verifyData = res.data as { status: string };
-                if (verifyData.status === "active") {
-                  setStripeStatus("active");
-                }
-              } catch (e) {
-                console.error("Error verifying Stripe account status:", e);
-              }
-            }
-          }
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -132,35 +107,6 @@ export default function SettingsPage() {
       fetchProfile();
     }
   }, [user, authLoading, form]);
-
-  const handleConnectStripe = async () => {
-    setStripeLoading(true);
-    try {
-      const createStripeConnectAccount = httpsCallable(functions, "createStripeConnectAccount");
-      const result = await createStripeConnectAccount({ origin: window.location.origin });
-      const { url } = result.data as { url: string };
-      window.location.href = url;
-    } catch (error: unknown) {
-      const err = error as Error;
-      notify("Error", err.message || "Failed to connect to Stripe.", "error");
-      setStripeLoading(false);
-    }
-  };
-
-  const handleViewStripeDashboard = async () => {
-    setStripeLoading(true);
-    try {
-      const getStripeDashboardLink = httpsCallable(functions, "getStripeDashboardLink");
-      const result = await getStripeDashboardLink({ origin: window.location.origin });
-      const { url } = result.data as { url: string };
-      window.open(url, "_blank");
-      setStripeLoading(false);
-    } catch (error: unknown) {
-      const err = error as Error;
-      notify("Error", err.message || "Failed to load Stripe dashboard.", "error");
-      setStripeLoading(false);
-    }
-  };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -409,44 +355,6 @@ export default function SettingsPage() {
           </form>
         </CardContent>
       </Card>
-
-      {(role === "producer" || role === "admin") && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Payouts (Stripe Connect)</CardTitle>
-            <CardDescription>
-              Connect your Stripe account to receive payouts for beat and sample pack sales.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {!stripeAccountId ? (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">You are not connected to Stripe.</p>
-                <Button onClick={handleConnectStripe} disabled={stripeLoading}>
-                  {stripeLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Connect Stripe
-                </Button>
-              </div>
-            ) : stripeStatus === "pending" ? (
-              <div className="space-y-4">
-                <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">Your Stripe account is pending verification. Please complete onboarding.</p>
-                <Button onClick={handleConnectStripe} disabled={stripeLoading} variant="outline">
-                  {stripeLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Resume Onboarding
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-sm text-green-600 dark:text-green-400 font-medium">Your Stripe account is active and ready to receive payouts.</p>
-                <Button onClick={handleViewStripeDashboard} disabled={stripeLoading} variant="outline">
-                  {stripeLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  View Stripe Dashboard
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
