@@ -1201,50 +1201,65 @@ export const stripeWebhook = functions
       else if (event.type === "checkout.session.completed") {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        // We ensure payment intent succeeded, though session.completed usually means success for cards
         if (session.payment_status === "paid" && session.metadata?.cart) {
           const cart = JSON.parse(session.metadata.cart);
           const buyerId = session.metadata.buyerId;
           const transferGroup = session.metadata.transferGroup;
 
+          // Retrieve payment intent to get the latest charge for source_transaction
+          const paymentIntentId = session.payment_intent as string;
+          let chargeId: string | undefined = undefined;
+          
+          if (paymentIntentId) {
+            const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
+            chargeId = pi.latest_charge as string | undefined;
+          }
+
           for (const item of cart) {
             const purchaseId = `${session.id}_${item.itemId}`;
             const purchaseRef = db.collection("purchases").doc(purchaseId);
 
-            await db.runTransaction(async (transaction) => {
-              const doc = await transaction.get(purchaseRef);
-              if (!doc.exists) {
-                // Calculate split
-                const platformFee = item.price * 0.10;
-                const producerPayout = item.price * 0.90;
+            const doc = await purchaseRef.get();
+            if (!doc.exists) {
+              // Calculate split
+              const platformFee = item.price * 0.10;
+              const producerPayout = item.price * 0.90;
 
-                // Execute transfer
-                const transfer = await stripe.transfers.create({
-                  amount: Math.round(producerPayout * 100),
-                  currency: "usd",
-                  destination: item.producerStripeAccountId,
-                  transfer_group: transferGroup,
-                });
+              // Execute transfer idempotently
+              const transferParams: Stripe.TransferCreateParams = {
+                amount: Math.round(producerPayout * 100),
+                currency: "usd",
+                destination: item.producerStripeAccountId,
+                transfer_group: transferGroup,
+              };
 
-                transaction.set(purchaseRef, {
-                  buyerId,
-                  producerId: item.producerId,
-                  itemId: item.itemId,
-                  itemType: item.itemType,
-                  licenseType: item.licenseType || null,
-                  price: item.price,
-                  platformFee,
-                  producerPayout,
-                  currency: "usd",
-                  stripeSessionId: session.id,
-                  stripePaymentIntentId: session.payment_intent,
-                  stripeTransferId: transfer.id,
-                  status: "completed",
-                  payoutStatus: "paid",
-                  createdAt: FieldValue.serverTimestamp(),
-                });
+              // Use source_transaction to bypass available balance delays
+              if (chargeId) {
+                transferParams.source_transaction = chargeId;
               }
-            });
+
+              const transfer = await stripe.transfers.create(transferParams, {
+                idempotencyKey: `transfer_${purchaseId}`
+              });
+
+              await purchaseRef.set({
+                buyerId,
+                producerId: item.producerId,
+                itemId: item.itemId,
+                itemType: item.itemType,
+                licenseType: item.licenseType || null,
+                price: item.price,
+                platformFee,
+                producerPayout,
+                currency: "usd",
+                stripeSessionId: session.id,
+                stripePaymentIntentId: paymentIntentId,
+                stripeTransferId: transfer.id,
+                status: "completed",
+                payoutStatus: "paid",
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+              });
+            }
           }
           console.log(`[stripeWebhook] Checkout session ${session.id} fully processed.`);
         }
