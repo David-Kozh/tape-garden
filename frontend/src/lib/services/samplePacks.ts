@@ -20,7 +20,7 @@ export interface GetSamplePacksOptions {
 
 export async function getPublishedSamplePacks(options: GetSamplePacksOptions = {}): Promise<{ packs: SamplePackWithProducer[], lastDocId: string | null }> {
   const packsRef = adminDb.collection("samplePacks");
-  
+
   let q: Query = packsRef.where("status", "==", "published");
 
   if (options.tags && options.tags.length > 0) {
@@ -43,7 +43,7 @@ export async function getPublishedSamplePacks(options: GetSamplePacksOptions = {
   }
 
   const snapshot = await q.get();
-  
+
   if (snapshot.empty) {
     return { packs: [], lastDocId: null };
   }
@@ -57,10 +57,10 @@ export async function getPublishedSamplePacks(options: GetSamplePacksOptions = {
       updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : data.updatedAt
     } as SamplePack;
   });
-  
+
   // Extract unique producer IDs
   const producerIds = Array.from(new Set(packs.map((p: SamplePack) => p.producerId)));
-  
+
   // Fetch producers using Promise.all to securely grab display names
   const producersMap = new Map<string, Partial<User> & { uid: string }>();
   if (producerIds.length > 0) {
@@ -76,8 +76,9 @@ export async function getPublishedSamplePacks(options: GetSamplePacksOptions = {
 
   const packsWithProducers: SamplePackWithProducer[] = packs.map((pack: SamplePack) => {
     const producer = producersMap.get(pack.producerId);
-    
+
     // Strip fileUrl for safety before returning to UI
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { fileUrl, ...safePack } = pack;
 
     return {
@@ -99,25 +100,26 @@ export async function getPublishedSamplePacks(options: GetSamplePacksOptions = {
 export async function getSamplePackById(id: string): Promise<SamplePackWithProducer | null> {
   const packRef = adminDb.collection("samplePacks").doc(id);
   const packSnap = await packRef.get();
-  
+
   if (!packSnap.exists) {
     return null;
   }
-  
+
   const data = packSnap.data()!;
-  const packData = { 
-    id: packSnap.id, 
+  const packData = {
+    id: packSnap.id,
     ...data,
     createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
     updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : data.updatedAt
   } as SamplePack;
-  
+
   // We should not return fileUrl in public functions, so we strip it
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { fileUrl, ...safePack } = packData;
 
   const producerRef = adminDb.collection("users").doc(safePack.producerId);
   const producerSnap = await producerRef.get();
-  
+
   let producerInfo: { uid: string; displayName: string; avatarUrl?: string } = {
     uid: safePack.producerId,
     displayName: "Unknown Producer",
