@@ -668,6 +668,214 @@ export const deleteBeat = functions
     }
   });
 
+interface PublishSamplePackData {
+  uploadId: string;
+  metadata: {
+    title: string;
+    description: string;
+    tags: string[];
+    price: number;
+    audioPreviewFile: string;
+    archiveFile: string;
+  };
+}
+
+/**
+ * Cloud Function HTTPS Callable: publishSamplePack
+ * Finalizes the sample pack upload flow by moving files from staging to canonical storage paths,
+ * verifying slot limits, and creating the final document in Firestore.
+ */
+export const publishSamplePack = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10, timeoutSeconds: 300, memory: "512MB" })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError("unauthenticated", "You must be logged in to publish a sample pack.");
+    }
+    const uid = context.auth.uid;
+
+    if (!context.auth.token.producer) {
+      throw new functions.https.HttpsError("permission-denied", "Only approved producers can publish sample packs.");
+    }
+
+    const { uploadId, metadata } = (data || {}) as PublishSamplePackData;
+
+    if (!uploadId || !metadata || !metadata.title || !metadata.price || !metadata.audioPreviewFile || !metadata.archiveFile) {
+      throw new functions.https.HttpsError("invalid-argument", "Missing required fields to publish sample pack.");
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    const storage = getStorage(admin.app());
+    const bucket = storage.bucket();
+
+    try {
+      const userRef = db.collection("users").doc(uid);
+      const userDoc = await userRef.get();
+
+      if (!userDoc.exists) {
+        throw new functions.https.HttpsError("not-found", "Producer profile not found.");
+      }
+
+      const userData = userDoc.data();
+      const producerProfile = userData?.producerProfile;
+
+      if (!producerProfile || producerProfile.status !== "approved") {
+        throw new functions.https.HttpsError("permission-denied", "Producer is not approved.");
+      }
+
+      const allocatedSlots = producerProfile.allocatedSamplePackSlots || 0;
+
+      const packsQuery = db.collection("samplePacks")
+        .where("producerId", "==", uid)
+        .where("status", "in", ["published", "draft"]);
+      const packsSnapshot = await packsQuery.count().get();
+      const consumedSlotsCount = packsSnapshot.data().count;
+
+      if (consumedSlotsCount >= allocatedSlots) {
+        throw new functions.https.HttpsError("resource-exhausted", "You have reached your sample pack slot limit.");
+      }
+
+      const newPackRef = db.collection("samplePacks").doc();
+      const packId = newPackRef.id;
+
+      const stagingPrefix = `uploads-staging/${uid}/sample-packs/${uploadId}/`;
+
+      // Move preview
+      const previewSrcPath = `${stagingPrefix}${metadata.audioPreviewFile}`;
+      const previewDestPath = `previews/sample-packs/${packId}/${metadata.audioPreviewFile}`;
+
+      const previewSrcFile = bucket.file(previewSrcPath);
+      const [previewExists] = await previewSrcFile.exists();
+      if (!previewExists) {
+        throw new functions.https.HttpsError("failed-precondition", `Staging preview file missing: ${previewSrcPath}`);
+      }
+
+      await previewSrcFile.move(previewDestPath);
+      const audioPreviewUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(previewDestPath)}?alt=media`;
+
+      // Move archive
+      const archiveSrcPath = `${stagingPrefix}${metadata.archiveFile}`;
+      const archiveDestPath = `purchased/sample-packs/${packId}/${metadata.archiveFile}`;
+
+      const archiveSrcFile = bucket.file(archiveSrcPath);
+      const [archiveExists] = await archiveSrcFile.exists();
+      if (!archiveExists) {
+        throw new functions.https.HttpsError("failed-precondition", `Staging archive file missing: ${archiveSrcPath}`);
+      }
+
+      await archiveSrcFile.move(archiveDestPath);
+
+      // Create Firestore document
+      await newPackRef.set({
+        producerId: uid,
+        title: metadata.title,
+        description: metadata.description || "",
+        tags: metadata.tags || [],
+        price: metadata.price,
+        status: "published",
+        audioPreviewUrl: audioPreviewUrl,
+        fileUrl: archiveDestPath,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+
+      try {
+        await bucket.deleteFiles({ prefix: stagingPrefix });
+      } catch (err) {
+        console.warn(`Could not completely clean up staging directory: ${stagingPrefix}`, err);
+      }
+
+      return { success: true, packId };
+
+    } catch (error) {
+      const err = error as Error;
+      console.error("[publishSamplePack] Error:", err);
+      if (err instanceof functions.https.HttpsError) throw err;
+      throw new functions.https.HttpsError("internal", err.message || "An unexpected error occurred.");
+    }
+  });
+
+interface DeleteSamplePackData {
+  packId: string;
+}
+
+/**
+ * Cloud Function HTTPS Callable: deleteSamplePack
+ * Deletes a sample pack (hard delete if no purchases, soft delete if purchases exist).
+ */
+export const deleteSamplePack = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10 })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError("unauthenticated", "You must be logged in to delete a sample pack.");
+    }
+    const uid = context.auth.uid;
+    const { packId } = (data || {}) as DeleteSamplePackData;
+
+    if (!packId) {
+      throw new functions.https.HttpsError("invalid-argument", "Missing packId.");
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    const storage = getStorage(admin.app());
+    const bucket = storage.bucket();
+
+    try {
+      const packRef = db.collection("samplePacks").doc(packId);
+      const packDoc = await packRef.get();
+
+      if (!packDoc.exists) {
+        throw new functions.https.HttpsError("not-found", "Sample pack not found.");
+      }
+
+      const packData = packDoc.data()!;
+      if (packData.producerId !== uid) {
+        throw new functions.https.HttpsError("permission-denied", "You can only delete your own sample packs.");
+      }
+
+      // Check for purchases
+      const purchasesQuery = db.collection("purchases")
+        .where("itemId", "==", packId)
+        .where("itemType", "==", "samplePack");
+
+      const purchasesSnap = await purchasesQuery.limit(1).get();
+
+      if (!purchasesSnap.empty) {
+        // Soft delete (Matches 'hidden' or 'removed' depending on schema, we use 'hidden' to be consistent with Beat)
+        await packRef.update({
+          status: "hidden",
+          updatedAt: FieldValue.serverTimestamp()
+        });
+        return { success: true, type: "soft" };
+      } else {
+        // Hard delete
+        const prefixPreview = `previews/sample-packs/${packId}/`;
+        const prefixPurchased = `purchased/sample-packs/${packId}/`;
+
+        try {
+          await bucket.deleteFiles({ prefix: prefixPreview });
+        } catch (err) {
+          console.warn("[deleteSamplePack] Could not clean up preview directory", err);
+        }
+
+        try {
+          await bucket.deleteFiles({ prefix: prefixPurchased });
+        } catch (err) {
+          console.warn("[deleteSamplePack] Could not clean up purchased directory", err);
+        }
+
+        await packRef.delete();
+        return { success: true, type: "hard" };
+      }
+    } catch (error) {
+      const err = error as Error;
+      console.error("[deleteSamplePack] Error:", err);
+      if (err instanceof functions.https.HttpsError) throw err;
+      throw new functions.https.HttpsError("internal", err.message || "An error occurred while deleting the sample pack.");
+    }
+  });
+
 /**
  * Cloud Function Trigger: onPurchaseCreated
  * Automatically executes when a new purchase document is created.
