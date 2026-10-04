@@ -78,6 +78,18 @@ export default function UploadsDashboard() {
     }
   };
 
+  const handleDeleteSamplePack = async (packId: string) => {
+    try {
+      const deleteSamplePackFn = httpsCallable(functions, "deleteSamplePack");
+      await deleteSamplePackFn({ packId });
+      setPacks(packs.filter(p => p.id !== packId));
+      toast.success("Sample pack successfully deleted.");
+    } catch (error) {
+      console.error("Error deleting sample pack:", error);
+      toast.error("Failed to delete sample pack.");
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -184,18 +196,46 @@ export default function UploadsDashboard() {
                         <p className="font-medium text-foreground">{pack.title}</p>
                         <p className="text-xs text-muted-foreground capitalize">{pack.status} • ${pack.price}</p>
                       </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-muted-foreground hover:text-foreground"
-                        onClick={() => toggleStatus("samplePacks", pack.id, pack.status)}
-                      >
-                        {pack.status === "published" ? (
-                          <><EyeOff className="w-4 h-4 mr-2" /> Hide</>
-                        ) : (
-                          <><Eye className="w-4 h-4 mr-2" /> Publish</>
-                        )}
-                      </Button>
+                      <div className="flex gap-2">
+                        <Link href={`/dashboard/uploads/sample-packs/${pack.id}/edit`}>
+                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-muted-foreground hover:text-foreground"
+                          onClick={() => toggleStatus("samplePacks", pack.id, pack.status)}
+                        >
+                          {pack.status === "published" ? (
+                            <><EyeOff className="w-4 h-4 mr-2" /> Hide</>
+                          ) : (
+                            <><Eye className="w-4 h-4 mr-2" /> Publish</>
+                          )}
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger render={
+                            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          } />
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. If this sample pack has not been purchased, it will be permanently deleted and your upload slot will be freed. If it has been purchased, it will be hidden from the public gallery but remain accessible to buyers.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeleteSamplePack(pack.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </li>
                   ))}
                 </ul>

@@ -40,6 +40,12 @@ export function Navbar() {
         <Link href="/#explore" className=" font-medium hover:text-emerald-700 transition-colors">
           Explore
         </Link>
+        <Link href="/beats" className=" font-medium hover:text-emerald-700 transition-colors">
+          Beats
+        </Link>
+        <Link href="/sample-packs" className=" font-medium hover:text-emerald-700 transition-colors">
+          Sample Packs
+        </Link>
 
 
         <div className="h-5 w-[1px] bg-zinc-400" />
