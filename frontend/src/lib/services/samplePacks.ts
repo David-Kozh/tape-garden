@@ -59,7 +59,7 @@ export async function getPublishedSamplePacks(options: GetSamplePacksOptions = {
   });
 
   // Extract unique producer IDs
-  const producerIds = Array.from(new Set(packs.map((p: SamplePack) => p.producerId)));
+  const producerIds = Array.from(new Set(packs.map((p: SamplePack) => p.producerId).filter(Boolean)));
 
   // Fetch producers using Promise.all to securely grab display names
   const producersMap = new Map<string, Partial<User> & { uid: string }>();

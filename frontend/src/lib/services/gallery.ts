@@ -60,7 +60,7 @@ export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<
   });
   
   // Extract unique producer IDs
-  const producerIds = Array.from(new Set(beats.map((b: Beat) => b.producerId)));
+  const producerIds = Array.from(new Set(beats.map((b: Beat) => b.producerId).filter(Boolean)));
   
   // Fetch producers using Promise.all to securely grab display names
   const producersMap = new Map<string, Partial<User> & { uid: string }>();
