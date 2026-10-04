@@ -22,10 +22,10 @@ interface BeatCardProps {
 }
 
 export function BeatCard({ beat }: BeatCardProps) {
-  const { currentBeat, isPlaying, play, togglePlayPause } = useAudio();
+  const { currentTrack, isPlaying, play, togglePlayPause } = useAudio();
   const { role } = useAuth();
 
-  const isCurrentBeat = currentBeat?.id === beat.id;
+  const isCurrentBeat = currentTrack?.id === beat.id;
   const [isCurated, setIsCurated] = useState(beat.curated ?? false);
   const [isFlagDialogOpen, setIsFlagDialogOpen] = useState(false);
   const [flagReason, setFlagReason] = useState("");
@@ -62,7 +62,7 @@ export function BeatCard({ beat }: BeatCardProps) {
     if (isCurrentBeat) {
       togglePlayPause();
     } else {
-      play(beat);
+      play({ ...beat, itemType: "beat" });
     }
   };
 

@@ -16,11 +16,11 @@ function formatTime(seconds: number) {
 }
 
 export function AudioPlayer() {
-  const { currentBeat, isPlaying, progress, duration, volume, togglePlayPause, seek, setVolume } = useAudio();
+  const { currentTrack, isPlaying, progress, duration, volume, togglePlayPause, seek, setVolume } = useAudio();
   const [previousVolume, setPreviousVolume] = useState(1);
   const isMuted = volume === 0;
 
-  if (!currentBeat) return null;
+  if (!currentTrack) return null;
 
   const handleVolumeToggle = () => {
     if (isMuted) {
@@ -48,25 +48,25 @@ export function AudioPlayer() {
         {/* Track Info */}
         <div className="flex items-center gap-4 w-[30%] min-w-[200px]">
           <div className="relative w-14 h-14 rounded-md overflow-hidden bg-secondary flex-shrink-0 hidden sm:block">
-            {currentBeat.coverArtUrl ? (
+            {currentTrack.coverArtUrl ? (
               <Image 
-                src={currentBeat.coverArtUrl} 
-                alt={currentBeat.title} 
+                src={currentTrack.coverArtUrl} 
+                alt={currentTrack.title} 
                 fill 
                 className="object-cover"
               />
             ) : (
               <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                {currentBeat.title.substring(0, 2).toUpperCase()}
+                {currentTrack.title.substring(0, 2).toUpperCase()}
               </div>
             )}
           </div>
           <div className="flex flex-col truncate">
-            <Link href={`/beats/${currentBeat.id}`} className="font-semibold hover:underline truncate">
-              {currentBeat.title}
+            <Link href={currentTrack.itemType === "samplePack" ? `/sample-packs/${currentTrack.id}` : `/beats/${currentTrack.id}`} className="font-semibold hover:underline truncate">
+              {currentTrack.title}
             </Link>
-            <Link href={`/producers/${currentBeat.producer.uid}`} className="text-sm text-muted-foreground hover:underline truncate">
-              {currentBeat.producer.displayName}
+            <Link href={`/producers/${currentTrack.producer.uid}`} className="text-sm text-muted-foreground hover:underline truncate">
+              {currentTrack.producer.displayName}
             </Link>
           </div>
         </div>

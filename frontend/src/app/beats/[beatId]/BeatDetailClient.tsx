@@ -17,16 +17,16 @@ interface BeatDetailClientProps {
 }
 
 export function BeatDetailClient({ beat }: BeatDetailClientProps) {
-  const { currentBeat, isPlaying, play, togglePlayPause } = useAudio();
+  const { currentTrack, isPlaying, play, togglePlayPause } = useAudio();
   const { addItem } = useCart();
 
-  const isCurrentBeat = currentBeat?.id === beat.id;
+  const isCurrentBeat = currentTrack?.id === beat.id;
 
   const handlePlayClick = () => {
     if (isCurrentBeat) {
       togglePlayPause();
     } else {
-      play(beat);
+      play({ ...beat, itemType: "beat" });
     }
   };
 

@@ -7,35 +7,27 @@ import { Button } from "@/components/ui/button";
 import { PlayCircle, PauseCircle, PackageOpen } from "lucide-react";
 import { SamplePackWithProducer } from "@/lib/services/samplePacks";
 import { useAudio } from "@/context/AudioContext";
-import { useAuth } from "@/context/AuthContext";
-
 interface SamplePackCardProps {
   pack: SamplePackWithProducer;
 }
 
 export function SamplePackCard({ pack }: SamplePackCardProps) {
-  const { currentBeat, isPlaying, play, togglePlayPause } = useAudio();
+  const { currentTrack, isPlaying, play, togglePlayPause } = useAudio();
 
-  const isCurrentPack = currentBeat?.id === pack.id;
+  const isCurrentPack = currentTrack?.id === pack.id;
 
   const handlePlayClick = (e: React.MouseEvent) => {
     e.preventDefault();
     if (isCurrentPack) {
       togglePlayPause();
     } else {
-      // Mocking the beat format for the audio player context
       play({
         id: pack.id,
         title: pack.title,
         producerId: pack.producer.uid,
+        producer: pack.producer,
         audioPreviewUrl: pack.audioPreviewUrl,
-        tags: pack.tags,
-        bpm: 0,
-        key: "",
-        status: "published",
-        createdAt: pack.createdAt,
-        updatedAt: pack.updatedAt,
-        licenses: []
+        itemType: "samplePack",
       });
     }
   };

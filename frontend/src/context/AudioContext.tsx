@@ -1,15 +1,27 @@
 "use client";
 
 import React, { createContext, useContext, useState, useRef, useEffect, ReactNode } from "react";
-import { BeatWithProducer } from "@/lib/services/gallery";
+export interface PlayableAudioItem {
+  id: string;
+  title: string;
+  producerId: string;
+  producer: {
+    uid: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
+  audioPreviewUrl: string;
+  coverArtUrl?: string;
+  itemType: "beat" | "samplePack";
+}
 
 interface AudioContextType {
-  currentBeat: BeatWithProducer | null;
+  currentTrack: PlayableAudioItem | null;
   isPlaying: boolean;
   progress: number;
   duration: number;
   volume: number;
-  play: (beat: BeatWithProducer) => void;
+  play: (track: PlayableAudioItem) => void;
   togglePlayPause: () => void;
   seek: (time: number) => void;
   setVolume: (level: number) => void;
@@ -18,7 +30,7 @@ interface AudioContextType {
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
 export function AudioProvider({ children }: { children: ReactNode }) {
-  const [currentBeat, setCurrentBeat] = useState<BeatWithProducer | null>(null);
+  const [currentTrack, setCurrentTrack] = useState<PlayableAudioItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -67,25 +79,25 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const play = (beat: BeatWithProducer) => {
+  const play = (track: PlayableAudioItem) => {
     if (!audioRef.current) return;
 
-    if (currentBeat?.id === beat.id) {
-      // If it's the same beat, just resume
+    if (currentTrack?.id === track.id) {
+      // If it's the same track, just resume
       if (audioRef.current.paused) {
         audioRef.current.play();
       }
       return;
     }
 
-    // Load new beat
-    setCurrentBeat(beat);
-    audioRef.current.src = beat.audioPreviewUrl;
+    // Load new track
+    setCurrentTrack(track);
+    audioRef.current.src = track.audioPreviewUrl;
     audioRef.current.play().catch(e => console.error("Error playing audio:", e));
   };
 
   const togglePlayPause = () => {
-    if (!audioRef.current || !currentBeat) return;
+    if (!audioRef.current || !currentTrack) return;
     
     if (isPlaying) {
       audioRef.current.pause();
@@ -111,7 +123,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   return (
     <AudioContext.Provider
       value={{
-        currentBeat,
+        currentTrack,
         isPlaying,
         progress,
         duration,
