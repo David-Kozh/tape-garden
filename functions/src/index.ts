@@ -1507,7 +1507,7 @@ export const stripeWebhook = functions
             if (buyerEmail) {
               const resend = new Resend(resendApiKey.value());
 
-              const itemsHtml = cart.map((item: any) => `<li>${item.itemType} ${item.licenseType ? `(${item.licenseType})` : ""} - $${item.price}</li>`).join("");
+              const itemsHtml = cart.map((item: { itemType: string; licenseType?: string; price: number }) => `<li>${item.itemType} ${item.licenseType ? `(${item.licenseType})` : ""} - $${item.price}</li>`).join("");
 
               await resend.emails.send({
                 from: "onboarding@resend.dev",
