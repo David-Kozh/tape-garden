@@ -1479,3 +1479,113 @@ export const stripeWebhook = functions
       res.status(500).send("Internal Server Error");
     }
   });
+
+/**
+ * Scheduled Job: incrementUploadSlots
+ * Runs at midnight UTC on the 1st of every month.
+ * Grants +2 beat slots and +2 sample pack slots (up to a cap of 50) 
+ * for all approved producers.
+ */
+export const incrementUploadSlots = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 1 })
+  .pubsub.schedule("0 0 1 * *")
+  .timeZone("UTC")
+  .onRun(async () => {
+    console.log("[incrementUploadSlots] Starting monthly slot increment job.");
+    const db = getFirestore(admin.app(), "tape-garden-db");
+
+    try {
+      const producersSnapshot = await db.collection("users")
+        .where("role", "==", "producer")
+        .where("producerProfile.status", "==", "approved")
+        .get();
+
+      if (producersSnapshot.empty) {
+        console.log("[incrementUploadSlots] No approved producers found.");
+        return null;
+      }
+
+      const now = admin.firestore.Timestamp.now();
+      const currentMonthUTC = now.toDate().getUTCMonth();
+      const currentYearUTC = now.toDate().getUTCFullYear();
+
+      let batch = db.batch();
+      let operationCount = 0;
+      let updatedCount = 0;
+      let skippedCount = 0;
+      let cappedCount = 0;
+      let failedBatchCount = 0;
+
+      const commitBatch = async (currentBatch: admin.firestore.WriteBatch, count: number) => {
+        try {
+          await currentBatch.commit();
+        } catch (error) {
+          console.error("[incrementUploadSlots] Failed to commit a batch of", count, "updates:", error);
+          failedBatchCount += count;
+        }
+      };
+
+      for (const doc of producersSnapshot.docs) {
+        const data = doc.data();
+        const profile = data.producerProfile || {};
+        
+        // Idempotency: skip if already incremented this month
+        let skip = false;
+        if (profile.lastSlotIncrementDate) {
+          // Field could be a Timestamp or Date depending on how it was written, usually Timestamp in Firestore
+          const lastDateObj = profile.lastSlotIncrementDate.toDate ? profile.lastSlotIncrementDate.toDate() : new Date(profile.lastSlotIncrementDate);
+          if (lastDateObj.getUTCMonth() === currentMonthUTC && lastDateObj.getUTCFullYear() === currentYearUTC) {
+            skip = true;
+          }
+        }
+
+        if (skip) {
+          skippedCount++;
+          continue;
+        }
+
+        const currentBeatSlots = profile.allocatedBeatSlots || 0;
+        const currentPackSlots = profile.allocatedSamplePackSlots || 0;
+
+        const calcNewSlots = (current: number) => {
+          if (current >= 50) return current;
+          return Math.min(current + 2, 50);
+        };
+
+        const finalBeatSlots = calcNewSlots(currentBeatSlots);
+        const finalPackSlots = calcNewSlots(currentPackSlots);
+
+        if (finalBeatSlots === currentBeatSlots && finalPackSlots === currentPackSlots) {
+          cappedCount++;
+          // Skip updating the date if we didn't actually increase slots
+          continue;
+        }
+
+        batch.update(doc.ref, {
+          "producerProfile.allocatedBeatSlots": finalBeatSlots,
+          "producerProfile.allocatedSamplePackSlots": finalPackSlots,
+          "producerProfile.lastSlotIncrementDate": now
+        });
+        
+        updatedCount++;
+        operationCount++;
+
+        if (operationCount === 500) {
+          await commitBatch(batch, operationCount);
+          batch = db.batch();
+          operationCount = 0;
+        }
+      }
+
+      if (operationCount > 0) {
+        await commitBatch(batch, operationCount);
+      }
+
+      console.log(`[incrementUploadSlots] Job complete. Updated: ${updatedCount}, Skipped: ${skippedCount}, Capped: ${cappedCount}, Failed in batches: ${failedBatchCount}`);
+      return null;
+    } catch (error) {
+      console.error("[incrementUploadSlots] Fatal error during slot increment:", error);
+      return null;
+    }
+  });

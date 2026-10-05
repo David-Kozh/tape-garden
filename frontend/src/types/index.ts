@@ -33,7 +33,7 @@ export interface User {
   // Producer-specific fields (Null or omitted for buyers/admins)
   producerProfile?: {
     status: ProducerStatus;
-    allocatedBeatSlots: number; // Limit for beats (grows over time, e.g. +2/month)
+    allocatedBeatSlots: number; // Limit for beats (grows over time, +2/month up to 50 cap)
     allocatedSamplePackSlots: number; // Limit for sample packs
     lastSlotIncrementDate: Date | string;
     bio: string;
