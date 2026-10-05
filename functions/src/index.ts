@@ -4,9 +4,11 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 import { defineSecret } from "firebase-functions/params";
 import Stripe from "stripe";
+import { Resend } from "resend";
 
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
+const resendApiKey = defineSecret("RESEND_API_KEY");
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -65,7 +67,7 @@ interface ReviewApplicationData {
  */
 export const reviewApplication = functions
   .region("us-east4")
-  .runWith({ maxInstances: 10 })
+  .runWith({ maxInstances: 10, secrets: [resendApiKey] })
   .https.onCall(async (data: unknown, context) => {
     // 1. Verify that the caller is authenticated and has administrative privileges
     if (!context.auth || (context.auth.token.role !== "admin" && !context.auth.token.admin)) {
@@ -164,9 +166,31 @@ export const reviewApplication = functions
             }, { merge: true });
           }
 
-          console.log(`[reviewApplication] Simulated Email Send: Producer application APPROVED for ${email}.`);
+          console.log(`[reviewApplication] Sending approval email to ${email}.`);
+          try {
+            const resend = new Resend(resendApiKey.value());
+            await resend.emails.send({
+              from: "onboarding@resend.dev",
+              to: email,
+              subject: "Your Tape Garden Application has been Approved!",
+              html: `<p>Hi ${displayName},</p><p>Congratulations! Your producer application for Tape Garden has been approved.</p><p>Log in to access your dashboard and set up Stripe Connect.</p>`
+            });
+          } catch (e) {
+            console.error("[reviewApplication] Failed to send approval email:", e);
+          }
         } else {
-          console.log(`[reviewApplication] Simulated Email Send: Producer application DECLINED for ${email}.`);
+          console.log(`[reviewApplication] Sending decline email to ${email}.`);
+          try {
+            const resend = new Resend(resendApiKey.value());
+            await resend.emails.send({
+              from: "onboarding@resend.dev",
+              to: email,
+              subject: "Update on your Tape Garden Application",
+              html: `<p>Hi ${displayName},</p><p>Thank you for applying to Tape Garden. Unfortunately, we are unable to accept your application at this time.</p><p>We appreciate your interest and encourage you to re-apply in the future.</p>`
+            });
+          } catch (e) {
+            console.error("[reviewApplication] Failed to send decline email:", e);
+          }
         }
 
         // Update the application status
@@ -1373,7 +1397,7 @@ export const createCheckoutSession = functions
  */
 export const stripeWebhook = functions
   .region("us-east4")
-  .runWith({ secrets: [stripeSecretKey, stripeWebhookSecret] })
+  .runWith({ secrets: [stripeSecretKey, stripeWebhookSecret, resendApiKey] })
   .https.onRequest(async (req, res) => {
     const sig = req.headers["stripe-signature"];
     const endpointSecret = stripeWebhookSecret.value();
@@ -1469,6 +1493,23 @@ export const stripeWebhook = functions
               });
             }
           }
+
+          try {
+            const buyerEmail = session.customer_details?.email;
+            if (buyerEmail) {
+              const resend = new Resend(resendApiKey.value());
+              await resend.emails.send({
+                from: "onboarding@resend.dev",
+                to: buyerEmail,
+                subject: "Tape Garden Purchase Receipt",
+                html: `<p>Thank you for your purchase!</p><p>You successfully purchased ${cart.length} item(s).</p><p>Please log in to your Dashboard to download your files.</p>`
+              });
+              console.log(`[stripeWebhook] Sent purchase receipt to ${buyerEmail}`);
+            }
+          } catch (e) {
+            console.error("[stripeWebhook] Failed to send receipt email:", e);
+          }
+
           console.log(`[stripeWebhook] Checkout session ${session.id} fully processed.`);
         }
       }
@@ -1488,7 +1529,7 @@ export const stripeWebhook = functions
  */
 export const incrementUploadSlots = functions
   .region("us-east4")
-  .runWith({ maxInstances: 1 })
+  .runWith({ maxInstances: 1, secrets: [resendApiKey] })
   .pubsub.schedule("0 0 1 * *")
   .timeZone("UTC")
   .onRun(async () => {
@@ -1516,6 +1557,7 @@ export const incrementUploadSlots = functions
       let skippedCount = 0;
       let cappedCount = 0;
       let failedBatchCount = 0;
+      const emailsToSend: string[] = [];
 
       const commitBatch = async (currentBatch: admin.firestore.WriteBatch, count: number) => {
         try {
@@ -1568,6 +1610,10 @@ export const incrementUploadSlots = functions
           "producerProfile.lastSlotIncrementDate": now
         });
         
+        if (data.email) {
+          emailsToSend.push(data.email);
+        }
+
         updatedCount++;
         operationCount++;
 
@@ -1580,6 +1626,25 @@ export const incrementUploadSlots = functions
 
       if (operationCount > 0) {
         await commitBatch(batch, operationCount);
+      }
+
+      if (emailsToSend.length > 0) {
+        const resend = new Resend(resendApiKey.value());
+        const BATCH_SIZE = 100;
+        for (let i = 0; i < emailsToSend.length; i += BATCH_SIZE) {
+          const emailBatch = emailsToSend.slice(i, i + BATCH_SIZE);
+          try {
+            await resend.batch.send(emailBatch.map(email => ({
+              from: "onboarding@resend.dev",
+              to: email,
+              subject: "New Upload Slots Available!",
+              html: "<p>Great news! Your monthly upload slots have been refreshed.</p><p>Log in to Tape Garden to share your new sounds.</p>"
+            })));
+            console.log(`[incrementUploadSlots] Sent ${emailBatch.length} re-engagement emails.`);
+          } catch (e) {
+            console.error("[incrementUploadSlots] Failed to send re-engagement email batch:", e);
+          }
+        }
       }
 
       console.log(`[incrementUploadSlots] Job complete. Updated: ${updatedCount}, Skipped: ${skippedCount}, Capped: ${cappedCount}, Failed in batches: ${failedBatchCount}`);
