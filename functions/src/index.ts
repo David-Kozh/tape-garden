@@ -136,6 +136,14 @@ export const reviewApplication = functions
             producer: true,
           });
 
+          // Generate password reset link for new or existing users to set their password
+          let resetLink = "";
+          try {
+            resetLink = await admin.auth().generatePasswordResetLink(email);
+          } catch (e) {
+            console.error(`[reviewApplication] Could not generate reset link for ${email}`, e);
+          }
+
           const userRef = db.collection("users").doc(uid);
           const producerProfile = {
             status: "approved",
@@ -172,8 +180,8 @@ export const reviewApplication = functions
             await resend.emails.send({
               from: "onboarding@resend.dev",
               to: email,
-              subject: "Your Tape Garden Application has been Approved!",
-              html: `<p>Hi ${displayName},</p><p>Congratulations! Your producer application for Tape Garden has been approved.</p><p>Log in to access your dashboard and set up Stripe Connect.</p>`
+              subject: "Welcome to Tape Garden",
+              html: `<p>Hi ${displayName},</p><p>Your producer application for Tape Garden has been approved.</p><p>To get started, please <a href="${resetLink}">set your password</a> to log in and set up Stripe Connect.</p>`
             });
           } catch (e) {
             console.error("[reviewApplication] Failed to send approval email:", e);
@@ -1441,7 +1449,7 @@ export const stripeWebhook = functions
           // Retrieve payment intent to get the latest charge for source_transaction
           const paymentIntentId = session.payment_intent as string;
           let chargeId: string | undefined = undefined;
-          
+
           if (paymentIntentId) {
             const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
             chargeId = pi.latest_charge as string | undefined;
@@ -1498,11 +1506,14 @@ export const stripeWebhook = functions
             const buyerEmail = session.customer_details?.email;
             if (buyerEmail) {
               const resend = new Resend(resendApiKey.value());
+
+              const itemsHtml = cart.map((item: any) => `<li>${item.itemType} ${item.licenseType ? `(${item.licenseType})` : ""} - $${item.price}</li>`).join("");
+
               await resend.emails.send({
                 from: "onboarding@resend.dev",
                 to: buyerEmail,
                 subject: "Tape Garden Purchase Receipt",
-                html: `<p>Thank you for your purchase!</p><p>You successfully purchased ${cart.length} item(s).</p><p>Please log in to your Dashboard to download your files.</p>`
+                html: `<p>Thank you for your purchase.</p><ul>${itemsHtml}</ul><p>You can download your files anytime from your <a href="https://tapegarden--tape-garden.us-east4.hosted.app/dashboard/collection">purchases page</a>.</p>`
               });
               console.log(`[stripeWebhook] Sent purchase receipt to ${buyerEmail}`);
             }
@@ -1571,7 +1582,7 @@ export const incrementUploadSlots = functions
       for (const doc of producersSnapshot.docs) {
         const data = doc.data();
         const profile = data.producerProfile || {};
-        
+
         // Idempotency: skip if already incremented this month
         let skip = false;
         if (profile.lastSlotIncrementDate) {
@@ -1609,7 +1620,7 @@ export const incrementUploadSlots = functions
           "producerProfile.allocatedSamplePackSlots": finalPackSlots,
           "producerProfile.lastSlotIncrementDate": now
         });
-        
+
         if (data.email) {
           emailsToSend.push(data.email);
         }
