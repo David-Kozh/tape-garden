@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { FeedbackCategory } from "@/types";
+import { MessageSquare } from "lucide-react";
 
 export function FeedbackModal() {
   const { user } = useAuth();
@@ -53,26 +54,11 @@ export function FeedbackModal() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button
-            variant="outline"
-            className="fixed bottom-6 right-6 rounded-full shadow-lg h-12 w-12 p-0 flex items-center justify-center z-50 bg-background"
-            aria-label="Submit Feedback"
-          />
+          <Button variant="outline" className="gap-2 w-full sm:w-auto" />
         }
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-        </svg>
+        <MessageSquare className="w-4 h-4" />
+        Feedback
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

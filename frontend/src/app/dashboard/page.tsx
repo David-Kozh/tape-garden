@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { BasicSalesStats } from "@/components/dashboard/BasicSalesStats";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { FeedbackModal } from "@/components/dashboard/FeedbackModal";
 export default function DashboardOverview() {
   const { user, role } = useAuth();
   const router = useRouter();
@@ -148,12 +149,15 @@ export default function DashboardOverview() {
           <p className="text-muted-foreground mt-1">Manage your presence and check your slot usage.</p>
         </div>
         {user && (
-          <Link href={`/producers/${user.uid}`}>
-            <Button variant="outline" className="gap-2 w-full sm:w-auto">
-              <UserCircle className="w-4 h-4" />
-              View Public Profile
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <FeedbackModal />
+            <Link href={`/producers/${user.uid}`}>
+              <Button variant="outline" className="gap-2 w-full sm:w-auto">
+                <UserCircle className="w-4 h-4" />
+                View Public Profile
+              </Button>
+            </Link>
+          </div>
         )}
       </div>
 
