@@ -1665,3 +1665,207 @@ export const incrementUploadSlots = functions
       return null;
     }
   });
+
+interface GenerateInviteData {
+  inviteeName: string;
+}
+
+/**
+ * Cloud Function HTTPS Callable: generateInvite
+ * Admin-only endpoint to generate a unique invite link token for a producer.
+ */
+export const generateInvite = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10 })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth || (context.auth.token.role !== "admin" && !context.auth.token.admin)) {
+      throw new functions.https.HttpsError("permission-denied", "Only admins can generate invites.");
+    }
+
+    const { inviteeName } = (data || {}) as GenerateInviteData;
+    if (!inviteeName || typeof inviteeName !== "string" || inviteeName.trim() === "") {
+      throw new functions.https.HttpsError("invalid-argument", "Missing or invalid inviteeName.");
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    const invitesRef = db.collection("invites");
+    
+    try {
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 60); // 60 days expiration
+
+      const newInvite = await invitesRef.add({
+        inviteeName: inviteeName.trim(),
+        expirationTimestamp: admin.firestore.Timestamp.fromDate(expirationDate),
+        status: "pending",
+        createdAt: FieldValue.serverTimestamp(),
+        createdBy: context.auth.uid,
+      });
+
+      return { success: true, token: newInvite.id };
+    } catch (error) {
+      console.error("[generateInvite] Error:", error);
+      throw new functions.https.HttpsError("internal", "An error occurred while generating the invite.");
+    }
+  });
+
+interface ValidateInviteData {
+  token: string;
+}
+
+/**
+ * Cloud Function HTTPS Callable: validateInvite
+ * Public endpoint to check if an invite token is valid and pending.
+ */
+export const validateInvite = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10 })
+  .https.onCall(async (data: unknown) => {
+    const { token } = (data || {}) as ValidateInviteData;
+    
+    if (!token || typeof token !== "string") {
+      throw new functions.https.HttpsError("invalid-argument", "Missing or invalid token.");
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+
+    try {
+      const inviteDoc = await db.collection("invites").doc(token).get();
+      if (!inviteDoc.exists) {
+        return { valid: false, reason: "not-found" };
+      }
+
+      const inviteData = inviteDoc.data()!;
+      if (inviteData.status !== "pending") {
+        return { valid: false, reason: "used-or-expired" };
+      }
+
+      const expiration = (inviteData.expirationTimestamp as admin.firestore.Timestamp).toDate();
+      if (expiration < new Date()) {
+        // Technically expired, but status might still be pending in DB
+        return { valid: false, reason: "used-or-expired" };
+      }
+
+      return { valid: true, inviteeName: inviteData.inviteeName };
+    } catch (error) {
+      console.error("[validateInvite] Error:", error);
+      throw new functions.https.HttpsError("internal", "An error occurred while validating the invite.");
+    }
+  });
+
+interface AcceptInviteData {
+  token: string;
+  profileData?: {
+    displayName?: string;
+    bio?: string;
+    photoURL?: string;
+    socialLinks?: string[];
+  };
+}
+
+/**
+ * Cloud Function HTTPS Callable: acceptInvite
+ * Endpoint for authenticated users to accept an invite, granting them producer status.
+ */
+export const acceptInvite = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10 })
+  .https.onCall(async (data: unknown, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError("unauthenticated", "You must be logged in to accept an invite.");
+    }
+
+    const uid = context.auth.uid;
+    const authEmail = context.auth.token.email || "";
+    const authName = context.auth.token.name || "Anonymous";
+    const { token, profileData } = (data || {}) as AcceptInviteData;
+
+    if (!token || typeof token !== "string") {
+      throw new functions.https.HttpsError("invalid-argument", "Missing or invalid token.");
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    const inviteRef = db.collection("invites").doc(token);
+    const userRef = db.collection("users").doc(uid);
+
+    try {
+      await db.runTransaction(async (transaction) => {
+        const inviteDoc = await transaction.get(inviteRef);
+        if (!inviteDoc.exists) {
+          throw new functions.https.HttpsError("not-found", "Invite not found.");
+        }
+
+        const inviteData = inviteDoc.data()!;
+        if (inviteData.status !== "pending") {
+          throw new functions.https.HttpsError("failed-precondition", "Invite is no longer valid.");
+        }
+
+        const expiration = (inviteData.expirationTimestamp as admin.firestore.Timestamp).toDate();
+        if (expiration < new Date()) {
+          throw new functions.https.HttpsError("failed-precondition", "Invite has expired.");
+        }
+
+        // Mark invite as used
+        transaction.update(inviteRef, {
+          status: "used",
+          usedBy: uid,
+          usedAt: FieldValue.serverTimestamp(),
+        });
+
+        // Upsert user doc
+        const userDoc = await transaction.get(userRef);
+        
+        let producerProfile = {
+          status: "approved",
+          allocatedBeatSlots: 2,
+          allocatedSamplePackSlots: 2,
+          lastSlotIncrementDate: FieldValue.serverTimestamp(),
+          bio: profileData?.bio || "",
+          socialLinks: profileData?.socialLinks || [],
+          avatarUrl: profileData?.photoURL || "",
+        };
+
+        if (userDoc.exists) {
+          const userData = userDoc.data()!;
+          // Merge existing profile data if they already had some
+          const existingProfile = userData.producerProfile || {};
+          producerProfile = {
+            ...producerProfile,
+            bio: profileData?.bio || existingProfile.bio || "",
+            socialLinks: profileData?.socialLinks || existingProfile.socialLinks || [],
+            avatarUrl: profileData?.photoURL || existingProfile.avatarUrl || "",
+          };
+
+          transaction.set(userRef, {
+            role: "producer",
+            displayName: profileData?.displayName || userData.displayName,
+            producerProfile,
+          }, { merge: true });
+        } else {
+          // If the user document doesn't exist yet
+          transaction.set(userRef, {
+            uid: uid,
+            role: "producer",
+            email: authEmail,
+            displayName: profileData?.displayName || authName,
+            createdAt: FieldValue.serverTimestamp(),
+            stripeCustomerId: null,
+            stripeAccountId: null,
+            producerProfile,
+          }, { merge: true });
+        }
+      });
+
+      // After successful transaction, set custom claim
+      await admin.auth().setCustomUserClaims(uid, {
+        role: "producer",
+        producer: true,
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error("[acceptInvite] Error:", error);
+      if (error instanceof functions.https.HttpsError) throw error;
+      throw new functions.https.HttpsError("internal", "An error occurred while accepting the invite.");
+    }
+  });

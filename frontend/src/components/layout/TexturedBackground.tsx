@@ -23,7 +23,7 @@ export function TexturedBackground() {
         roughness={0.3}
         roughnessSize={0.2}
         roughnessRows={0.25}
-        fiber={0.3}
+        fiber={0.25}
         fiberSize={0.75}
         folds={0}
         foldSizeX={1}

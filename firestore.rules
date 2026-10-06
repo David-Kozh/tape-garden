@@ -156,5 +156,11 @@ service cloud.firestore {
         request.resource.data.status == 'new';
       allow read, update, delete: if isAdmin();
     }
+
+    // 10. Invites collection security
+    match /invites/{inviteId} {
+      allow read, update: if isAdmin();
+      allow create, delete: if false; // Creation is handled by generateInvite Cloud Function
+    }
   }
 }
