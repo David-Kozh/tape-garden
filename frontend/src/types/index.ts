@@ -178,3 +178,19 @@ export interface AdminSalesSummary {
   totalPlatformFees: number;
   updatedAt: Date | string;
 }
+
+export type FeedbackCategory = "bug" | "feature_request" | "ux_issue" | "general";
+export type FeedbackStatus = "new" | "reviewed" | "resolved";
+
+/**
+ * 8. Feedback Collection
+ * Matches collection `/feedback`
+ */
+export interface Feedback {
+  id?: string; // Client-side identifier (document ID)
+  producerId: string;
+  category: FeedbackCategory;
+  message: string;
+  status: FeedbackStatus;
+  createdAt: Date | string;
+}

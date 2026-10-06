@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { FeedbackModal } from "@/components/dashboard/FeedbackModal";
 
 export default function DashboardLayout({
   children,
@@ -47,6 +48,7 @@ export default function DashboardLayout({
         <div className="container mx-auto p-4 md:p-8 max-w-5xl">
           {children}
         </div>
+        <FeedbackModal />
       </main>
     </div>
   );
