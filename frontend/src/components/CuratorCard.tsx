@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 export interface CuratorTrack {
   id: string;
@@ -37,9 +38,11 @@ export function CuratorCard({ track, isPlaying, onPlayToggle }: CuratorCardProps
               <span className="text-[11px] text-zinc-500 font-mono pt-0.5">{track.tempo}</span>
             </div>
 
-            <h3 className="text-lg font-bold text-zinc-900 tracking-tight group-hover:text-emerald-700 transition-colors line-clamp-1">
-              {track.title}
-            </h3>
+            <Link href={`/beats/${track.id}`} className="hover:underline">
+              <h3 className="text-lg font-bold text-zinc-900 tracking-tight group-hover:text-emerald-700 transition-colors line-clamp-1">
+                {track.title}
+              </h3>
+            </Link>
 
             <p className="text-sm text-zinc-600 leading-relaxed line-clamp-1 lg:line-clamp-none">
               {track.description}

@@ -7,7 +7,7 @@ import { CuratorTrack } from "@/components/CuratorCard";
 
 export default async function Home() {
   const curatedBeats = await getRandomCuratedBeats(2);
-  
+
   // Format the real beats to match the CuratorTrack interface
   const formattedBeats: CuratorTrack[] = curatedBeats.map(beat => ({
     id: beat.id,
@@ -23,7 +23,7 @@ export default async function Home() {
     {
       id: "subterranean",
       title: "Subterranean Textures",
-      type: "Beat Pack",
+      type: "Beat",
       tempo: "84 BPM",
       tags: ["Ambient", "Lo-Fi", "Analog"],
       description: "Low-end focused textures with lush tape decay. Curated for deep listening.",
