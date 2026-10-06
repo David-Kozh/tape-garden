@@ -1,15 +1,25 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import { CassetteTape, Flower2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { CuratorCard } from "@/components/CuratorCard";
+import { CuratorBench } from "@/components/CuratorBench";
+import { getRandomCuratedBeats } from "@/lib/services/gallery";
+import { CuratorTrack } from "@/components/CuratorCard";
 
-export default function Home() {
-  const [activePlay, setActivePlay] = useState<string | null>(null);
+export default async function Home() {
+  const curatedBeats = await getRandomCuratedBeats(2);
+  
+  // Format the real beats to match the CuratorTrack interface
+  const formattedBeats: CuratorTrack[] = curatedBeats.map(beat => ({
+    id: beat.id,
+    title: beat.title,
+    type: "Beat",
+    tempo: `${beat.bpm} BPM`,
+    tags: beat.tags?.slice(0, 3) || [],
+    description: `Produced by ${beat.producer.displayName}. Curated specially for the Garden.`,
+    coverArtUrl: beat.coverArtUrl,
+  }));
 
-  const tracks = [
+  const defaultTracks: CuratorTrack[] = [
     {
       id: "subterranean",
       title: "Subterranean Textures",
@@ -27,6 +37,9 @@ export default function Home() {
       description: "Vintage synthesizer loops recorded direct-to-tape. Back Room exclusive.",
     },
   ];
+
+  // Merge: Take all real curated beats, and if fewer than 2, fill the rest with defaultTracks
+  const displayTracks = [...formattedBeats, ...defaultTracks].slice(0, 2);
 
   return (
     <div className="flex-1 w-full relative text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-between overflow-x-hidden font-inter antialiased px-2 sm:px-4">
@@ -83,24 +96,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Minimal Curator Section */}
-        <div id="explore" className="flex flex-col gap-8 pb-6">
-          <div className="flex justify-between items-end border-b border-zinc-400/80 pb-2">
-            <h2 className="text-xl font-bold text-zinc-900">Curator&apos;s Bench</h2>
-            <span className="text-xs text-emerald-600/80 font-semibold tracking-wider uppercase">02 releases</span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {tracks.map((track) => (
-              <CuratorCard
-                key={track.id}
-                track={track}
-                isPlaying={activePlay === track.id}
-                onPlayToggle={() => setActivePlay(activePlay === track.id ? null : track.id)}
-              />
-            ))}
-          </div>
-        </div>
+        {/* Minimal Curator Section extracted to Client Component */}
+        <CuratorBench tracks={displayTracks} />
 
       </main>
 

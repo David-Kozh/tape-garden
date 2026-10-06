@@ -196,3 +196,80 @@ export async function getApprovedProducers(options: GetProducersOptions = {}): P
     lastDocId: snapshot.docs[snapshot.docs.length - 1]?.id || null
   }));
 }
+
+/**
+ * Fetches a random selection of published and curated beats.
+ * Since curated beats are a small manually-selected subset, we can efficiently
+ * fetch a pool of them and randomly select the desired count on the server.
+ */
+export async function getRandomCuratedBeats(count: number = 2): Promise<BeatWithProducer[]> {
+  const beatsRef = adminDb.collection("beats");
+  
+  // 1. Fetch published & curated beats (limiting to an upper bound for safety)
+  // Multiple equality filters (`==`) are efficiently handled by Firestore via Index Merging.
+  const q = beatsRef
+    .where("status", "==", "published")
+    .where("curated", "==", true)
+    .limit(100); 
+
+  const snapshot = await q.get();
+  
+  if (snapshot.empty) {
+    return [];
+  }
+  
+  const allCuratedDocs = snapshot.docs;
+  
+  // 2. Server-side random shuffle
+  const shuffled = allCuratedDocs.sort(() => 0.5 - Math.random());
+  const selectedDocs = shuffled.slice(0, count);
+  
+  // 3. Map to Beat objects
+  const beats = selectedDocs.map((doc: QueryDocumentSnapshot) => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
+      updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : data.updatedAt
+    } as Beat;
+  });
+
+  // 4. Populate producers efficiently
+  const producerIds = Array.from(new Set(beats.map((b: Beat) => b.producerId).filter(Boolean)));
+  
+  const producersMap = new Map<string, Partial<User> & { uid: string }>();
+  if (producerIds.length > 0) {
+    const producerDocs = await Promise.all(
+      producerIds.map(id => adminDb.collection("users").doc(id).get())
+    );
+    for (const doc of producerDocs) {
+      if (doc.exists) {
+        producersMap.set(doc.id, { uid: doc.id, ...doc.data() });
+      }
+    }
+  }
+
+  const beatsWithProducers: BeatWithProducer[] = beats.map((beat: Beat) => {
+    const producer = producersMap.get(beat.producerId);
+    
+    // Strip fileUrl for safety
+    const safeLicenses = beat.licenses?.map((license: BeatLicense) => ({
+      type: license.type,
+      price: license.price
+    })) as Omit<BeatLicense, "fileUrl">[];
+
+    return {
+      ...beat,
+      licenses: safeLicenses,
+      producer: {
+        uid: beat.producerId,
+        displayName: producer?.displayName || "Unknown Producer",
+        avatarUrl: producer?.producerProfile?.avatarUrl,
+      }
+    };
+  });
+
+  return JSON.parse(JSON.stringify(beatsWithProducers));
+}
+
