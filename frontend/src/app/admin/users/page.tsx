@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
 import { ProducerAdminActions } from "./components/producer-admin-actions";
+import { AdminInvitesManagement } from "./components/admin-invites-management";
 import {
   Table,
   TableBody,
@@ -138,6 +139,8 @@ export default function AdminUsersPage() {
           </TableBody>
         </Table>
       </div>
+
+      <AdminInvitesManagement />
     </div>
   );
 }
