@@ -1806,15 +1806,15 @@ export const acceptInvite = functions
           throw new functions.https.HttpsError("failed-precondition", "Invite has expired.");
         }
 
+        // Get user doc (must happen before any writes)
+        const userDoc = await transaction.get(userRef);
+
         // Mark invite as used
         transaction.update(inviteRef, {
           status: "used",
           usedBy: uid,
           usedAt: FieldValue.serverTimestamp(),
         });
-
-        // Upsert user doc
-        const userDoc = await transaction.get(userRef);
 
         let producerProfile = {
           status: "approved",
