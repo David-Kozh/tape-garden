@@ -33,7 +33,7 @@ export function proxy(request: NextRequest) {
   const sessionCookie = request.cookies.get("__session")?.value;
 
   // Path groups definitions
-  const isProducerPath = pathname.startsWith("/sample-packs") || pathname === "/dashboard" || pathname.startsWith("/dashboard/uploads");
+  const isProducerPath = pathname === "/dashboard" || pathname.startsWith("/dashboard/uploads");
   const isAdminPath = pathname.startsWith("/admin");
   const isAuthProtectedPath = pathname.startsWith("/checkout") || pathname.startsWith("/dashboard") || isProducerPath || isAdminPath;
 
@@ -85,7 +85,6 @@ export const config = {
   matcher: [
     "/checkout/:path*",
     "/dashboard/:path*",
-    "/sample-packs/:path*",
     "/admin/:path*",
   ],
 };

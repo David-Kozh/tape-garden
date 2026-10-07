@@ -80,7 +80,7 @@ export default function InviteIntakePage() {
     if (step === "validating" && !authLoading) {
       validate();
     }
-    
+
     return () => { isMounted = false; };
   }, [token, authLoading, user, step]);
 
@@ -137,7 +137,7 @@ export default function InviteIntakePage() {
     setStep("accepting");
     try {
       const acceptInvite = httpsCallable(functions, "acceptInvite");
-      
+
       const profileData = skipProfile ? {} : {
         displayName: displayName.trim(),
         bio: bio.trim(),
@@ -146,10 +146,10 @@ export default function InviteIntakePage() {
       };
 
       await acceptInvite({ token, profileData });
-      
+
       // Force reload auth token to get new claims
       await auth.currentUser?.getIdToken(true);
-      
+
       toast.success("Welcome to Tape Garden! Your producer account is ready.");
       router.push("/dashboard");
     } catch (err: unknown) {
@@ -257,7 +257,7 @@ export default function InviteIntakePage() {
                     </div>
                   </div>
                 )}
-                
+
                 <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-medium px-1">Email</label>
                   <div className="relative">
@@ -315,12 +315,38 @@ export default function InviteIntakePage() {
 
           <Card className="p-8">
             <form onSubmit={(e) => { e.preventDefault(); handleAccept(false); }} className="flex flex-col gap-6">
-              
+
+              {/* Explicit "Logged in as" banner to prevent accidental promotion of the wrong account */}
+              <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs text-zinc-500 font-medium">Currently signed in as</span>
+                    <span className="text-sm font-semibold text-zinc-900">{user?.email || "Unknown"}</span>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    auth.signOut();
+                    setStep("auth");
+                  }}
+                  disabled={isWorking}
+                  className="shrink-0"
+                >
+                  Switch Account
+                </Button>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">Display Name</label>
-                <Input 
-                  value={displayName} 
-                  onChange={e => setDisplayName(e.target.value)} 
+                <Input
+                  value={displayName}
+                  onChange={e => setDisplayName(e.target.value)}
                   placeholder="e.g. Metro Boomin"
                   disabled={isWorking}
                   required
@@ -329,9 +355,9 @@ export default function InviteIntakePage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Bio (Optional)</label>
-                <Textarea 
-                  value={bio} 
-                  onChange={e => setBio(e.target.value)} 
+                <Textarea
+                  value={bio}
+                  onChange={e => setBio(e.target.value)}
                   placeholder="Tell us a bit about your sound..."
                   disabled={isWorking}
                   rows={3}
@@ -340,10 +366,10 @@ export default function InviteIntakePage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Profile Picture URL (Optional)</label>
-                <Input 
+                <Input
                   type="url"
-                  value={photoURL} 
-                  onChange={e => setPhotoURL(e.target.value)} 
+                  value={photoURL}
+                  onChange={e => setPhotoURL(e.target.value)}
                   placeholder="https://..."
                   disabled={isWorking}
                 />
@@ -351,10 +377,10 @@ export default function InviteIntakePage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Social Link (Optional)</label>
-                <Input 
+                <Input
                   type="url"
-                  value={socialLink} 
-                  onChange={e => setSocialLink(e.target.value)} 
+                  value={socialLink}
+                  onChange={e => setSocialLink(e.target.value)}
                   placeholder="Instagram, Twitter, or website"
                   disabled={isWorking}
                 />
@@ -366,10 +392,10 @@ export default function InviteIntakePage() {
                   {isWorking ? "Accepting Invite..." : "Accept & Enter Dashboard"}
                   {!isWorking && <ArrowRight className="w-4 h-4 ml-2" />}
                 </Button>
-                
-                <Button 
-                  type="button" 
-                  variant="ghost" 
+
+                <Button
+                  type="button"
+                  variant="ghost"
                   onClick={() => handleAccept(true)}
                   disabled={isWorking}
                   className="w-full text-zinc-500"
