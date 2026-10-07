@@ -38,7 +38,7 @@ const profileSchema = z.object({
   displayName: z.string().min(2, { message: "Display name must be at least 2 characters." }).max(50),
   bio: z.string().max(500, { message: "Bio cannot exceed 500 characters." }).optional(),
   socialLinks: z.array(socialLinkSchema).max(5, { message: "You can add up to 5 social links." }),
-  backgroundPattern: z.enum(["none", "topography", "graph-paper", "hideout", "endless-clouds"]).optional().default("none"),
+  backgroundPattern: z.enum(["none", "topography", "graph-paper", "hideout", "endless-clouds"]),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
