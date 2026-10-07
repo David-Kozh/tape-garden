@@ -20,7 +20,7 @@ export function Navbar() {
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-zinc-400/60 bg-white/10 px-6 py-4 md:px-12 flex justify-between items-center transition-all duration-300">
+    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border/50 bg-white/10 px-6 py-4 md:px-12 flex justify-between items-center transition-all duration-300">
       <Link href="/" className="flex items-center gap-3 group cursor-pointer">
         <div className="w-18 h-12 rounded-lg bg-zinc-100/30 border border-emerald-500/20 flex items-center justify-center transition-all duration-300 group-hover:bg-emerald-200/30 overflow-hidden p-0.5">
           <Image
@@ -48,7 +48,7 @@ export function Navbar() {
         </Link>
 
 
-        <div className="h-5 w-[1px] bg-zinc-400" />
+        <div className="h-5 w-[1px] bg-zinc-500" />
 
         {/* Cart Icon */}
         {itemCount > 0 && (
@@ -67,7 +67,7 @@ export function Navbar() {
           <div className="w-12 h-4 bg-zinc-200 animate-pulse rounded" />
         ) : user ? (
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center justify-center p-2 -mr-2 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer">
+            <DropdownMenuTrigger className="flex items-center justify-center p-2 -ml-2 -mr-4 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer">
               <Menu className="w-5 h-5 text-zinc-700" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white border-zinc-200/60 shadow-lg backdrop-blur-md">
