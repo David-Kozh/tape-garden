@@ -1,7 +1,7 @@
 "use client";
 
 import { useAudio } from "@/context/AudioContext";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, X } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -16,8 +16,8 @@ function formatTime(seconds: number) {
 }
 
 export function AudioPlayer() {
-  const { currentTrack, isPlaying, progress, duration, volume, togglePlayPause, seek, setVolume } = useAudio();
-  const [previousVolume, setPreviousVolume] = useState(1);
+  const { currentTrack, isPlaying, progress, duration, volume, togglePlayPause, seek, setVolume, closePlayer } = useAudio();
+  const [previousVolume, setPreviousVolume] = useState(0.5);
   const isMuted = volume === 0;
 
   if (!currentTrack) return null;
@@ -117,6 +117,9 @@ export function AudioPlayer() {
               onValueChange={handleVolumeChange}
             />
           </div>
+          <Button variant="ghost" size="icon" onClick={closePlayer} className="ml-2 text-muted-foreground hover:text-foreground">
+            <X className="h-5 w-5" />
+          </Button>
         </div>
       </div>
     </div>

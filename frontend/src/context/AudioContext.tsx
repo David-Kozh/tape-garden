@@ -25,6 +25,7 @@ interface AudioContextType {
   togglePlayPause: () => void;
   seek: (time: number) => void;
   setVolume: (level: number) => void;
+  closePlayer: () => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -34,7 +35,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolumeState] = useState(1);
+  const [volume, setVolumeState] = useState(0.5);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -42,6 +43,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof window !== "undefined") {
       audioRef.current = new Audio();
+      audioRef.current.volume = 0.5;
       
       const audio = audioRef.current;
       
@@ -120,6 +122,14 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const closePlayer = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    setIsPlaying(false);
+    setCurrentTrack(null);
+  };
+
   return (
     <AudioContext.Provider
       value={{
@@ -132,6 +142,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         togglePlayPause,
         seek,
         setVolume,
+        closePlayer,
       }}
     >
       {children}
