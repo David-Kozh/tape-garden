@@ -38,6 +38,7 @@ const profileSchema = z.object({
   displayName: z.string().min(2, { message: "Display name must be at least 2 characters." }).max(50),
   bio: z.string().max(500, { message: "Bio cannot exceed 500 characters." }).optional(),
   socialLinks: z.array(socialLinkSchema).max(5, { message: "You can add up to 5 social links." }),
+  backgroundPattern: z.enum(["none", "topography", "graph-paper", "hideout", "endless-clouds"]).optional().default("none"),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -56,6 +57,7 @@ export default function SettingsPage() {
       displayName: "",
       bio: "",
       socialLinks: [],
+      backgroundPattern: "none",
     },
   });
 
@@ -78,6 +80,7 @@ export default function SettingsPage() {
           form.reset({
             displayName: data.displayName || "",
             bio: data.producerProfile?.bio || "",
+            backgroundPattern: (data.producerProfile?.backgroundPattern as "none" | "topography" | "graph-paper" | "hideout" | "endless-clouds") || "none",
             socialLinks: data.producerProfile?.socialLinks ? 
               data.producerProfile.socialLinks.map(link => {
                 // If it's stored as a string array, try to parse it or convert to our object format
@@ -173,6 +176,7 @@ export default function SettingsPage() {
       if (data.bio !== undefined) updateData["producerProfile.bio"] = data.bio;
       if (socialLinksStrings !== undefined) updateData["producerProfile.socialLinks"] = socialLinksStrings;
       if (avatarUrl) updateData["producerProfile.avatarUrl"] = avatarUrl;
+      if (data.backgroundPattern !== undefined) updateData["producerProfile.backgroundPattern"] = data.backgroundPattern;
 
       await updateDoc(docRef, updateData);
       notify("Success", "Profile updated successfully!");
@@ -279,6 +283,24 @@ export default function SettingsPage() {
                 </p>
               )}
             </div>
+            )}
+
+            {/* Background Pattern - Producer Only */}
+            {(role === "producer" || role === "admin") && (
+              <div className="space-y-2">
+                <Label htmlFor="backgroundPattern">Profile Background Pattern</Label>
+                <select
+                  id="backgroundPattern"
+                  className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  {...form.register("backgroundPattern")}
+                >
+                  <option value="none">None (Solid Color)</option>
+                  <option value="topography">Topography</option>
+                  <option value="graph-paper">Graph Paper</option>
+                  <option value="hideout">Hideout</option>
+                  <option value="endless-clouds">Endless Clouds</option>
+                </select>
+              </div>
             )}
 
             {/* Social Links - Producer Only */}

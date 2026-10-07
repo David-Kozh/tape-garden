@@ -39,6 +39,7 @@ export interface User {
     bio: string;
     socialLinks: string[];
     avatarUrl: string;
+    backgroundPattern?: string; // ID of the selected Hero Pattern (e.g. 'topography')
     stripeStatus?: "pending" | "active" | null;
   } | null;
 }

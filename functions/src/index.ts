@@ -276,6 +276,7 @@ export const getProducerProfile = functions
           bio: userData.producerProfile?.bio || "",
           avatarUrl: userData.producerProfile?.avatarUrl || "",
           socialLinks: userData.producerProfile?.socialLinks || [],
+          backgroundPattern: userData.producerProfile?.backgroundPattern || "none",
         },
         beats,
       };

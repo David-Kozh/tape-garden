@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkIcon } from "lucide-react";
+import { HERO_PATTERNS } from "@/lib/patterns";
 
 // Assuming types based on Cloud Function return
 interface ProducerProfile {
@@ -16,6 +17,7 @@ interface ProducerProfile {
   bio: string;
   avatarUrl: string;
   socialLinks: Array<{ platform: string; url: string }>;
+  backgroundPattern?: string;
 }
 
 import { BeatWithProducer } from "@/lib/services/gallery";
@@ -96,9 +98,18 @@ export default function ProducerPage() {
     );
   }
 
+  const patternUrl = profile.backgroundPattern && profile.backgroundPattern !== "none" ? HERO_PATTERNS[profile.backgroundPattern] : null;
+
   return (
-    <div className="container max-w-6xl mx-auto py-12 px-4 space-y-16">
-      {/* Profile Header */}
+    <>
+      {patternUrl && (
+        <div 
+          className="fixed inset-0 -z-10" 
+          style={{ backgroundImage: `url("${patternUrl}")` }} 
+        />
+      )}
+      <div className="container max-w-6xl mx-auto py-12 px-4 space-y-16">
+        {/* Profile Header */}
       <section className="flex flex-col items-center md:flex-row md:items-start md:space-x-10 text-center md:text-left">
         <Avatar className="w-32 h-32 border-4 border-background shadow-xl">
           <AvatarImage src={profile.avatarUrl} alt={profile.displayName} />
@@ -157,6 +168,7 @@ export default function ProducerPage() {
           </div>
         )}
       </section>
-    </div>
+      </div>
+    </>
   );
 }
