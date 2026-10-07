@@ -9,6 +9,7 @@ export interface BeatWithProducer extends Omit<Beat, "licenses"> {
     uid: string;
     displayName: string;
     avatarUrl?: string;
+    acceptingPayments?: boolean;
   };
   licenses: Omit<BeatLicense, "fileUrl">[];
 }
@@ -91,6 +92,7 @@ export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<
         uid: beat.producerId,
         displayName: producer?.displayName || "Unknown Producer",
         avatarUrl: producer?.producerProfile?.avatarUrl,
+        acceptingPayments: producer?.producerProfile?.stripeStatus === "active",
       }
     };
   });
@@ -130,9 +132,10 @@ export async function getBeatById(id: string): Promise<BeatWithProducer | null> 
   const producerRef = adminDb.collection("users").doc(safeBeat.producerId);
   const producerSnap = await producerRef.get();
   
-  let producerInfo: { uid: string; displayName: string; avatarUrl?: string } = {
+  let producerInfo: { uid: string; displayName: string; avatarUrl?: string; acceptingPayments?: boolean } = {
     uid: safeBeat.producerId,
     displayName: "Unknown Producer",
+    acceptingPayments: false,
   };
 
   if (producerSnap.exists) {
@@ -141,6 +144,7 @@ export async function getBeatById(id: string): Promise<BeatWithProducer | null> 
       uid: producerSnap.id,
       displayName: producerData.displayName,
       avatarUrl: producerData.producerProfile?.avatarUrl,
+      acceptingPayments: producerData.producerProfile?.stripeStatus === "active",
     };
   }
 
@@ -266,6 +270,7 @@ export async function getRandomCuratedBeats(count: number = 2): Promise<BeatWith
         uid: beat.producerId,
         displayName: producer?.displayName || "Unknown Producer",
         avatarUrl: producer?.producerProfile?.avatarUrl,
+        acceptingPayments: producer?.producerProfile?.stripeStatus === "active",
       }
     };
   });

@@ -153,7 +153,11 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" onClick={() => handleAddToCart(license)}>Add to Cart</Button>
+                {beat.producer.acceptingPayments ? (
+                  <Button className="w-full" onClick={() => handleAddToCart(license)}>Add to Cart</Button>
+                ) : (
+                  <Button className="w-full pointer-events-none" variant="secondary" disabled>Currently Unavailable</Button>
+                )}
               </CardFooter>
             </Card>
           ))}

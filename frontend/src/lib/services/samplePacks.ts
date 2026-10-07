@@ -9,6 +9,7 @@ export interface SamplePackWithProducer extends Omit<SamplePack, "fileUrl"> {
     uid: string;
     displayName: string;
     avatarUrl?: string;
+    acceptingPayments?: boolean;
   };
 }
 
@@ -87,6 +88,7 @@ export async function getPublishedSamplePacks(options: GetSamplePacksOptions = {
         uid: pack.producerId,
         displayName: producer?.displayName || "Unknown Producer",
         avatarUrl: producer?.producerProfile?.avatarUrl,
+        acceptingPayments: producer?.producerProfile?.stripeStatus === "active",
       }
     };
   });
@@ -120,9 +122,10 @@ export async function getSamplePackById(id: string): Promise<SamplePackWithProdu
   const producerRef = adminDb.collection("users").doc(safePack.producerId);
   const producerSnap = await producerRef.get();
 
-  let producerInfo: { uid: string; displayName: string; avatarUrl?: string } = {
+  let producerInfo: { uid: string; displayName: string; avatarUrl?: string; acceptingPayments?: boolean } = {
     uid: safePack.producerId,
     displayName: "Unknown Producer",
+    acceptingPayments: false,
   };
 
   if (producerSnap.exists) {
@@ -131,6 +134,7 @@ export async function getSamplePackById(id: string): Promise<SamplePackWithProdu
       uid: producerSnap.id,
       displayName: producerData.displayName,
       avatarUrl: producerData.producerProfile?.avatarUrl,
+      acceptingPayments: producerData.producerProfile?.stripeStatus === "active",
     };
   }
 

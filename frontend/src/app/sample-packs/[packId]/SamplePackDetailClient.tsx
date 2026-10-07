@@ -129,9 +129,15 @@ export function SamplePackDetailClient({ pack }: SamplePackDetailClientProps) {
               </ul>
             </CardContent>
             <CardFooter className="pb-6 px-6 bg-secondary/5 pt-4 border-t border-secondary/10">
-              <Button size="lg" className="w-full text-lg gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90" onClick={handleAddToCart}>
-                Add to Cart - ${pack.price}
-              </Button>
+              {pack.producer.acceptingPayments ? (
+                <Button size="lg" className="w-full text-lg gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90" onClick={handleAddToCart}>
+                  Add to Cart - ${pack.price}
+                </Button>
+              ) : (
+                <Button size="lg" className="w-full text-lg gap-2 pointer-events-none" variant="secondary" disabled>
+                  Currently Unavailable
+                </Button>
+              )}
             </CardFooter>
           </Card>
         </div>

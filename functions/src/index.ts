@@ -372,7 +372,7 @@ export const publishBeat = functions
       const beatId = newBeatRef.id;
 
       // We expect the frontend to tell us the names of the files in the staging folder.
-      const stagingPrefix = `uploads-staging/${uid}/${uploadId}/`;
+      const stagingPrefix = `uploads-staging/${uid}/beats/${uploadId}/`;
 
       let audioPreviewUrl = "";
       const finalLicenses = [];
@@ -1690,7 +1690,7 @@ export const generateInvite = functions
 
     const db = getFirestore(admin.app(), "tape-garden-db");
     const invitesRef = db.collection("invites");
-    
+
     try {
       const expirationDate = new Date();
       expirationDate.setDate(expirationDate.getDate() + 60); // 60 days expiration
@@ -1723,7 +1723,7 @@ export const validateInvite = functions
   .runWith({ maxInstances: 10 })
   .https.onCall(async (data: unknown) => {
     const { token } = (data || {}) as ValidateInviteData;
-    
+
     if (!token || typeof token !== "string") {
       throw new functions.https.HttpsError("invalid-argument", "Missing or invalid token.");
     }
@@ -1815,7 +1815,7 @@ export const acceptInvite = functions
 
         // Upsert user doc
         const userDoc = await transaction.get(userRef);
-        
+
         let producerProfile = {
           status: "approved",
           allocatedBeatSlots: 2,
