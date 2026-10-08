@@ -1542,7 +1542,7 @@ export const stripeWebhook = functions
 export const incrementUploadSlots = functions
   .region("us-east4")
   .runWith({ maxInstances: 1, secrets: [resendApiKey] })
-  .pubsub.schedule("0 19 7 * *")
+  .pubsub.schedule("5 7 8 * *")
   .timeZone("America/New_York")
   .onRun(async () => {
     console.log("[incrementUploadSlots] Starting monthly slot increment job.");
