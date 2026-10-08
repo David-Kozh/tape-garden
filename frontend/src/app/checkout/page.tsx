@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Trash2, ArrowRight, ArrowLeft } from "lucide-react";
@@ -14,6 +15,7 @@ import { Loader2 } from "lucide-react";
 
 export default function CheckoutPage() {
   const { items, removeItem, cartTotal } = useCart();
+  const { user, loading } = useAuth();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const handleCheckout = async () => {
@@ -124,11 +126,22 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <Button size="lg" className="w-full gap-2" onClick={handleCheckout} disabled={isCheckingOut}>
-              {isCheckingOut && <Loader2 className="w-4 h-4 animate-spin" />}
-              {isCheckingOut ? "Processing..." : "Proceed to Payment"}
-              {!isCheckingOut && <ArrowRight className="w-4 h-4" />}
-            </Button>
+            {loading ? (
+              <Button size="lg" className="w-full gap-2" disabled>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading...
+              </Button>
+            ) : user ? (
+              <Button size="lg" className="w-full gap-2" onClick={handleCheckout} disabled={isCheckingOut}>
+                {isCheckingOut && <Loader2 className="w-4 h-4 animate-spin" />}
+                {isCheckingOut ? "Processing..." : "Proceed to Payment"}
+                {!isCheckingOut && <ArrowRight className="w-4 h-4" />}
+              </Button>
+            ) : (
+              <Link href="/login?redirect=/checkout" className={cn(buttonVariants({ size: "lg" }), "w-full gap-2")}>
+                Log in to Checkout <ArrowRight className="w-4 h-4" />
+              </Link>
+            )}
             
             <p className="text-xs text-center text-muted-foreground mt-4">
               By proceeding, you agree to Tape Garden&apos;s Terms of Service and licensing agreements.
