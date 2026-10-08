@@ -16,7 +16,7 @@ import { FeedbackModal } from "@/components/dashboard/FeedbackModal";
 export default function DashboardOverview() {
   const { user, role } = useAuth();
   const router = useRouter();
-  
+
   const [profile, setProfile] = useState<User["producerProfile"] | null>(null);
   const [beatsUsed, setBeatsUsed] = useState<number>(0);
   const [packsUsed, setPacksUsed] = useState<number>(0);
@@ -34,23 +34,23 @@ export default function DashboardOverview() {
   useEffect(() => {
     async function fetchDashboardData() {
       if (!user || (role && role !== "producer" && role !== "admin")) return;
-      
+
       try {
         // Fetch User profile to get producerProfile and createdAt
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
-        
+
         if (userDoc.exists()) {
           const userData = userDoc.data() as User;
           setProfile(userData.producerProfile || null);
-          
+
           if (userData.stripeAccountId) {
             setStripeAccountId(userData.stripeAccountId);
           }
           if (userData.producerProfile?.stripeStatus) {
             const currentStatus = userData.producerProfile.stripeStatus;
             setStripeStatus(currentStatus);
-            
+
             // Auto-verify if stuck in pending
             if (currentStatus === "pending") {
               try {
@@ -152,7 +152,7 @@ export default function DashboardOverview() {
           <div className="flex flex-col sm:flex-row gap-2">
             <FeedbackModal />
             <Link href={`/producers/${user.uid}`}>
-              <Button variant="outline" className="gap-2 w-full sm:w-auto">
+              <Button className="gap-2 w-full sm:w-auto">
                 <UserCircle className="w-4 h-4" />
                 View Public Profile
               </Button>
@@ -170,7 +170,7 @@ export default function DashboardOverview() {
             </span>
             Stripe Payouts
           </h3>
-          
+
           <div className="flex-1 flex flex-col justify-center">
             {!stripeAccountId ? (
               <div className="space-y-4">
@@ -208,7 +208,7 @@ export default function DashboardOverview() {
             </span>
             Upload Slot Usage
           </h3>
-          
+
           <div className="space-y-8">
             {/* Beat Slots */}
             <div>
@@ -223,7 +223,7 @@ export default function DashboardOverview() {
                 </div>
               </div>
               <div className="w-full bg-muted rounded-full h-3 mb-1 overflow-hidden">
-                <div 
+                <div
                   className={`h-3 rounded-full transition-all duration-500 ${beatProgress >= 100 ? 'bg-destructive' : 'bg-primary'}`}
                   style={{ width: `${Math.min(beatProgress, 100)}%` }}
                 ></div>
@@ -249,7 +249,7 @@ export default function DashboardOverview() {
                 </div>
               </div>
               <div className="w-full bg-muted rounded-full h-3 mb-1 overflow-hidden">
-                <div 
+                <div
                   className={`h-3 rounded-full transition-all duration-500 ${packProgress >= 100 ? 'bg-destructive' : 'bg-secondary'}`}
                   style={{ width: `${Math.min(packProgress, 100)}%` }}
                 ></div>

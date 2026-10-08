@@ -47,7 +47,7 @@ export function Sidebar() {
   const { role, logout } = useAuth();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 border-r border-border/50 bg-background px-4 py-6 h-[calc(100vh-var(--navbar-height))] sticky top-[var(--navbar-height)]">
+    <aside className="hidden md:flex flex-col w-64 border-r border-border bg-brand-bglight-400 px-4 py-6 h-[calc(100vh-var(--navbar-height))] sticky top-[var(--navbar-height)]">
       <div className="flex-1 space-y-1 mt-6">
         {NAV_ITEMS.filter(item => item.roles.includes(role || "buyer")).map((item) => {
           const isActive = pathname === item.href;

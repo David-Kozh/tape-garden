@@ -58,29 +58,33 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* Brand colors & shades */
-  --color-brand-bglight: #fdf3dc;
+  --color-brand-bglight-400: #f8d7c3;
+  --color-brand-bglight-500: #f7d2bc;
+  --color-brand-bglight-600: #debda9;
+  --color-brand-bglight-700: #c6a896;
+
   --color-brand-bgdark: #2b2d2e;
   /* ^ same as brand-gray for now */
 
-  --color-brand-primary-100: #8685a4;
-  --color-brand-primary-200: #727095;
-  --color-brand-primary-300: #5e5c85;
-  --color-brand-primary-400: #4a4776;
-  --color-brand-primary-500: #363367;
-  --color-brand-primary-600: #312e5d;
-  --color-brand-primary-700: #2b2952;
-  --color-brand-primary-800: #262448;
-  --color-brand-primary-900: #201f3e;
+  --color-brand-primary-100: #90ab8b;
+  --color-brand-primary-200: #7e9d77;
+  --color-brand-primary-300: #6b8f64;
+  --color-brand-primary-400: #598150;
+  --color-brand-primary-500: #46733d;
+  --color-brand-primary-600: #3f6837;
+  --color-brand-primary-700: #385c31;
+  --color-brand-primary-800: #31512b;
+  --color-brand-primary-900: #2a4525;
 
-  --color-brand-secondary-100: #90ab8b;
-  --color-brand-secondary-200: #7e9d77;
-  --color-brand-secondary-300: #6b8f64;
-  --color-brand-secondary-400: #598150;
-  --color-brand-secondary-500: #46733d;
-  --color-brand-secondary-600: #3f6837;
-  --color-brand-secondary-700: #385c31;
-  --color-brand-secondary-800: #31512b;
-  --color-brand-secondary-900: #2a4525;
+  --color-brand-secondary-100: #8685a4;
+  --color-brand-secondary-200: #727095;
+  --color-brand-secondary-300: #5e5c85;
+  --color-brand-secondary-400: #4a4776;
+  --color-brand-secondary-500: #363367;
+  --color-brand-secondary-600: #312e5d;
+  --color-brand-secondary-700: #2b2952;
+  --color-brand-secondary-800: #262448;
+  --color-brand-secondary-900: #201f3e;
 
   --color-brand-accent-100: #b6f1b6;
   --color-brand-accent-200: #aaeeaa;
@@ -93,6 +97,7 @@
   --color-brand-accent-900: #508b50;
 
   --color-brand-white: #e5e5ff;
+  --color-brand-lgrey: #8d9494;
   --color-brand-grey: #2b2d2e;
   --color-brand-black: #111122;
 }
@@ -101,29 +106,33 @@
   --navbar-height: 81px;
 
   /* Brand colors & shades */
-  --color-brand-bglight: #fdf3dc;
+  --color-brand-bglight-400: #f8d7c3;
+  --color-brand-bglight-500: #f7d2bc;
+  --color-brand-bglight-600: #debda9;
+  --color-brand-bglight-700: #c6a896;
+
   --color-brand-bgdark: #2b2d2e;
   /* ^ same as brand-gray for now */
 
-  --color-brand-primary-100: #8685a4;
-  --color-brand-primary-200: #727095;
-  --color-brand-primary-300: #5e5c85;
-  --color-brand-primary-400: #4a4776;
-  --color-brand-primary-500: #363367;
-  --color-brand-primary-600: #312e5d;
-  --color-brand-primary-700: #2b2952;
-  --color-brand-primary-800: #262448;
-  --color-brand-primary-900: #201f3e;
+  --color-brand-primary-100: #90ab8b;
+  --color-brand-primary-200: #7e9d77;
+  --color-brand-primary-300: #6b8f64;
+  --color-brand-primary-400: #598150;
+  --color-brand-primary-500: #46733d;
+  --color-brand-primary-600: #3f6837;
+  --color-brand-primary-700: #385c31;
+  --color-brand-primary-800: #31512b;
+  --color-brand-primary-900: #2a4525;
 
-  --color-brand-secondary-100: #90ab8b;
-  --color-brand-secondary-200: #7e9d77;
-  --color-brand-secondary-300: #6b8f64;
-  --color-brand-secondary-400: #598150;
-  --color-brand-secondary-500: #46733d;
-  --color-brand-secondary-600: #3f6837;
-  --color-brand-secondary-700: #385c31;
-  --color-brand-secondary-800: #31512b;
-  --color-brand-secondary-900: #2a4525;
+  --color-brand-secondary-100: #8685a4;
+  --color-brand-secondary-200: #727095;
+  --color-brand-secondary-300: #5e5c85;
+  --color-brand-secondary-400: #4a4776;
+  --color-brand-secondary-500: #363367;
+  --color-brand-secondary-600: #312e5d;
+  --color-brand-secondary-700: #2b2952;
+  --color-brand-secondary-800: #262448;
+  --color-brand-secondary-900: #201f3e;
 
   --color-brand-accent-100: #b6f1b6;
   --color-brand-accent-200: #aaeeaa;
@@ -136,6 +145,7 @@
   --color-brand-accent-900: #508b50;
 
   --color-brand-white: #e5e5ff;
+  --color-brand-lgrey: #8d9494;
   --color-brand-grey: #2b2d2e;
   --color-brand-black: #111122;
 
@@ -153,23 +163,23 @@
   --text2: #e5e5ff;
   --text3: #606077;
 
-  --background: var(--beat-paper);
-  --foreground: var(--text1);
-  --card: var(--beat-paper);
-  --card-foreground: var(--text1);
-  --popover: var(--bg1);
-  --popover-foreground: var(--text1);
-  --primary: var(--prim1);
-  --primary-foreground: var(--text2);
-  --secondary: var(--secon1);
-  --secondary-foreground: var(--text2);
-  --muted: oklch(0.96 0.02 285);
-  --muted-foreground: var(--text3);
-  --accent: var(--accent1);
-  --accent-foreground: var(--text1);
+  --background: var(--color-brand-bglight-500);
+  --foreground: var(--color-brand-black);
+  --card: var(--color-brand-bglight-400);
+  --card-foreground: var(--color-brand-black);
+  --popover: var(--color-brand-bglight-400);
+  --popover-foreground: var(--color-brand-black);
+  --primary: var(--color-brand-primary-500);
+  --primary-foreground: var(--color-brand-white);
+  --secondary: var(--color-brand-secondary-500);
+  --secondary-foreground: var(--color-brand-white);
+  --muted: var(--color-brand-grey);
+  --muted-foreground: var(--color-brand-grey);
+  --accent: var(--color-brand-accent-500);
+  --accent-foreground: var(--color-brand-black);
   --destructive: var(--beat-terracotta);
-  --border: var(--text1);
-  --input: var(--text1);
+  --border: var(--color-brand-lgrey);
+  --input: var(--color-brand-grey);
   --ring: oklch(0.45 0.22 285);
   --chart-1: oklch(0.5 0.22 285);
   --chart-2: oklch(0.6 0.18 320);
@@ -177,14 +187,14 @@
   --chart-4: oklch(0.7 0.15 200);
   --chart-5: oklch(0.75 0.15 150);
   --radius: 0.625rem;
-  --sidebar: oklch(0.98 0.01 285);
-  --sidebar-foreground: oklch(0.15 0.04 285);
-  --sidebar-primary: oklch(0.45 0.22 285);
-  --sidebar-primary-foreground: oklch(0.99 0.01 285);
-  --sidebar-accent: oklch(0.95 0.03 285);
-  --sidebar-accent-foreground: oklch(0.25 0.1 285);
-  --sidebar-border: oklch(0.9 0.02 285);
-  --sidebar-ring: oklch(0.45 0.22 285);
+  --sidebar: var(--color-brand-bglight-400);
+  --sidebar-foreground: var(--color-brand-black);
+  --sidebar-primary: var(--color-brand-primary-500);
+  --sidebar-primary-foreground: var(--color-brand-white);
+  --sidebar-accent: var(--color-brand-accent-500);
+  --sidebar-accent-foreground: var(--color-brand-black);
+  --sidebar-border: var(--color-brand-grey);
+  --sidebar-ring: var(--color-brand-accent-500);
 }
 
 .dark {

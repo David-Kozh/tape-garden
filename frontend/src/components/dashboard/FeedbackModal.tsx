@@ -54,7 +54,7 @@ export function FeedbackModal() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button variant="outline" className="gap-2 w-full sm:w-auto" />
+          <Button variant="secondary" className="gap-2 w-full sm:w-auto" />
         }
       >
         <MessageSquare className="w-4 h-4" />
