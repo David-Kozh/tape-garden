@@ -22,7 +22,7 @@ export default function CheckoutPage() {
     setIsCheckingOut(true);
     try {
       const createCheckoutSession = httpsCallable(functions, "createCheckoutSession");
-      
+
       const formattedItems = items.map(item => ({
         itemId: item.itemId,
         itemType: item.itemType,
@@ -31,7 +31,7 @@ export default function CheckoutPage() {
 
       const result = await createCheckoutSession({ items: formattedItems, origin: window.location.origin });
       const { url } = result.data as { url: string };
-      
+
       if (url) {
         window.location.href = url;
       } else {
@@ -49,7 +49,7 @@ export default function CheckoutPage() {
     return (
       <div className="container mx-auto px-4 py-24 max-w-3xl flex flex-col items-center justify-center text-center min-h-[60vh]">
         <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-6">
-          <Trash2 className="w-8 h-8 text-muted-foreground opacity-50" />
+          <Trash2 className="w-8 h-8 text-brand-lgrey opacity-50" />
         </div>
         <h1 className="text-3xl font-bold tracking-tight mb-4">Your cart is empty</h1>
         <p className="text-muted-foreground mb-8 max-w-md">
@@ -96,9 +96,9 @@ export default function CheckoutPage() {
               </div>
               <div className="flex flex-col items-end justify-center gap-2">
                 <span className="font-bold text-xl">${item.price.toFixed(2)}</span>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className="text-muted-foreground hover:text-destructive h-8 w-8"
                   onClick={() => removeItem(item.itemId, item.licenseType)}
                 >
@@ -113,7 +113,7 @@ export default function CheckoutPage() {
         <div className="lg:col-span-1">
           <div className="sticky top-24 rounded-xl border border-border bg-card p-6 shadow-sm">
             <h2 className="text-xl font-bold mb-6">Order Summary</h2>
-            
+
             <div className="flex flex-col gap-4 mb-6 text-sm">
               <div className="flex justify-between text-muted-foreground">
                 <span>Items ({items.length})</span>
@@ -142,7 +142,7 @@ export default function CheckoutPage() {
                 Log in to Checkout <ArrowRight className="w-4 h-4" />
               </Link>
             )}
-            
+
             <p className="text-xs text-center text-muted-foreground mt-4">
               By proceeding, you agree to Tape Garden&apos;s Terms of Service and licensing agreements.
             </p>

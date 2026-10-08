@@ -147,6 +147,7 @@
 
   --color-brand-white: #e5e5ff;
   --color-brand-lgrey: #8d9494;
+  --color-brand-lgrey2: #5b5f5f;
   --color-brand-grey: #2b2d2e;
   --color-brand-black: #111122;
 
@@ -180,7 +181,7 @@
   --accent-foreground: var(--color-brand-black);
   --destructive: var(--beat-terracotta);
   --border: var(--color-brand-lgrey);
-  --input: var(--color-brand-grey);
+  --input: var(--color-brand-lgrey2);
   --ring: oklch(0.45 0.22 285);
   --chart-1: oklch(0.5 0.22 285);
   --chart-2: oklch(0.6 0.18 320);

@@ -222,9 +222,9 @@ export default function DashboardOverview() {
                   <span className="text-muted-foreground"> / {beatLimit}</span>
                 </div>
               </div>
-              <div className="w-full bg-muted rounded-full h-3 mb-1 overflow-hidden">
+              <div className="w-full bg-muted/50 rounded-full h-3 mb-1 overflow-hidden">
                 <div
-                  className={`h-3 rounded-full transition-all duration-500 ${beatProgress >= 100 ? 'bg-destructive' : 'bg-primary'}`}
+                  className={`h-3 rounded-full transition-all duration-500 ${beatProgress >= 100 ? 'bg-destructive' : 'bg-brand-secondary-500'}`}
                   style={{ width: `${Math.min(beatProgress, 100)}%` }}
                 ></div>
               </div>
@@ -248,9 +248,9 @@ export default function DashboardOverview() {
                   <span className="text-muted-foreground"> / {packLimit}</span>
                 </div>
               </div>
-              <div className="w-full bg-muted rounded-full h-3 mb-1 overflow-hidden">
+              <div className="w-full bg-muted/50 rounded-full h-3 mb-1 overflow-hidden">
                 <div
-                  className={`h-3 rounded-full transition-all duration-500 ${packProgress >= 100 ? 'bg-destructive' : 'bg-secondary'}`}
+                  className={`h-3 rounded-full transition-all duration-500 ${packProgress >= 100 ? 'bg-destructive' : 'bg-brand-primary-600'}`}
                   style={{ width: `${Math.min(packProgress, 100)}%` }}
                 ></div>
               </div>

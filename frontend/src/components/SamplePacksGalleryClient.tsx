@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
 
 const AVAILABLE_GENRES = ["Drums", "Melodies", "Vocals", "One Shots", "Loops", "FX", "Presets", "MIDI"];
@@ -19,9 +20,9 @@ export function SamplePacksGalleryClient() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   const view = searchParams.get("view") === "artists" ? "artists" : "packs";
-  
+
   const [packs, setPacks] = useState<SamplePackWithProducer[]>([]);
   const [producers, setProducers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,48 +59,37 @@ export function SamplePacksGalleryClient() {
   };
 
   const toggleTag = (tag: string) => {
-    setActiveTags(prev => 
+    setActiveTags(prev =>
       prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
     );
   };
 
-  const filteredPacks = packs.filter(p => 
+  const filteredPacks = packs.filter(p =>
     p.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
-  const filteredProducers = producers.filter(p => 
+
+  const filteredProducers = producers.filter(p =>
     p.displayName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="flex flex-col gap-8 mb-12">
-        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-center">Sample Packs</h1>
-        
-        <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto w-full">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input 
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-center text-brand-grey">Sample Packs</h1>
+
+        <div className="flex flex-col sm:flex-row gap-4 max-w-3xl mx-auto w-full">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+            <Input
               placeholder={`Search ${view}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-12 text-lg rounded-full"
+              className="pl-12 pr-14 h-12 rounded-full shadow-md"
             />
-          </div>
-          
-          <div className="flex gap-2">
-            <select 
-              value={view}
-              onChange={(e) => handleViewChange(e.target.value as "packs" | "artists")}
-              className="h-12 px-4 rounded-full border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors outline-none focus:ring-2 focus:ring-ring"
-            >
-              <option value="packs">Packs</option>
-              <option value="artists">Artists</option>
-            </select>
 
             {view === "packs" && (
               <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
-                <DialogTrigger render={<Button variant="outline" className="h-12 w-12 rounded-full p-0" />}>
+                <DialogTrigger render={<Button className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full p-0 bg-background hover:!bg-white/40 text-brand-grey hover:bg-brand-bglight-500 hover:text-brand-black transition-colors" />}>
                   <SlidersHorizontal className="w-5 h-5" />
                 </DialogTrigger>
                 <DialogContent>
@@ -108,7 +98,7 @@ export function SamplePacksGalleryClient() {
                   </DialogHeader>
                   <div className="flex flex-wrap gap-2 py-4">
                     {AVAILABLE_GENRES.map(genre => (
-                      <Badge 
+                      <Badge
                         key={genre}
                         variant={activeTags.includes(genre) ? "default" : "outline"}
                         className="cursor-pointer text-sm py-1.5 px-3"
@@ -126,6 +116,17 @@ export function SamplePacksGalleryClient() {
               </Dialog>
             )}
           </div>
+
+          <Tabs
+            value={view}
+            onValueChange={(val) => handleViewChange(val as "packs" | "artists")}
+            className="shrink-0 self-center"
+          >
+            <TabsList className="!h-12 rounded-full border border-input bg-brand-bglight-600">
+              <TabsTrigger value="packs" className="rounded-full px-6 text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Packs</TabsTrigger>
+              <TabsTrigger value="artists" className="rounded-full px-6 text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Artists</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 
