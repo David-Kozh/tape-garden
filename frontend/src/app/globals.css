@@ -11,6 +11,7 @@
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-inter);
   --font-body: var(--font-inter);
+  --font-outfit: var(--font-outfit);
   --text-sm: 0.750rem;
   --text-base: 1rem;
   --text-xl: 1.333rem;

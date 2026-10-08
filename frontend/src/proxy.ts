@@ -35,7 +35,7 @@ export function proxy(request: NextRequest) {
   // Path groups definitions
   const isProducerPath = pathname === "/dashboard" || pathname.startsWith("/dashboard/uploads");
   const isAdminPath = pathname.startsWith("/admin");
-  const isAuthProtectedPath = pathname.startsWith("/checkout") || pathname.startsWith("/dashboard") || isProducerPath || isAdminPath;
+  const isAuthProtectedPath = pathname.startsWith("/dashboard") || isProducerPath || isAdminPath;
 
   // If visiting an authenticated route without a session, redirect to /login
   if (isAuthProtectedPath && !sessionCookie) {
@@ -83,7 +83,6 @@ export function proxy(request: NextRequest) {
 // Config matcher to run proxy on specific paths
 export const config = {
   matcher: [
-    "/checkout/:path*",
     "/dashboard/:path*",
     "/admin/:path*",
   ],

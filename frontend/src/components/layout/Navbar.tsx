@@ -22,7 +22,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border bg-white/10 px-6 py-4 md:px-12 flex justify-between items-center transition-all duration-300">
       <Link href="/" className="flex items-center gap-3 group cursor-pointer">
-        <div className="w-18 h-12 rounded-lg bg-zinc-100/30 border border-emerald-500/20 flex items-center justify-center transition-all duration-300 group-hover:bg-emerald-200/30 overflow-hidden p-0.5">
+        <div className="w-12 h-9 sm:w-18 sm:h-12 rounded-lg bg-zinc-100/30 border border-emerald-500/20 flex items-center justify-center transition-all duration-300 group-hover:bg-emerald-200/30 overflow-hidden p-0.5">
           <Image
             src="/logo.svg"
             alt="Tape Garden Logo"
@@ -31,8 +31,8 @@ export function Navbar() {
             className="w-full h-full object-contain"
           />
         </div>
-        <span className="font-bold text-xl lg:text-2xl tracking-tight bg-gradient-to-r from-brand-secondary-600 to-brand-primary-400 bg-clip-text text-transparent group-hover:text-emerald-600 transition-all">
-          Tape Garden
+        <span className="font-outfit font-bold text-xl lg:text-2xl transition-all">
+          <span className="text-transparent bg-gradient-to-r from-brand-secondary-500 to-brand-primary-500 bg-clip-text group-hover:opacity-80 transition-opacity">Tape Garden</span>
         </span>
       </Link>
 
