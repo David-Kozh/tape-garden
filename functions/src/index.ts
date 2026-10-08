@@ -178,7 +178,7 @@ export const reviewApplication = functions
           try {
             const resend = new Resend(resendApiKey.value());
             await resend.emails.send({
-              from: "onboarding@resend.dev",
+              from: "Tape Garden <notifications@mail.tapegarden.shop>",
               to: email,
               subject: "Welcome to Tape Garden",
               html: `<p>Hi ${displayName},</p><p>Your producer application for Tape Garden has been approved.</p><p>To get started, please <a href="${resetLink}">set your password</a> to log in and set up Stripe Connect.</p>`
@@ -191,7 +191,7 @@ export const reviewApplication = functions
           try {
             const resend = new Resend(resendApiKey.value());
             await resend.emails.send({
-              from: "onboarding@resend.dev",
+              from: "Tape Garden <notifications@mail.tapegarden.shop>",
               to: email,
               subject: "Update on your Tape Garden Application",
               html: `<p>Hi ${displayName},</p><p>Thank you for applying to Tape Garden. Unfortunately, we are unable to accept your application at this time.</p><p>We appreciate your interest and encourage you to re-apply in the future.</p>`
@@ -1511,7 +1511,7 @@ export const stripeWebhook = functions
               const itemsHtml = cart.map((item: { itemType: string; licenseType?: string; price: number }) => `<li>${item.itemType} ${item.licenseType ? `(${item.licenseType})` : ""} - $${item.price}</li>`).join("");
 
               await resend.emails.send({
-                from: "onboarding@resend.dev",
+                from: "Tape Garden <notifications@mail.tapegarden.shop>",
                 to: buyerEmail,
                 subject: "Tape Garden Purchase Receipt",
                 html: `<p>Thank you for your purchase.</p><ul>${itemsHtml}</ul><p>You can download your files anytime from your <a href="https://tapegarden--tape-garden.us-east4.hosted.app/dashboard/collection">purchases page</a>.</p>`
@@ -1646,15 +1646,20 @@ export const incrementUploadSlots = functions
         for (let i = 0; i < emailsToSend.length; i += BATCH_SIZE) {
           const emailBatch = emailsToSend.slice(i, i + BATCH_SIZE);
           try {
-            await resend.batch.send(emailBatch.map(email => ({
-              from: "onboarding@resend.dev",
+            const { data, error } = await resend.batch.send(emailBatch.map(email => ({
+              from: "Tape Garden <notifications@mail.tapegarden.shop>",
               to: email,
               subject: "New Upload Slots Available!",
               html: "<p>Great news! Your monthly upload slots have been refreshed.</p><p>Log in to Tape Garden to share your new sounds.</p>"
             })));
-            console.log(`[incrementUploadSlots] Sent ${emailBatch.length} re-engagement emails.`);
+
+            if (error) {
+              console.error("[incrementUploadSlots] Error from Resend API:", error);
+            } else {
+              console.log(`[incrementUploadSlots] Sent ${emailBatch.length} re-engagement emails.`, data);
+            }
           } catch (e) {
-            console.error("[incrementUploadSlots] Failed to send re-engagement email batch:", e);
+            console.error("[incrementUploadSlots] Failed to execute email batch request:", e);
           }
         }
       }
