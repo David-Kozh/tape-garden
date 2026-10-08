@@ -1535,14 +1535,14 @@ export const stripeWebhook = functions
 
 /**
  * Scheduled Job: incrementUploadSlots
- * Runs at midnight UTC on the 1st of every month.
+ * Runs at midnight EST on the 1st of every month.
  * Grants +2 beat slots and +2 sample pack slots (up to a cap of 50) 
  * for all approved producers.
  */
 export const incrementUploadSlots = functions
   .region("us-east4")
   .runWith({ maxInstances: 1, secrets: [resendApiKey] })
-  .pubsub.schedule("5 7 8 * *")
+  .pubsub.schedule("30 7 8 * *")
   .timeZone("America/New_York")
   .onRun(async () => {
     console.log("[incrementUploadSlots] Starting monthly slot increment job.");
