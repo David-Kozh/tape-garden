@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PlayCircle, PauseCircle, MoreVertical, Flag, Star } from "lucide-react";
+import { PlayCircle, PauseCircle, MoreVertical, Flag, Star, Music } from "lucide-react";
 import { BeatWithProducer } from "@/lib/services/gallery";
 import { useAudio } from "@/context/AudioContext";
 import { useAuth } from "@/context/AuthContext";
@@ -81,7 +81,7 @@ export function BeatCard({ beat }: BeatCardProps) {
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full bg-brand-secondary-100 text-muted-foreground">
-            No Cover
+            <Music className="w-12 h-12" />
           </div>
         )}
 
