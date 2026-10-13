@@ -53,15 +53,15 @@ export function SamplePackDetailClient({ pack }: SamplePackDetailClientProps) {
       {/* Hero Section */}
       <div className="flex flex-col md:flex-row gap-8 mb-12 items-start">
         {/* Cover Placeholder */}
-        <div className="w-full md:w-1/3 aspect-square relative rounded-xl overflow-hidden bg-secondary/10 flex flex-col items-center justify-center text-secondary/40 shadow-lg">
+        <div className="w-full md:w-1/3 aspect-square relative rounded-xl overflow-hidden bg-secondary/20 flex flex-col items-center justify-center text-secondary shadow-lg">
           <PackageOpen className="w-32 h-32" />
         </div>
 
         {/* Metadata & Controls */}
         <div className="flex-1 flex flex-col justify-center gap-6">
           <div>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2">{pack.title}</h1>
-            <Link 
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">{pack.title}</h1>
+            <Link
               href={`/producers/${pack.producer.uid}`}
               className="flex items-center gap-2 text-xl text-muted-foreground hover:text-foreground transition-colors w-fit"
             >

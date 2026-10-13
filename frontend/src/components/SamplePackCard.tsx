@@ -60,7 +60,7 @@ export function SamplePackCard({ pack }: SamplePackCardProps) {
         {/* Tags */}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap z-20 pointer-events-none">
           {pack.tags?.slice(0, 2).map((tag) => (
-            <Badge key={tag} variant="secondary" className="bg-black/5 hover:bg-black/10 border border-black/5 backdrop-blur-sm text-xs">
+            <Badge key={tag} className="bg-black/5 hover:bg-black/10 border border-black/5 backdrop-blur-sm text-xs">
               {tag}
             </Badge>
           ))}
