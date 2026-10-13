@@ -68,7 +68,7 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
         <div className="flex-1 flex flex-col justify-center gap-6">
           <div>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2">{beat.title}</h1>
-            <Link 
+            <Link
               href={`/producers/${beat.producer.uid}`}
               className="flex items-center gap-2 text-xl text-muted-foreground hover:text-foreground transition-colors w-fit"
             >
@@ -152,7 +152,7 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
                   )}
                 </ul>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="!bg-brand-bglight-600">
                 {beat.producer.acceptingPayments ? (
                   <Button className="w-full" onClick={() => handleAddToCart(license)}>Add to Cart</Button>
                 ) : (
