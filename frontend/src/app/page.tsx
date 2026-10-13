@@ -65,7 +65,7 @@ export default async function Home() {
                 Curated Beats.<br />
                 <span className="relative inline-block mt-1">
                   <div className="absolute inset-x-[-7%] top-[-20%] bottom-[-35%] bg-background opacity-60 blur-[40px] -z-10 rounded-full pointer-events-none" />
-                  <span className="bg-gradient-to-r from-bg-brand-primary-500 via-bg-brand-accent-600 to-bg-brand-secondary-600 bg-clip-text text-transparent relative z-10">
+                  <span className="bg-gradient-to-r from-brand-primary-500 via-brand-accent-600 to-brand-secondary-600 bg-clip-text text-transparent relative z-10">
                     Grow Your Garden.
                   </span>
                 </span>
