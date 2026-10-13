@@ -90,13 +90,13 @@ export function BeatCard({ beat }: BeatCardProps) {
           <Button
             size="icon"
             variant="secondary"
-            className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
+            className="rounded-full w-14 h-14 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
             onClick={handlePlayClick}
           >
             {isCurrentBeat && isPlaying ? (
-              <PauseCircle className="w-6 h-6 text-secondary-foreground" />
+              <PauseCircle className="w-8 h-8 text-secondary-foreground" />
             ) : (
-              <PlayCircle className="w-6 h-6 text-secondary-foreground" />
+              <PlayCircle className="w-8 h-8 text-secondary-foreground" />
             )}
           </Button>
         </div>
