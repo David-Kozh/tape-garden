@@ -32,6 +32,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Tape Garden",
   description: "Curated Beats & Sample Packs",
+  icons: {
+    icon: "/logo.svg",
+  },
 };
 
 export default function RootLayout({
