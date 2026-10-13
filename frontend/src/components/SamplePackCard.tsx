@@ -33,8 +33,8 @@ export function SamplePackCard({ pack }: SamplePackCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden group hover:border-secondary transition-colors duration-300 p-0 gap-0">
-      <div className="relative aspect-square bg-brand-secondary-100/50 flex flex-col items-center justify-center text-brand-secondary-200">
+    <Card className="overflow-hidden group hover:ring-secondary/20 transition-colors duration-300 p-0 gap-0">
+      <div className="relative aspect-square rounded-2xl bg-brand-secondary-100/50 flex flex-col items-center justify-center text-brand-secondary-200">
         <Link href={`/sample-packs/${pack.id}`} className="absolute inset-0 z-10">
           <span className="sr-only">View {pack.title}</span>
         </Link>
@@ -42,17 +42,17 @@ export function SamplePackCard({ pack }: SamplePackCardProps) {
         <PackageOpen className="w-24 h-24 mb-4 group-hover:scale-110 transition-transform duration-500" />
 
         {/* Play Overlay */}
-        <div className="absolute inset-0 bg-background/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
+        <div className="absolute inset-0 bg-background/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
           <Button
             size="icon"
             variant="secondary"
-            className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
+            className="rounded-full w-14 h-14 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
             onClick={handlePlayClick}
           >
             {isCurrentPack && isPlaying ? (
-              <PauseCircle className="w-6 h-6 text-secondary-foreground" />
+              <PauseCircle className="w-8 h-8 text-secondary-foreground" />
             ) : (
-              <PlayCircle className="w-6 h-6 text-secondary-foreground" />
+              <PlayCircle className="w-8 h-8 text-secondary-foreground" />
             )}
           </Button>
         </div>
@@ -60,7 +60,7 @@ export function SamplePackCard({ pack }: SamplePackCardProps) {
         {/* Tags */}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap z-20 pointer-events-none">
           {pack.tags?.slice(0, 2).map((tag) => (
-            <Badge key={tag} variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs">
+            <Badge key={tag} variant="secondary" className="bg-black/5 hover:bg-black/10 border border-black/5 backdrop-blur-sm text-xs">
               {tag}
             </Badge>
           ))}

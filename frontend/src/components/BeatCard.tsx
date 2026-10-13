@@ -67,7 +67,7 @@ export function BeatCard({ beat }: BeatCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden rounded-2xl group hover:border hover:border-primary transition-colors duration-300 p-0 gap-0">
+    <Card className="overflow-hidden rounded-2xl group hover:ring-primary/20 transition-colors duration-300 p-0 gap-0">
       <div className="relative aspect-square bg-background overflow-hidden rounded-2xl">
         <Link href={`/beats/${beat.id}`} className="absolute inset-0 z-10">
           <span className="sr-only">View {beat.title}</span>
@@ -86,7 +86,7 @@ export function BeatCard({ beat }: BeatCardProps) {
         )}
 
         {/* Play Overlay */}
-        <div className="absolute inset-0 bg-background/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
+        <div className="absolute inset-0 bg-background/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
           <Button
             size="icon"
             variant="secondary"
