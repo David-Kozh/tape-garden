@@ -67,8 +67,8 @@ export function BeatCard({ beat }: BeatCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden rounded-2xl group hover:border-primary transition-colors duration-300 p-0 gap-0">
-      <div className="relative aspect-square bg-muted overflow-hidden rounded-2xl">
+    <Card className="overflow-hidden rounded-2xl group hover:border hover:border-primary transition-colors duration-300 p-0 gap-0">
+      <div className="relative aspect-square bg-background overflow-hidden rounded-2xl">
         <Link href={`/beats/${beat.id}`} className="absolute inset-0 z-10">
           <span className="sr-only">View {beat.title}</span>
         </Link>
