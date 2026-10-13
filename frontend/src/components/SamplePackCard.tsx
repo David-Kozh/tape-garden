@@ -33,26 +33,26 @@ export function SamplePackCard({ pack }: SamplePackCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden group hover:ring-secondary/20 transition-colors duration-300 p-0 gap-0">
+    <Card className="overflow-hidden rounded-2xl group hover:ring-secondary/20 transition-colors duration-300 p-0 gap-0">
       <div className="relative aspect-square rounded-2xl bg-brand-secondary-100/50 flex flex-col items-center justify-center text-brand-secondary-200">
         <Link href={`/sample-packs/${pack.id}`} className="absolute inset-0 z-10">
           <span className="sr-only">View {pack.title}</span>
         </Link>
 
-        <PackageOpen className="w-24 h-24 mb-4 group-hover:scale-110 transition-transform duration-500" />
+        <PackageOpen className="w-20 h-20 mb-4" />
 
         {/* Play Overlay */}
         <div className="absolute inset-0 bg-background/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
           <Button
             size="icon"
             variant="secondary"
-            className="rounded-full w-14 h-14 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
+            className="rounded-full w-16 h-16 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
             onClick={handlePlayClick}
           >
             {isCurrentPack && isPlaying ? (
-              <PauseCircle className="w-8 h-8 text-secondary-foreground" />
+              <PauseCircle className="w-12 h-12 text-secondary-foreground" />
             ) : (
-              <PlayCircle className="w-8 h-8 text-secondary-foreground" />
+              <PlayCircle className="w-12 h-12 text-secondary-foreground" />
             )}
           </Button>
         </div>
