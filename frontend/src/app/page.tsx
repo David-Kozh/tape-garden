@@ -15,7 +15,7 @@ export default async function Home() {
     type: "Beat",
     tempo: `${beat.bpm} BPM`,
     tags: beat.tags?.slice(0, 3) || [],
-    description: `Produced by ${beat.producer.displayName}. Curated specially for the Garden.`,
+    description: `Produced by ${beat.producer.displayName}.`,
     coverArtUrl: beat.coverArtUrl,
   }));
 
@@ -26,7 +26,7 @@ export default async function Home() {
       type: "Beat",
       tempo: "84 BPM",
       tags: ["Ambient", "Lo-Fi", "Analog"],
-      description: "Low-end focused textures with lush tape decay. Curated for deep listening.",
+      description: "Low-end focused textures with lush tape decay.",
     },
     {
       id: "analog-haze",
@@ -34,7 +34,7 @@ export default async function Home() {
       type: "Sample Pack",
       tempo: "",
       tags: ["Warmth", "Saturated", "Synth"],
-      description: "Vintage synthesizer loops recorded direct-to-tape. Back Room exclusive.",
+      description: "Vintage synthesizer loops recorded direct-to-tape.",
     },
   ];
 
@@ -61,7 +61,7 @@ export default async function Home() {
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start gap-2 w-full">
             {/* Left Side Copy */}
             <div className="flex flex-col gap-8 max-w-3xl">
-              <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-zinc-900 leading-tight">
+              <h1 className="text-4xl md:text-6xl font-lexend font-extrabold tracking-tight text-zinc-900 leading-tight">
                 Curated Beats.<br />
                 <span className="relative inline-block mt-1">
                   <div className="absolute inset-x-[-7%] top-[-20%] bottom-[-35%] bg-background opacity-60 blur-[40px] -z-10 rounded-full pointer-events-none" />

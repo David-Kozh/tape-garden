@@ -31,7 +31,7 @@ export function Navbar() {
             className="w-full h-full object-contain"
           />
         </div>
-        <span className="font-lexend font-bold text-xl lg:text-2xl transition-all">
+        <span className="font-lexend font-extrabold text-xl lg:text-2xl transition-all">
           <span className="text-transparent bg-gradient-to-r from-brand-secondary-500 to-brand-primary-500 bg-clip-text group-hover:opacity-80 transition-opacity">Tape Garden</span>
         </span>
       </Link>
