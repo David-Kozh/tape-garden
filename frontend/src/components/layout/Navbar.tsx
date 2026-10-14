@@ -20,9 +20,9 @@ export function Navbar() {
   const router = useRouter();
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border bg-white/10 px-6 py-4 md:px-12 flex justify-between items-center transition-all duration-300">
+    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border/50 bg-white/10 px-6 py-4 md:px-12 flex justify-between items-center transition-all duration-300">
       <Link href="/" className="flex items-center gap-3 group cursor-pointer">
-        <div className="w-12 h-9 sm:w-18 sm:h-12 rounded-lg bg-zinc-100/30 border border-emerald-500/20 flex items-center justify-center transition-all duration-300 group-hover:bg-emerald-200/30 overflow-hidden p-0.5">
+        <div className="w-12 h-9 sm:w-18 sm:h-12 rounded-lg bg-zinc-100/30 border border-brand-secondary-500/20 flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/30 group-hover:border-brand-accent-500/50 overflow-hidden p-0.5">
           <Image
             src="/logo.svg"
             alt="Tape Garden Logo"
@@ -36,7 +36,7 @@ export function Navbar() {
         </span>
       </Link>
 
-      <nav className="flex items-center gap-6 text-brand-grey text-sm lg:text-base">
+      <nav className="flex items-center gap-6 text-brand-grey text-sm">
         <Link href="/beats" className="hover:text-emerald-700 transition-colors">
           Beats
         </Link>
@@ -108,7 +108,7 @@ export function Navbar() {
         ) : (
           <Link
             href="/login"
-            className="text-sm font-semibold text-emerald-700 hover:text-emerald-600 transition-colors flex items-center gap-1"
+            className="text-sm font-semibold text-brand-primary-500 hover:text-brand-primary-400 transition-colors flex items-center gap-1"
           >
             Login
             <ArrowRight className="w-3 h-3" />

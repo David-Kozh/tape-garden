@@ -50,9 +50,9 @@ export function SamplePackCard({ pack }: SamplePackCardProps) {
             onClick={handlePlayClick}
           >
             {isCurrentPack && isPlaying ? (
-              <PauseCircle className="w-16 h-16 text-secondary-foreground" />
+              <PauseCircle className="size-12 text-secondary-foreground" />
             ) : (
-              <PlayCircle className="w-16 h-16 text-secondary-foreground" />
+              <PlayCircle className="size-12 text-secondary-foreground" />
             )}
           </Button>
         </div>

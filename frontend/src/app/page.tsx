@@ -73,8 +73,7 @@ export default async function Home() {
 
               <div className="flex flex-col gap-8 p-6 md:p-8 rounded-2xl bg-gray-600/50 backdrop-blur-sm border border-white/30 shadow-sm max-w-2xl">
                 <p className="text-base lg:text-lg text-white/85 leading-relaxed">
-                  A deliberately minimal space designed for music producers to show their best work.
-                  <span className="font-bold"> Storefronts</span> built like an <span className="italic">art-gallery</span>, not a marketplace -- no extra noise.
+                  A deliberately minimal space designed for music producers to show their best work.<br />Buy and sell beats without the extra noise.
                 </p>
 
                 <div className="flex items-center gap-4">

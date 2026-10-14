@@ -39,7 +39,7 @@ export function CuratorCard({ track, isPlaying, onPlayToggle }: CuratorCardProps
             </div>
 
             <Link href={`/beats/${track.id}`} className="hover:underline">
-              <h3 className="text-lg font-bold text-zinc-900 tracking-tight group-hover:text-emerald-700 transition-colors line-clamp-1">
+              <h3 className="text-lg font-bold text-zinc-900 group-hover:text-emerald-700 transition-colors line-clamp-1">
                 {track.title}
               </h3>
             </Link>
@@ -89,9 +89,9 @@ export function CuratorCard({ track, isPlaying, onPlayToggle }: CuratorCardProps
               className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform bg-white/95 text-zinc-900 hover:bg-white"
             >
               {isPlaying ? (
-                <PauseCircle className="w-6 h-6 text-emerald-600" />
+                <PauseCircle className="size-10 text-emerald-600" />
               ) : (
-                <PlayCircle className="w-6 h-6" />
+                <PlayCircle className="size-10" />
               )}
             </Button>
           </div>
