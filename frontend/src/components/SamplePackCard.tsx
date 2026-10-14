@@ -39,7 +39,7 @@ export function SamplePackCard({ pack }: SamplePackCardProps) {
           <span className="sr-only">View {pack.title}</span>
         </Link>
 
-        <PackageOpen className="w-20 h-20 mb-4" />
+        <PackageOpen className="w-20 h-20 mb-4 group-hover:opacity-0 transition-opacity duration-300" />
 
         {/* Play Overlay */}
         <div className="absolute inset-0 bg-background/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
@@ -50,9 +50,9 @@ export function SamplePackCard({ pack }: SamplePackCardProps) {
             onClick={handlePlayClick}
           >
             {isCurrentPack && isPlaying ? (
-              <PauseCircle className="size-12 text-secondary-foreground" />
+              <PauseCircle className="size-12 stroke-[1.5] text-secondary-foreground" />
             ) : (
-              <PlayCircle className="size-12 text-secondary-foreground" />
+              <PlayCircle className="size-12 stroke-[1.5] text-secondary-foreground" />
             )}
           </Button>
         </div>

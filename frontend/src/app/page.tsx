@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { CassetteTape, Flower2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { CuratorBench } from "@/components/CuratorBench";
@@ -49,11 +50,14 @@ export default async function Home() {
 
         {/* Hero Copy */}
         <div
-          className="w-full flex flex-col gap-6 animate-fade-in relative p-8 md:p-12 lg:p-16 rounded-3xl overflow-hidden border border-zinc-200/50 shadow-sm"
+          className="w-full flex flex-col gap-6 relative p-8 md:p-12 lg:p-16 rounded-3xl overflow-hidden border border-zinc-200/50 shadow-sm"
         >
-          <div
-            className="absolute inset-0 z-0 opacity-90 pointer-events-none mix-blend-overlay"
-            style={{ backgroundImage: "url('/background.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
+          <Image
+            src="/background.jpg"
+            alt=""
+            fill
+            priority
+            className="object-cover object-center opacity-90 pointer-events-none mix-blend-overlay z-0"
           />
 
 
