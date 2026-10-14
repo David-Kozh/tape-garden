@@ -80,7 +80,7 @@ export function BeatCard({ beat }: BeatCardProps) {
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="flex items-center justify-center w-full h-full bg-brand-secondary-100/50 text-brand-secondary-200">
+          <div className="flex items-center justify-center w-full h-full bg-brand-secondary-200/50 text-brand-secondary-200">
             <Music className="w-20 h-20" />
           </div>
         )}
@@ -90,13 +90,13 @@ export function BeatCard({ beat }: BeatCardProps) {
           <Button
             size="icon"
             variant="secondary"
-            className="rounded-full w-16 h-16 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
+            className="rounded-full w-20 h-20 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
             onClick={handlePlayClick}
           >
             {isCurrentBeat && isPlaying ? (
-              <PauseCircle className="w-12 h-12 text-secondary-foreground" />
+              <PauseCircle className="w-16 h-16 text-secondary-foreground" />
             ) : (
-              <PlayCircle className="w-12 h-12 text-secondary-foreground" />
+              <PlayCircle className="w-16 h-16 text-secondary-foreground" />
             )}
           </Button>
         </div>

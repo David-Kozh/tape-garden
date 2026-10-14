@@ -7,11 +7,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-outfit);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-inter);
-  --font-body: var(--font-inter);
+  --font-heading: var(--font-outfit);
+  --font-body: var(--font-outfit);
   --font-outfit: var(--font-outfit);
+  --font-lexend: var(--font-lexend);
+  --font-inter: var(--font-inter);
   --text-sm: 0.750rem;
   --text-base: 1rem;
   --text-xl: 1.333rem;

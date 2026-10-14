@@ -42,7 +42,7 @@ export default async function Home() {
   const displayTracks = [...formattedBeats, ...defaultTracks].slice(0, 2);
 
   return (
-    <div className="flex-1 w-full relative text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-between overflow-x-hidden font-inter antialiased px-2 sm:px-4">
+    <div className="flex-1 w-full relative text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-between overflow-x-hidden antialiased px-2 sm:px-4">
 
       {/* Main Section */}
       <main className="flex-1 max-w-5xl mx-auto w-full flex flex-col justify-around gap-8 relative z-10 pt-4">

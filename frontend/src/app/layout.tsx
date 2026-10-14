@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter, Outfit } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Outfit, Lexend } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import { AudioProvider } from "@/context/AudioContext";
 import { CartProvider } from "@/context/CartContext";
@@ -29,6 +29,11 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
+const lexend = Lexend({
+  variable: "--font-lexend",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Tape Garden",
   description: "Curated Beats & Sample Packs",
@@ -45,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${outfit.variable} antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${outfit.variable} ${lexend.variable} antialiased`}
     >
       <body className="min-h-screen flex flex-col relative">
         <TexturedBackground />
