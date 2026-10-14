@@ -46,13 +46,13 @@ export function SamplePackCard({ pack }: SamplePackCardProps) {
           <Button
             size="icon"
             variant="secondary"
-            className="rounded-full w-20 h-20 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
+            className="rounded-full w-16 h-16 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
             onClick={handlePlayClick}
           >
             {isCurrentPack && isPlaying ? (
-              <PauseCircle className="size-12 stroke-[1.5] text-secondary-foreground" />
+              <PauseCircle className="size-12 stroke-[1] text-secondary-foreground" />
             ) : (
-              <PlayCircle className="size-12 stroke-[1.5] text-secondary-foreground" />
+              <PlayCircle className="size-12 stroke-[1] text-secondary-foreground" />
             )}
           </Button>
         </div>

@@ -84,7 +84,7 @@ export function BeatsGalleryClient() {
               placeholder={`Search ${view}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-14 h-12 rounded-full border-input shadow-md"
+              className="pl-12 pr-14 h-12 rounded-full border-input shadow-md border-opacity-30"
             />
 
             {view === "beats" && (
@@ -122,7 +122,7 @@ export function BeatsGalleryClient() {
             onValueChange={(val) => handleViewChange(val as "beats" | "artists")}
             className="shrink-0 self-center"
           >
-            <TabsList className="!h-12 p-1 rounded-full border border-input bg-brand-bglight-600">
+            <TabsList className="!h-12 p-1 rounded-full border border-input bg-brand-bglight-600 border-opacity-30">
               <TabsTrigger value="beats" className="rounded-full px-6 text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Beats</TabsTrigger>
               <TabsTrigger value="artists" className="rounded-full px-6 text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Artists</TabsTrigger>
             </TabsList>

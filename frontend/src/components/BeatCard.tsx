@@ -80,8 +80,8 @@ export function BeatCard({ beat }: BeatCardProps) {
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="flex items-center justify-center w-full h-full bg-brand-secondary-200/50 text-brand-secondary-200 group-hover:opacity-0 transition-opacity duration-300">
-            <Music className="w-20 h-20" />
+          <div className="flex items-center justify-center w-full h-full bg-brand-secondary-200/50 text-brand-secondary-200">
+            <Music className="w-20 h-20 group-hover:opacity-0 transition-opacity duration-300" />
           </div>
         )}
 
@@ -90,13 +90,13 @@ export function BeatCard({ beat }: BeatCardProps) {
           <Button
             size="icon"
             variant="secondary"
-            className="rounded-full w-20 h-20 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
+            className="rounded-full w-16 h-16 shadow-lg hover:scale-110 transition-transform pointer-events-auto"
             onClick={handlePlayClick}
           >
             {isCurrentBeat && isPlaying ? (
-              <PauseCircle className="size-12 stroke-[1.5] text-secondary-foreground" />
+              <PauseCircle className="size-12 stroke-[1] text-secondary-foreground" />
             ) : (
-              <PlayCircle className="size-12 stroke-[1.5] text-secondary-foreground" />
+              <PlayCircle className="size-12 stroke-[1] text-secondary-foreground" />
             )}
           </Button>
         </div>
@@ -104,7 +104,7 @@ export function BeatCard({ beat }: BeatCardProps) {
         {/* Tags */}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap z-20 pointer-events-none">
           {beat.tags?.slice(0, 2).map((tag) => (
-            <Badge key={tag} className="bg-black/5 hover:bg-black/10 border border-black/5 backdrop-blur-sm text-xs text-muted">
+            <Badge key={tag} className="bg-black/5 hover:bg-black/10 border border-black/5 backdrop-blur-sm text-xs text-muted/80">
               {tag}
             </Badge>
           ))}
