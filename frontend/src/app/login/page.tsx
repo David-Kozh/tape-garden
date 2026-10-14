@@ -174,10 +174,10 @@ function LoginContent() {
             />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">
+            <h1 className="text-2xl font-bold text-zinc-900">
               {activeTab === "signin" ? "Enter the Garden" : "Join the Garden"}
             </h1>
-            <p className="text-md text-zinc-500 mt-1 max-w-[480px] mx-auto">
+            <p className="text-md text-zinc-500 mt-1 max-w-lg mx-auto">
               {activeTab === "signin"
                 ? "Access your dashboard, beats, and purchases."
                 : "Create an account to browse and acquire curated sound assets."
@@ -210,7 +210,7 @@ function LoginContent() {
             {/* Visual Separator */}
             <div className="flex items-center gap-4 py-1">
               <div className="h-[1px] flex-1 bg-zinc-300" />
-              <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest">or email</span>
+              <span className="text-[12px] text-zinc-500 font-mono uppercase tracking-widest">or email</span>
               <div className="h-[1px] flex-1 bg-zinc-300" />
             </div>
 
@@ -221,7 +221,7 @@ function LoginContent() {
                   setActiveTab("signin");
                   setError(null);
                 }}
-                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold tracking-tight transition-all duration-300 cursor-pointer ${activeTab === "signin"
+                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all duration-300 cursor-pointer ${activeTab === "signin"
                   ? "bg-white text-emerald-800 shadow-sm border border-zinc-200/50"
                   : "text-zinc-500 hover:text-zinc-700"
                   }`}
@@ -233,7 +233,7 @@ function LoginContent() {
                   setActiveTab("register");
                   setError(null);
                 }}
-                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold tracking-tight transition-all duration-300 cursor-pointer ${activeTab === "register"
+                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all duration-300 cursor-pointer ${activeTab === "register"
                   ? "bg-white text-emerald-800 shadow-sm border border-zinc-200/50"
                   : "text-zinc-500 hover:text-zinc-700"
                   }`}
@@ -309,7 +309,7 @@ function LoginContent() {
                     id="password-input"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder="•••••••"
                     disabled={loading}
                     required
                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-emerald-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
@@ -343,9 +343,9 @@ function LoginContent() {
         {/* Back Link to Gallery */}
         <button
           onClick={() => router.push("/")}
-          className="text-xs text-zinc-600 hover:text-zinc-800 transition-colors text-center font-medium cursor-pointer"
+          className="text-xs text-zinc-600 hover:text-zinc-800 transition-colors text-center font-medium tracking-wide cursor-pointer"
         >
-          ← Return to Curator&apos;s Bench
+          ← Return to Curated Home page
         </button>
 
       </div>

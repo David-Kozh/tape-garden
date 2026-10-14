@@ -61,7 +61,7 @@ export default async function Home() {
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start gap-2 w-full">
             {/* Left Side Copy */}
             <div className="flex flex-col gap-8 max-w-3xl">
-              <h1 className="text-4xl md:text-6xl font-lexend font-extrabold tracking-tight text-zinc-900 leading-tight">
+              <h1 className="text-4xl md:text-6xl font-lexend font-bold tracking-tight text-zinc-900 leading-tight">
                 Curated Beats.<br />
                 <span className="relative inline-block mt-1">
                   <div className="absolute inset-x-[-7%] top-[-20%] bottom-[-35%] bg-background opacity-60 blur-[40px] -z-10 rounded-full pointer-events-none" />
@@ -71,8 +71,8 @@ export default async function Home() {
                 </span>
               </h1>
 
-              <div className="flex flex-col gap-8 p-6 md:p-8 rounded-2xl bg-gray-600/40 backdrop-blur-sm border border-white/30 shadow-sm max-w-2xl">
-                <p className="text-base lg:text-lg text-white/90 leading-relaxed font-medium">
+              <div className="flex flex-col gap-8 p-6 md:p-8 rounded-2xl bg-gray-600/50 backdrop-blur-sm border border-white/30 shadow-sm max-w-2xl">
+                <p className="text-base lg:text-lg text-white/85 leading-relaxed">
                   A deliberately minimal space designed for music producers to show their best work.
                   <span className="font-bold"> Storefronts</span> built like an <span className="italic">art-gallery</span>, not a marketplace -- no extra noise.
                 </p>

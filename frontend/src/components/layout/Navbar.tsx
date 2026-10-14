@@ -31,19 +31,16 @@ export function Navbar() {
             className="w-full h-full object-contain"
           />
         </div>
-        <span className="font-lexend font-extrabold text-xl lg:text-2xl transition-all">
+        <span className="font-lexend font-extrabold text-lg lg:text-xl transition-all">
           <span className="text-transparent bg-gradient-to-r from-brand-secondary-500 to-brand-primary-500 bg-clip-text group-hover:opacity-80 transition-opacity">Tape Garden</span>
         </span>
       </Link>
 
-      <nav className="flex items-center gap-6 text-brand-grey text-sm lg:text-md">
-        <Link href="/#explore" className=" font-medium hover:text-emerald-700 transition-colors">
-          Explore
-        </Link>
-        <Link href="/beats" className=" font-medium hover:text-emerald-700 transition-colors">
+      <nav className="flex items-center gap-6 text-brand-grey text-sm lg:text-base">
+        <Link href="/beats" className="hover:text-emerald-700 transition-colors">
           Beats
         </Link>
-        <Link href="/sample-packs" className=" font-medium hover:text-emerald-700 transition-colors">
+        <Link href="/sample-packs" className="hover:text-emerald-700 transition-colors">
           Sample Packs
         </Link>
 
