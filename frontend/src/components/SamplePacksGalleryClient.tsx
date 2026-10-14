@@ -84,7 +84,7 @@ export function SamplePacksGalleryClient() {
               placeholder={`Search ${view}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-14 h-12 rounded-full shadow-md"
+              className="pl-12 pr-14 h-12 rounded-full shadow-md border-opacity-30"
             />
 
             {view === "packs" && (
@@ -122,7 +122,7 @@ export function SamplePacksGalleryClient() {
             onValueChange={(val) => handleViewChange(val as "packs" | "artists")}
             className="shrink-0 self-center"
           >
-            <TabsList className="!h-12 rounded-full border border-input bg-brand-bglight-600">
+            <TabsList className="!h-12 rounded-full border border-input bg-brand-bglight-600 border-opacity-30">
               <TabsTrigger value="packs" className="rounded-full px-6 text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Packs</TabsTrigger>
               <TabsTrigger value="artists" className="rounded-full px-6 text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Artists</TabsTrigger>
             </TabsList>
