@@ -39,10 +39,7 @@ export function Navbar() {
       <nav className="flex items-center gap-6 text-brand-grey text-sm">
         <div className={user ? "hidden md:flex items-center gap-6" : "flex items-center gap-6"}>
           <Link href="/beats" className="hover:text-emerald-700 transition-colors">
-            Beats
-          </Link>
-          <Link href="/sample-packs" className="hover:text-emerald-700 transition-colors">
-            Sample Packs
+            Explore
           </Link>
           <div className="h-5 w-[1px] bg-border/40" />
         </div>
@@ -70,12 +67,7 @@ export function Navbar() {
             <DropdownMenuContent align="end" className="w-48 bg-brand-bglight-400 border-border shadow-lg backdrop-blur-md">
               <DropdownMenuItem onClick={() => router.push("/beats")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100 md:hidden">
                 <span className="w-full font-medium text-brand-black">
-                  Beats
-                </span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/sample-packs")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100 md:hidden">
-                <span className="w-full font-medium text-brand-black">
-                  Sample Packs
+                  Explore
                 </span>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/50 md:hidden" />
