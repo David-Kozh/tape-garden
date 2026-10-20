@@ -31,21 +31,21 @@ export function Navbar() {
             className="w-full h-full object-contain"
           />
         </div>
-        <span className="font-lexend font-extrabold text-lg lg:text-xl transition-all">
+        <span className="hidden md:inline font-lexend font-extrabold text-lg lg:text-xl transition-all">
           <span className="text-transparent bg-gradient-to-r from-brand-secondary-500 to-brand-primary-500 bg-clip-text group-hover:opacity-80 transition-opacity">Tape Garden</span>
         </span>
       </Link>
 
       <nav className="flex items-center gap-6 text-brand-grey text-sm">
-        <Link href="/beats" className="hover:text-emerald-700 transition-colors">
-          Beats
-        </Link>
-        <Link href="/sample-packs" className="hover:text-emerald-700 transition-colors">
-          Sample Packs
-        </Link>
-
-
-        <div className="h-5 w-[1px] bg-border/30" />
+        <div className={user ? "hidden md:flex items-center gap-6" : "flex items-center gap-6"}>
+          <Link href="/beats" className="hover:text-emerald-700 transition-colors">
+            Beats
+          </Link>
+          <Link href="/sample-packs" className="hover:text-emerald-700 transition-colors">
+            Sample Packs
+          </Link>
+          <div className="h-5 w-[1px] bg-border/40" />
+        </div>
 
         {/* Cart Icon */}
         {itemCount > 0 && (
@@ -68,6 +68,18 @@ export function Navbar() {
               <Menu className="w-5 h-5 text-brand-grey" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-brand-bglight-400 border-border shadow-lg backdrop-blur-md">
+              <DropdownMenuItem onClick={() => router.push("/beats")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100 md:hidden">
+                <span className="w-full font-medium text-brand-black">
+                  Beats
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/sample-packs")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100 md:hidden">
+                <span className="w-full font-medium text-brand-black">
+                  Sample Packs
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-border/50 md:hidden" />
+
               {role === "admin" && (
                 <DropdownMenuItem onClick={() => router.push("/admin/users")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
                   <span className="w-full font-medium text-brand-black">

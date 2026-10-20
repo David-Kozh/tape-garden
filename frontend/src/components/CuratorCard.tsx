@@ -86,7 +86,7 @@ export function CuratorCard({ track, isPlaying, onPlayToggle }: CuratorCardProps
               size="icon"
               variant="secondary"
               onClick={onPlayToggle}
-              className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform bg-white/95 text-zinc-900 hover:bg-white"
+              className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform text-zinc-900 hover:bg-brand-secondary-400"
             >
               {isPlaying ? (
                 <PauseCircle className="size-10 stroke-[1.5] text-emerald-600" />
