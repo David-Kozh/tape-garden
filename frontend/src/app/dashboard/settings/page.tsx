@@ -72,16 +72,16 @@ export default function SettingsPage() {
       try {
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
-        
+
         if (docSnap.exists()) {
           const data = docSnap.data() as User;
-          
+
           // Set form values
           form.reset({
             displayName: data.displayName || "",
             bio: data.producerProfile?.bio || "",
             backgroundPattern: (data.producerProfile?.backgroundPattern as "none" | "topography" | "graph-paper" | "hideout" | "endless-clouds") || "none",
-            socialLinks: data.producerProfile?.socialLinks ? 
+            socialLinks: data.producerProfile?.socialLinks ?
               data.producerProfile.socialLinks.map(link => {
                 // If it's stored as a string array, try to parse it or convert to our object format
                 try {
@@ -93,7 +93,7 @@ export default function SettingsPage() {
                 }
               }) : [],
           });
-          
+
           if (data.producerProfile?.avatarUrl) {
             setAvatarUrl(data.producerProfile.avatarUrl);
           }
@@ -130,9 +130,9 @@ export default function SettingsPage() {
     try {
       const extension = file.name.split('.').pop();
       const storageRef = ref(storage, `avatars/${user.uid}/avatar.${extension}`);
-      
+
       const uploadTask = uploadBytesResumable(storageRef, file);
-      
+
       uploadTask.on(
         "state_changed",
         null,
@@ -157,11 +157,11 @@ export default function SettingsPage() {
 
   const onSubmit = async (data: ProfileFormValues) => {
     if (!user) return;
-    
+
     setSaving(true);
     try {
       const docRef = doc(db, "users", user.uid);
-      
+
       // Convert social links back to string array for storage (or store as json strings)
       // Since type is string[] in index.ts, we'll store JSON strings to keep structure
       const socialLinksStrings = data.socialLinks
@@ -212,53 +212,53 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            
+
             {/* Avatar Section - Producer Only */}
             {(role === "producer" || role === "admin") && (
               <div className="flex items-start gap-6">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={avatarUrl || ""} alt="Avatar" />
-                <AvatarFallback className="text-xl">
-                  {form.getValues("displayName")?.substring(0, 2).toUpperCase() || "ME"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="space-y-3">
-                <div>
-                  <Label>Avatar Image</Label>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Recommended size: 500x500px. Max size: 5MB.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploadingAvatar}
-                  >
-                    {uploadingAvatar ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-                    Upload Image
-                  </Button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleAvatarUpload}
-                  />
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={avatarUrl || ""} alt="Avatar" />
+                  <AvatarFallback className="text-xl">
+                    {form.getValues("displayName")?.substring(0, 2).toUpperCase() || "ME"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-3">
+                  <div>
+                    <Label>Avatar Image</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Recommended size: 500x500px. Max size: 5MB.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingAvatar}
+                    >
+                      {uploadingAvatar ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+                      Upload Image
+                    </Button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
             )}
 
             {/* Display Name */}
             <div className="space-y-2">
               <Label htmlFor="displayName">Display Name</Label>
-              <Input 
-                id="displayName" 
-                placeholder="Your producer name" 
-                {...form.register("displayName")} 
+              <Input
+                id="displayName"
+                placeholder="Your producer name"
+                {...form.register("displayName")}
               />
               {form.formState.errors.displayName && (
                 <p className="text-sm text-destructive font-medium">
@@ -270,19 +270,19 @@ export default function SettingsPage() {
             {/* Bio - Producer Only */}
             {(role === "producer" || role === "admin") && (
               <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <Textarea 
-                id="bio" 
-                placeholder="Tell us about yourself and your sound..." 
-                className="h-32 resize-none"
-                {...form.register("bio")} 
-              />
-              {form.formState.errors.bio && (
-                <p className="text-sm text-destructive font-medium">
-                  {form.formState.errors.bio.message}
-                </p>
-              )}
-            </div>
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  id="bio"
+                  placeholder="Tell us about yourself and your sound..."
+                  className="h-32 resize-none"
+                  {...form.register("bio")}
+                />
+                {form.formState.errors.bio && (
+                  <p className="text-sm text-destructive font-medium">
+                    {form.formState.errors.bio.message}
+                  </p>
+                )}
+              </div>
             )}
 
             {/* Background Pattern - Producer Only */}
@@ -305,67 +305,67 @@ export default function SettingsPage() {
 
             {/* Social Links - Producer Only */}
             {(role === "producer" || role === "admin") && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label>Social Links</Label>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => append({ platform: "SoundCloud", url: "" })}
-                  disabled={fields.length >= 5}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Link
-                </Button>
-              </div>
-              
-              <div className="space-y-3">
-                {fields.length === 0 && (
-                  <p className="text-sm text-muted-foreground italic">No social links added yet.</p>
-                )}
-                
-                {fields.map((field, index) => (
-                  <div key={field.id} className="flex items-start gap-2">
-                    <div className="w-1/3">
-                      <select
-                        className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                        {...form.register(`socialLinks.${index}.platform`)}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Social Links</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => append({ platform: "SoundCloud", url: "" })}
+                    disabled={fields.length >= 5}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Link
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  {fields.length === 0 && (
+                    <p className="text-sm text-muted-foreground italic">No social links added yet.</p>
+                  )}
+
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="flex items-start gap-2">
+                      <div className="w-1/3">
+                        <select
+                          className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          {...form.register(`socialLinks.${index}.platform`)}
+                        >
+                          {socialPlatforms.map((p) => (
+                            <option key={p} value={p}>{p}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <Input
+                          placeholder="https://..."
+                          {...form.register(`socialLinks.${index}.url`)}
+                        />
+                        {form.formState.errors.socialLinks?.[index]?.url && (
+                          <p className="text-xs text-destructive font-medium">
+                            {form.formState.errors.socialLinks[index]?.url?.message}
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => remove(index)}
+                        className="text-muted-foreground hover:text-destructive"
                       >
-                        {socialPlatforms.map((p) => (
-                          <option key={p} value={p}>{p}</option>
-                        ))}
-                      </select>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <Input 
-                        placeholder="https://..." 
-                        {...form.register(`socialLinks.${index}.url`)} 
-                      />
-                      {form.formState.errors.socialLinks?.[index]?.url && (
-                        <p className="text-xs text-destructive font-medium">
-                          {form.formState.errors.socialLinks[index]?.url?.message}
-                        </p>
-                      )}
-                    </div>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => remove(index)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                {form.formState.errors.socialLinks?.root && (
-                  <p className="text-sm text-destructive font-medium">
-                    {form.formState.errors.socialLinks.root.message}
-                  </p>
-                )}
+                  ))}
+                  {form.formState.errors.socialLinks?.root && (
+                    <p className="text-sm text-destructive font-medium">
+                      {form.formState.errors.socialLinks.root.message}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
             )}
 
             <div className="flex justify-end pt-4">

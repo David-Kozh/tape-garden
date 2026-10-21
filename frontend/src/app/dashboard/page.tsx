@@ -149,9 +149,9 @@ export default function DashboardOverview() {
           <p className="text-muted-foreground mt-1">Manage your presence and check your slot usage.</p>
         </div>
         {user && (
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
             <FeedbackModal />
-            <Link href={`/producers/${user.uid}`}>
+            <Link href={`/producers/${user.uid}`} className="w-full sm:w-auto">
               <Button className="gap-2 w-full sm:w-auto">
                 <UserCircle className="w-4 h-4" />
                 View Public Profile

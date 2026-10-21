@@ -103,71 +103,71 @@ export default function ProducerPage() {
   return (
     <>
       {patternUrl && (
-        <div 
-          className="fixed inset-0 -z-10" 
-          style={{ backgroundImage: `url("${patternUrl}")` }} 
+        <div
+          className="fixed inset-0 -z-10"
+          style={{ backgroundImage: `url("${patternUrl}")` }}
         />
       )}
-      <div className="container max-w-6xl mx-auto py-12 px-4 space-y-16">
+      <div className="container max-w-6xl mx-auto py-8 lg:py-12 px-4 space-y-12">
         {/* Profile Header */}
-      <section className="flex flex-col items-center md:flex-row md:items-start md:space-x-10 text-center md:text-left">
-        <Avatar className="w-32 h-32 border-4 border-background shadow-xl">
-          <AvatarImage src={profile.avatarUrl} alt={profile.displayName} />
-          <AvatarFallback className="text-4xl bg-muted text-muted-foreground">
-            {profile.displayName.substring(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <section className="flex flex-row items-start gap-6 md:gap-10 text-left">
+          <Avatar className="w-24 h-24 sm:w-32 sm:h-32 shrink-0 border-4 border-background shadow-xl">
+            <AvatarImage src={profile.avatarUrl} alt={profile.displayName} />
+            <AvatarFallback className="text-2xl sm:text-4xl bg-muted text-muted-foreground">
+              {profile.displayName.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
 
-        <div className="mt-6 md:mt-0 space-y-4 max-w-2xl">
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
-            {profile.displayName}
-          </h1>
+          <div className="space-y-3 sm:space-y-4 max-w-2xl min-w-0 flex-1">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+              {profile.displayName}
+            </h1>
 
-          {profile.bio && (
-            <p className="text-muted-foreground leading-relaxed">
-              {profile.bio}
-            </p>
-          )}
+            {profile.bio && (
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                {profile.bio}
+              </p>
+            )}
 
-          {profile.socialLinks && profile.socialLinks.length > 0 && (
-            <div className="flex flex-wrap justify-center md:justify-start gap-3 pt-2">
-              {profile.socialLinks.map((link, idx) => (
-                <a
-                  key={idx}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={buttonVariants({ variant: "secondary", size: "sm", className: "rounded-full gap-2" })}
-                >
-                  <LinkIcon className="w-4 h-4" />
-                  {link.platform}
-                </a>
+            {profile.socialLinks && profile.socialLinks.length > 0 && (
+              <div className="flex flex-wrap justify-start gap-2.5 sm:gap-3 pt-1 sm:pt-2">
+                {profile.socialLinks.map((link, idx) => (
+                  <a
+                    key={idx}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={buttonVariants({ variant: "secondary", size: "sm", className: "rounded-full gap-2" })}
+                  >
+                    <LinkIcon className="w-4 h-4" />
+                    {link.platform}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Beats Gallery */}
+        <section>
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">Gallery</h2>
+            <p className="text-muted-foreground">Explore available beats by {profile.displayName}</p>
+          </div>
+
+          {beats.length === 0 ? (
+            <div className="text-center py-24 bg-muted/30 rounded-2xl border border-dashed border-border">
+              <h3 className="text-lg font-medium text-foreground mb-2">No Beats Found</h3>
+              <p className="text-muted-foreground">This producer hasn&apos;t published any beats yet.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {beats.map((beat) => (
+                <BeatCard key={beat.id} beat={beat} showProducer={false} />
               ))}
             </div>
           )}
-        </div>
-      </section>
-
-      {/* Beats Gallery */}
-      <section>
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">Gallery</h2>
-          <p className="text-muted-foreground">Explore available beats by {profile.displayName}</p>
-        </div>
-
-        {beats.length === 0 ? (
-          <div className="text-center py-24 bg-muted/30 rounded-2xl border border-dashed border-border">
-            <h3 className="text-lg font-medium text-foreground mb-2">No Beats Found</h3>
-            <p className="text-muted-foreground">This producer hasn&apos;t published any beats yet.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {beats.map((beat) => (
-              <BeatCard key={beat.id} beat={beat} showProducer={false} />
-            ))}
-          </div>
-        )}
-      </section>
+        </section>
       </div>
     </>
   );
