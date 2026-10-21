@@ -19,9 +19,10 @@ import { toast } from "sonner";
 
 interface BeatCardProps {
   beat: BeatWithProducer;
+  showProducer?: boolean;
 }
 
-export function BeatCard({ beat }: BeatCardProps) {
+export function BeatCard({ beat, showProducer = true }: BeatCardProps) {
   const { currentTrack, isPlaying, play, togglePlayPause } = useAudio();
   const { role } = useAuth();
 
@@ -136,9 +137,11 @@ export function BeatCard({ beat }: BeatCardProps) {
         <Link href={`/beats/${beat.id}`} className="font-bold text-lg truncate text-foreground hover:underline block">
           {beat.title}
         </Link>
-        <Link href={`/producers/${beat.producer.uid}`} className="text-sm text-muted-foreground hover:text-primary transition-colors inline-block mt-0.5">
-          {beat.producer.displayName}
-        </Link>
+        {showProducer && (
+          <Link href={`/producers/${beat.producer.uid}`} className="text-sm text-muted-foreground hover:text-primary transition-colors inline-block mt-0.5">
+            {beat.producer.displayName}
+          </Link>
+        )}
         <div className="flex items-center justify-between mt-2 text-sm text-muted-foreground">
           <span className="flex gap-2">
             {beat.bpm && <span>{beat.bpm} BPM</span>}
