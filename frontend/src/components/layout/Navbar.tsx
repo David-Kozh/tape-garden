@@ -38,7 +38,7 @@ export function Navbar() {
 
       <nav className="flex items-center gap-6 text-brand-grey text-sm">
         <div className={user ? "hidden md:flex items-center gap-6" : "flex items-center gap-6"}>
-          <Link href="/beats" className="hover:text-emerald-700 transition-colors">
+          <Link href="/gallery" className="hover:text-emerald-700 transition-colors">
             Explore
           </Link>
           <div className="h-5 w-[1px] bg-border/40" />
@@ -65,7 +65,7 @@ export function Navbar() {
               <Menu className="w-5 h-5 text-brand-grey" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-brand-bglight-400 border-border shadow-lg backdrop-blur-md">
-              <DropdownMenuItem onClick={() => router.push("/beats")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100 md:hidden">
+              <DropdownMenuItem onClick={() => router.push("/gallery")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100 md:hidden">
                 <span className="w-full font-medium text-brand-black">
                   Explore
                 </span>

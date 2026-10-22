@@ -81,7 +81,7 @@ export default async function Home() {
                 </p>
 
                 <div className="flex items-center gap-4">
-                  <Link href="/beats" className={buttonVariants({ variant: "default", size: "lg", className: "!bg-emerald-600 !border-emerald-600 hover:!bg-emerald-800 hover:!border-emerald-400 text-white/90 rounded-md !px-8 shadow-md !font-bold !text-md" })}>
+                  <Link href="/gallery" className={buttonVariants({ variant: "default", size: "lg", className: "!bg-emerald-600 !border-emerald-600 hover:!bg-emerald-800 hover:!border-emerald-400 text-white/90 rounded-md !px-8 shadow-md !font-bold !text-md" })}>
                     Browse
                   </Link>
                   <Link href="/login" className={buttonVariants({ variant: "ghost", size: "lg", className: "!border-emerald-300 !text-emerald-300 hover:!bg-emerald-800 hover:!text-white/90 rounded-md !px-8 !font-bold !text-md" })}>

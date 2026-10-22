@@ -1,20 +1,19 @@
-import { SamplePacksGalleryClient } from "@/components/SamplePacksGalleryClient";
-import { Suspense } from "react";
-import { Loader2 } from "lucide-react";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Sample Packs Gallery | Tape Garden",
-  description: "Discover and purchase high-quality sample packs from independent producers.",
-};
-
-export default function SamplePacksGalleryPage() {
-  return (
-    <Suspense fallback={
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    }>
-      <SamplePacksGalleryClient />
-    </Suspense>
-  );
+export default async function SamplePacksGalleryPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const resolvedParams = await searchParams;
+  const params = new URLSearchParams();
+  params.set("view", "packs");
+  if (resolvedParams) {
+    for (const [key, value] of Object.entries(resolvedParams)) {
+      if (key !== "view" && typeof value === "string") {
+        params.set(key, value);
+      }
+    }
+  }
+  redirect(`/gallery?${params.toString()}`);
 }

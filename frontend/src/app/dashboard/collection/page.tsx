@@ -100,8 +100,8 @@ export default function CollectionPage() {
           <p className="text-muted-foreground max-w-sm mb-6">
             When you purchase beats or sample packs, they will appear here for easy access and downloading.
           </p>
-          <Link href="/beats">
-            <Button>Browse Beats</Button>
+          <Link href="/gallery">
+            <Button>Browse Gallery</Button>
           </Link>
         </div>
       ) : (

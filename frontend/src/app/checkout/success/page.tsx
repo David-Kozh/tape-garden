@@ -39,7 +39,7 @@ export default function CheckoutSuccessPage() {
                 View My Collection
               </Button>
             </Link>
-            <Link href="/beats" className="w-full">
+            <Link href="/gallery" className="w-full">
               <Button variant="outline" className="w-full gap-2 text-md h-12" size="lg">
                 <ShoppingBag className="w-4 h-4" />
                 Keep Browsing

@@ -1,20 +1,19 @@
-import { BeatsGalleryClient } from "@/components/BeatsGalleryClient";
-import { Suspense } from "react";
-import { Loader2 } from "lucide-react";
+import { redirect } from "next/navigation";
 
-export const metadata = {
-  title: "Beats Gallery | Tape Garden",
-  description: "Discover and purchase high-quality beats from independent producers.",
-};
-
-export default function BeatsGalleryPage() {
-  return (
-    <Suspense fallback={
-      <div className="flex justify-center items-center min-h-[50vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    }>
-      <BeatsGalleryClient />
-    </Suspense>
-  );
+export default async function BeatsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const resolvedParams = await searchParams;
+  const params = new URLSearchParams();
+  if (resolvedParams) {
+    for (const [key, value] of Object.entries(resolvedParams)) {
+      if (typeof value === "string") {
+        params.set(key, value);
+      }
+    }
+  }
+  const queryString = params.toString();
+  redirect(queryString ? `/gallery?${queryString}` : "/gallery");
 }
