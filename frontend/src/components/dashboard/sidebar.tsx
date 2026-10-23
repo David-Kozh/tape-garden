@@ -11,7 +11,15 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
-const NAV_ITEMS = [
+export interface DashboardNavItem {
+  title: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  disabled: boolean;
+  roles: string[];
+}
+
+export const DASHBOARD_NAV_ITEMS: DashboardNavItem[] = [
   {
     title: "Overview",
     href: "/dashboard",
@@ -42,15 +50,24 @@ const NAV_ITEMS = [
   },
 ];
 
+export const NAV_ITEMS = DASHBOARD_NAV_ITEMS;
+
 export function Sidebar() {
   const pathname = usePathname();
   const { role, logout } = useAuth();
+
+  const isItemActive = (href: string) => {
+    if (href === "/dashboard") {
+      return pathname === "/dashboard";
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   return (
     <aside className="hidden md:flex flex-col w-64 border-r border-border bg-brand-bglight-400 px-4 py-6 h-[calc(100vh-var(--navbar-height))] sticky top-[var(--navbar-height)]">
       <div className="flex-1 space-y-1 mt-6">
         {NAV_ITEMS.filter(item => item.roles.includes(role || "buyer")).map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = isItemActive(item.href);
           const Icon = item.icon;
 
           if (item.disabled) {

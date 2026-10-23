@@ -3,7 +3,9 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { useAudio } from "@/context/AudioContext";
 import { Sidebar } from "@/components/dashboard/sidebar";
+import { BottomNav } from "@/components/dashboard/bottom-nav";
 
 export default function DashboardLayout({
   children,
@@ -11,6 +13,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user, loading } = useAuth();
+  const { currentTrack } = useAudio();
   const router = useRouter();
 
   useEffect(() => {
@@ -38,7 +41,11 @@ export default function DashboardLayout({
       <Sidebar />
       
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0">
+      <main
+        className={`flex-1 flex flex-col min-w-0 md:pb-0 ${
+          currentTrack ? "pb-44" : "pb-20"
+        }`}
+      >
         {/* Mobile Header (placeholder for now if we want mobile sidebar toggle) */}
         <div className="md:hidden border-b border-border p-4 flex items-center justify-between bg-sidebar">
           <span className="font-bold text-lg">Tape Garden Studio</span>
@@ -48,6 +55,8 @@ export default function DashboardLayout({
           {children}
         </div>
       </main>
+
+      <BottomNav />
     </div>
   );
 }
