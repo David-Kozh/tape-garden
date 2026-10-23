@@ -120,7 +120,7 @@ export function BeatsGalleryClient() {
       <div className="flex flex-col gap-8 mb-12">
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-center text-brand-grey">Gallery</h1>
 
-        <div className="flex flex-col sm:flex-row gap-4 max-w-3xl mx-auto w-full">
+        <div className="flex flex-col sm:flex-row items-center gap-4 max-w-4xl mx-auto w-full">
           <div className="relative flex-1 w-full">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
             <Input
@@ -166,7 +166,7 @@ export function BeatsGalleryClient() {
           <Tabs
             value={view}
             onValueChange={(val) => handleViewChange(val as "beats" | "packs" | "artists")}
-            className="shrink-0 self-center"
+            className="shrink-0"
           >
             <TabsList className="!h-12 p-1 rounded-full border border-input bg-brand-bglight-600 border-opacity-30">
               <TabsTrigger value="beats" className="rounded-full px-4 sm:px-6 text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Beats</TabsTrigger>
