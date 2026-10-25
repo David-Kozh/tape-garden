@@ -59,26 +59,26 @@ export function SamplePackDetailClient({ pack }: SamplePackDetailClientProps) {
 
         {/* Metadata & Controls */}
         <div className="flex-1 flex flex-col justify-center gap-6">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2">{pack.title}</h1>
-            <Link
-              href={`/producers/${pack.producer.uid}`}
-              className="flex items-center gap-2 text-xl text-muted-foreground hover:text-foreground transition-colors w-fit"
-            >
-              <User className="w-5 h-5" />
-              <span>{pack.producer.displayName}</span>
-            </Link>
-          </div>
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-2">{pack.title}</h1>
+              <Link
+                href={`/producers/${pack.producer.uid}`}
+                className="flex items-center gap-2 text-xl text-muted-foreground hover:text-foreground transition-colors w-fit"
+              >
+                <User className="w-5 h-5 shrink-0" />
+                <span className="truncate">{pack.producer.displayName}</span>
+              </Link>
+            </div>
 
-          <div className="flex items-center gap-4">
-            <Button size="lg" className="rounded-full h-14 px-8 text-lg gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90" onClick={handlePlayClick}>
+            <Button size="lg" className="rounded-full h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shrink-0" onClick={handlePlayClick}>
               {isCurrentPack && isPlaying ? (
                 <>
-                  <Pause className="w-6 h-6 fill-current" /> Pause Preview
+                  <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> Pause Preview
                 </>
               ) : (
                 <>
-                  <Play className="w-6 h-6 fill-current" /> Play Preview
+                  <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> Play Preview
                 </>
               )}
             </Button>

@@ -58,7 +58,7 @@ export function FeedbackModal() {
         }
       >
         <MessageSquare className="w-4 h-4" />
-        Feedback
+        Leave Feedback
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
