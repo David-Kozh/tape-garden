@@ -120,20 +120,20 @@ export function BeatsGalleryClient() {
       <div className="flex flex-col gap-8 mb-12">
         <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-center text-brand-grey">Gallery</h1>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4 max-w-4xl mx-auto w-full">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+        <div className="flex items-center gap-2 sm:gap-4 max-w-4xl mx-auto w-full">
+          <div className="relative flex-1 min-w-0 h-12">
+            <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground pointer-events-none z-10" />
             <Input
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-14 h-12 rounded-full border-input shadow-md border-opacity-30"
+              className="pl-9 sm:pl-12 pr-11 sm:pr-14 h-12 rounded-full border-input shadow-md border-opacity-30 w-full text-xs sm:text-sm"
             />
 
             {view !== "artists" && (
               <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
-                <DialogTrigger render={<Button className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full p-0 bg-background hover:!bg-white/40 text-brand-grey hover:bg-brand-bglight-500 hover:text-brand-black transition-colors relative" />}>
-                  <SlidersHorizontal className="w-5 h-5" />
+                <DialogTrigger render={<Button className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full p-0 bg-background hover:!bg-white/40 text-brand-grey hover:bg-brand-bglight-500 hover:text-brand-black transition-colors z-10" />}>
+                  <SlidersHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
                   {activeTags.length > 0 && (
                     <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-600" />
                   )}
@@ -169,9 +169,9 @@ export function BeatsGalleryClient() {
             className="shrink-0"
           >
             <TabsList className="!h-12 p-1 rounded-full border border-input bg-brand-bglight-600 border-opacity-30">
-              <TabsTrigger value="beats" className="rounded-full px-4 sm:px-6 text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Beats</TabsTrigger>
-              <TabsTrigger value="packs" className="rounded-full px-4 sm:px-6 text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Sample Packs</TabsTrigger>
-              <TabsTrigger value="artists" className="rounded-full px-4 sm:px-6 text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Artists</TabsTrigger>
+              <TabsTrigger value="beats" className="rounded-full px-3 sm:px-6 text-xs sm:text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Beats</TabsTrigger>
+              <TabsTrigger value="packs" className="rounded-full px-3 sm:px-6 text-xs sm:text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Sample Packs</TabsTrigger>
+              <TabsTrigger value="artists" className="rounded-full px-3 sm:px-6 text-xs sm:text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Artists</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
