@@ -43,14 +43,14 @@ export default async function Home() {
   const displayTracks = [...formattedBeats, ...defaultTracks].slice(0, 2);
 
   return (
-    <div className="flex-1 w-full relative text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-between overflow-x-hidden antialiased px-2 sm:px-4">
+    <div className="flex-1 w-full relative text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-between overflow-x-hidden antialiased md:px-4">
 
       {/* Main Section */}
-      <main className="flex-1 max-w-5xl mx-auto w-full flex flex-col justify-around gap-8 relative z-10 pt-4">
+      <main className="flex-1 max-w-5xl mx-auto w-full flex flex-col justify-around gap-8 relative z-10 md:pt-4">
 
         {/* Hero Copy */}
         <div
-          className="w-full flex flex-col gap-6 relative p-8 md:p-12 lg:p-16 rounded-3xl overflow-hidden border border-zinc-200/50 shadow-sm"
+          className="w-full flex flex-col gap-6 relative p-8 md:p-12 lg:p-16 md:rounded-3xl overflow-hidden border-b md:border border-zinc-200/50 shadow-sm"
         >
           <Image
             src="/background.jpg"
