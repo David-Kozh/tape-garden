@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { ArrowRight, ShoppingCart, Menu } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -18,10 +18,12 @@ export function Navbar() {
   const { user, role, loading, logout } = useAuth();
   const { itemCount } = useCart();
   const router = useRouter();
+  const pathname = usePathname();
+  const isGallery = pathname === "/gallery" || pathname === "/gallery/";
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border/50 bg-white/10 px-6 py-4 md:px-12 flex justify-between items-center transition-all duration-300">
-      <Link href="/" className="flex items-center gap-3 group cursor-pointer">
+    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border/50 bg-white/10 px-6 py-4 md:px-12 flex justify-between items-center transition-all duration-300 relative">
+      <Link href="/" className="flex items-center gap-3 group cursor-pointer z-10">
         <div className="w-12 h-9 sm:w-18 sm:h-12 rounded-lg bg-zinc-100/30 border border-brand-secondary-500/20 flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/30 group-hover:border-brand-accent-500/50 overflow-hidden p-0.5">
           <Image
             src="/logo.svg"
@@ -36,8 +38,17 @@ export function Navbar() {
         </span>
       </Link>
 
-      <nav className="flex items-center gap-6 text-brand-grey text-sm">
-        <div className={user ? "hidden md:flex items-center gap-6" : "flex items-center gap-6"}>
+      {/* Gallery Heading on Mobile */}
+      {isGallery && (
+        <div className="md:hidden absolute left-1/2 -translate-x-1/2 flex items-center pointer-events-none select-none">
+          <h1 className="font-extrabold text-lg sm:text-xl tracking-tight text-brand-grey">
+            Gallery
+          </h1>
+        </div>
+      )}
+
+      <nav className="flex items-center gap-6 text-brand-grey text-sm z-10">
+        <div className={user || isGallery ? "hidden md:flex items-center gap-6" : "flex items-center gap-6"}>
           <Link href="/gallery" className="hover:text-emerald-700 transition-colors">
             Explore
           </Link>
