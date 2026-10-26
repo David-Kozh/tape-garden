@@ -58,7 +58,7 @@ export function SamplePackDetailClient({ pack }: SamplePackDetailClientProps) {
         </div>
 
         {/* Metadata & Controls */}
-        <div className="flex-1 flex flex-col justify-center gap-6">
+        <div className="w-full flex-1 flex flex-col justify-center gap-6">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-2">{pack.title}</h1>

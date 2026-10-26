@@ -65,7 +65,7 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
         </div>
 
         {/* Metadata & Controls */}
-        <div className="flex-1 flex flex-col justify-center gap-6">
+        <div className="w-full flex-1 flex flex-col justify-center gap-6">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-2">{beat.title}</h1>
@@ -91,14 +91,16 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
             </Button>
           </div>
 
-          <div className="flex flex-wrap gap-4 pt-4 border-t border-border">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Music2 className="w-4 h-4" />
-              <span className="font-mono">{beat.bpm} BPM</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Key className="w-4 h-4" />
-              <span className="font-mono">{beat.key}</span>
+          <div className="flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-border">
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Music2 className="w-4 h-4" />
+                <span className="font-mono">{beat.bpm} BPM</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Key className="w-4 h-4" />
+                <span className="font-mono">{beat.key}</span>
+              </div>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <span>Released {format(new Date(beat.createdAt as string), "MMMM d, yyyy")}</span>
