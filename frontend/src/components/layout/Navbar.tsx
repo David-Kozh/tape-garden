@@ -48,12 +48,18 @@ export function Navbar() {
       )}
 
       <nav className="flex items-center gap-6 text-brand-grey text-sm z-10">
-        <div className={user || isGallery ? "hidden md:flex items-center gap-6" : "flex items-center gap-6"}>
-          <Link href="/gallery" className="hover:text-emerald-700 transition-colors">
-            Explore
-          </Link>
-          <div className="h-5 w-[1px] bg-border/40" />
-        </div>
+        {!loading && !user && (
+          <div className="flex items-center gap-6">
+            <Link
+              href="/login"
+              className="text-sm font-semibold text-brand-primary-500 hover:text-brand-primary-400 transition-colors flex items-center gap-1"
+            >
+              Login
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+            <div className="h-5 w-[1px] bg-border/40" />
+          </div>
+        )}
 
         {/* Cart Icon */}
         {itemCount > 0 && (
@@ -69,65 +75,79 @@ export function Navbar() {
         )}
 
         {loading ? (
-          <div className="w-12 h-4 bg-zinc-200 animate-pulse rounded" />
-        ) : user ? (
+          <div className="w-8 h-8 bg-zinc-200 animate-pulse rounded-md" />
+        ) : (
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center justify-center p-2 -ml-2 -mr-4 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer">
               <Menu className="w-5 h-5 text-brand-grey" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-brand-bglight-400 border-border shadow-lg backdrop-blur-md">
-              <DropdownMenuItem onClick={() => router.push("/gallery")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100 md:hidden">
-                <span className="w-full font-medium text-brand-black">
-                  Explore
-                </span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-border/50 md:hidden" />
-
-              {role === "admin" && (
-                <DropdownMenuItem onClick={() => router.push("/admin/users")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                  <span className="w-full font-medium text-brand-black">
-                    Admin Portal
-                  </span>
-                </DropdownMenuItem>
-              )}
-              {role === "producer" && (
+              {user ? (
                 <>
-                  <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                  <DropdownMenuItem onClick={() => router.push("/gallery")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
                     <span className="w-full font-medium text-brand-black">
-                      Dashboard
+                      Explore
                     </span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/#backroom")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                  <DropdownMenuSeparator className="bg-border/50" />
+
+                  {role === "admin" && (
+                    <DropdownMenuItem onClick={() => router.push("/admin/users")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                      <span className="w-full font-medium text-brand-black">
+                        Admin Portal
+                      </span>
+                    </DropdownMenuItem>
+                  )}
+                  {role === "producer" && (
+                    <>
+                      <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                        <span className="w-full font-medium text-brand-black">
+                          Dashboard
+                        </span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => router.push("/#backroom")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                        <span className="w-full font-medium text-brand-black">
+                          Back Room
+                        </span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {role === "buyer" && (
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/collection")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                      <span className="w-full font-medium text-brand-black">
+                        My Purchases
+                      </span>
+                    </DropdownMenuItem>
+                  )}
+                  {role && <DropdownMenuSeparator className="bg-border/50" />}
+                  <DropdownMenuItem
+                    onClick={logout}
+                    className="cursor-pointer text-red-600 font-medium hover:text-red-700 focus:text-red-700 hover:bg-red-50 focus:bg-red-50"
+                  >
+                    Sign Out
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <>
+                  <DropdownMenuItem onClick={() => router.push("/gallery")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
                     <span className="w-full font-medium text-brand-black">
-                      Back Room
+                      Explore
+                    </span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/apply")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                    <span className="w-full font-medium text-brand-black">
+                      Apply
+                    </span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/about")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
+                    <span className="w-full font-medium text-brand-black">
+                      About Us
                     </span>
                   </DropdownMenuItem>
                 </>
               )}
-              {role === "buyer" && (
-                <DropdownMenuItem onClick={() => router.push("/dashboard/collection")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                  <span className="w-full font-medium text-brand-black">
-                    My Purchases
-                  </span>
-                </DropdownMenuItem>
-              )}
-              {role && <DropdownMenuSeparator className="bg-border/50" />}
-              <DropdownMenuItem
-                onClick={logout}
-                className="cursor-pointer text-red-600 font-medium hover:text-red-700 focus:text-red-700 hover:bg-red-50 focus:bg-red-50"
-              >
-                Sign Out
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : (
-          <Link
-            href="/login"
-            className="text-sm font-semibold text-brand-primary-500 hover:text-brand-primary-400 transition-colors flex items-center gap-1"
-          >
-            Login
-            <ArrowRight className="w-3 h-3" />
-          </Link>
         )}
       </nav>
     </header>
