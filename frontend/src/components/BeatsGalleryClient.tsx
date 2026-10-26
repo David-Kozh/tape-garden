@@ -28,8 +28,8 @@ export function BeatsGalleryClient() {
     viewParam === "artists"
       ? "artists"
       : viewParam === "packs" || viewParam === "sample-packs"
-      ? "packs"
-      : "beats";
+        ? "packs"
+        : "beats";
 
   const [beats, setBeats] = useState<BeatWithProducer[]>([]);
   const [packs, setPacks] = useState<SamplePackWithProducer[]>([]);
@@ -112,8 +112,8 @@ export function BeatsGalleryClient() {
     view === "beats"
       ? "Search beats..."
       : view === "packs"
-      ? "Search sample packs..."
-      : "Search artists...";
+        ? "Search sample packs..."
+        : "Search artists...";
 
   return (
     <div className="container mx-auto px-4 py-4 md:py-8 max-w-7xl">
@@ -169,9 +169,9 @@ export function BeatsGalleryClient() {
             className="shrink-0"
           >
             <TabsList className="!h-12 p-1 rounded-full border border-input bg-brand-bglight-600 border-opacity-30">
-              <TabsTrigger value="beats" className="rounded-full px-3 sm:px-6 text-xs sm:text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Beats</TabsTrigger>
-              <TabsTrigger value="packs" className="rounded-full px-3 sm:px-6 text-xs sm:text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Sample Packs</TabsTrigger>
-              <TabsTrigger value="artists" className="rounded-full px-3 sm:px-6 text-xs sm:text-sm data-active:!bg-brand-bglight-400 data-active:!text-foreground">Artists</TabsTrigger>
+              <TabsTrigger value="beats" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground">Beats</TabsTrigger>
+              <TabsTrigger value="packs" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground">Sample Packs</TabsTrigger>
+              <TabsTrigger value="artists" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground">Artists</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
