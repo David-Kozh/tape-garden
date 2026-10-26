@@ -170,7 +170,7 @@ export function BeatsGalleryClient() {
           >
             <TabsList className="!h-12 p-1 rounded-full border border-input bg-brand-bglight-600 border-opacity-30">
               <TabsTrigger value="beats" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground">Beats</TabsTrigger>
-              <TabsTrigger value="packs" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground">Sample Packs</TabsTrigger>
+              <TabsTrigger value="packs" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground">Samples</TabsTrigger>
               <TabsTrigger value="artists" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground">Artists</TabsTrigger>
             </TabsList>
           </Tabs>
