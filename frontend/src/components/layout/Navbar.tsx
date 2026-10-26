@@ -47,9 +47,9 @@ export function Navbar() {
         </div>
       )}
 
-      <nav className="flex items-center gap-6 text-brand-grey text-sm z-10">
+      <nav className="flex items-center gap-4 md:gap-6 text-brand-grey text-sm z-10">
         {!loading && !user && (
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 md:gap-6">
             <Link
               href="/login"
               className="text-sm font-semibold text-brand-primary-500 hover:text-brand-primary-400 transition-colors flex items-center gap-1"
