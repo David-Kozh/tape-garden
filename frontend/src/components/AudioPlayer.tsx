@@ -46,20 +46,19 @@ export function AudioPlayer() {
 
   return (
     <div
-      className={`fixed left-0 right-0 h-24 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t border-border z-50 flex items-center px-4 sm:px-8 transition-all duration-300 ${
-        isDashboard ? "bottom-16 md:bottom-0" : "bottom-0"
-      }`}
+      className={`fixed left-0 right-0 h-24 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t border-border z-50 flex items-center px-4 sm:px-8 transition-all duration-300 ${isDashboard ? "bottom-16 md:bottom-0" : "bottom-0"
+        }`}
     >
       <div className="container mx-auto max-w-7xl flex items-center justify-between w-full h-full gap-2 sm:gap-4">
-        
+
         {/* Track Info */}
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0 sm:w-[30%] sm:min-w-[200px]">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0 sm:w-[25%] sm:min-w-[175px]">
           <div className="relative w-14 h-14 rounded-md overflow-hidden bg-secondary flex-shrink-0 hidden sm:block">
             {currentTrack.coverArtUrl ? (
-              <Image 
-                src={currentTrack.coverArtUrl} 
-                alt={currentTrack.title} 
-                fill 
+              <Image
+                src={currentTrack.coverArtUrl}
+                alt={currentTrack.title}
+                fill
                 className="object-cover"
               />
             ) : (
@@ -81,9 +80,9 @@ export function AudioPlayer() {
         {/* Player Controls */}
         <div className="flex flex-col items-center justify-center flex-1 min-w-0 max-w-2xl gap-2">
           <div className="flex items-center justify-center gap-6">
-            <Button 
-              variant="secondary" 
-              size="icon" 
+            <Button
+              variant="secondary"
+              size="icon"
               className="h-10 w-10 rounded-full"
               onClick={togglePlayPause}
             >
@@ -108,7 +107,7 @@ export function AudioPlayer() {
         </div>
 
         {/* Volume & Actions */}
-        <div className="flex items-center justify-end sm:w-[30%] sm:min-w-[120px] gap-1 sm:gap-2 shrink-0">
+        <div className="flex items-center justify-end sm:w-[25%] sm:min-w-[100px] gap-1 sm:gap-2 shrink-0">
           <Button variant="ghost" size="icon" onClick={handleVolumeToggle} className="hidden sm:inline-flex">
             {isMuted ? (
               <VolumeX className="h-5 w-5" />

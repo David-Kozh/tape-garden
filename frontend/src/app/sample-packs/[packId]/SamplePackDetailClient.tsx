@@ -49,7 +49,9 @@ export function SamplePackDetailClient({ pack }: SamplePackDetailClientProps) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
+    <div className={`container mx-auto px-4 pt-8 max-w-5xl transition-all duration-300 ${
+      currentTrack ? "pb-36" : "pb-8"
+    }`}>
       {/* Hero Section */}
       <div className="flex flex-col md:flex-row gap-8 mb-12 items-start">
         {/* Cover Placeholder */}
