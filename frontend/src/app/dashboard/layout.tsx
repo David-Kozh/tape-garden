@@ -46,11 +46,6 @@ export default function DashboardLayout({
           currentTrack ? "pb-44" : "pb-20"
         }`}
       >
-        {/* Mobile Header (placeholder for now if we want mobile sidebar toggle) */}
-        <div className="md:hidden border-b border-border p-4 flex items-center justify-between bg-sidebar">
-          <span className="font-bold text-lg">Tape Garden Studio</span>
-        </div>
-        
         <div className="container mx-auto p-4 md:p-8 max-w-5xl">
           {children}
         </div>
