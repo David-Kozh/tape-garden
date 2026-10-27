@@ -20,11 +20,13 @@ interface ProducerProfile {
   backgroundPattern?: string;
 }
 
+import { useAudio } from "@/context/AudioContext";
 import { BeatWithProducer } from "@/lib/services/gallery";
 
 export default function ProducerPage() {
   const params = useParams();
   const producerId = params.producerId as string;
+  const { currentTrack } = useAudio();
 
   const [profile, setProfile] = useState<ProducerProfile | null>(null);
   const [beats, setBeats] = useState<BeatWithProducer[]>([]);
@@ -62,25 +64,31 @@ export default function ProducerPage() {
 
   if (loading) {
     return (
-      <div className="container max-w-6xl mx-auto py-12 px-4 space-y-12">
-        {/* Profile Header Skeleton */}
-        <div className="flex flex-col items-center space-y-4 md:flex-row md:items-start md:space-x-8 md:space-y-0">
-          <Skeleton className="w-32 h-32 rounded-full" />
-          <div className="space-y-4 text-center md:text-left flex-1">
-            <Skeleton className="h-8 w-64 mx-auto md:mx-0" />
-            <Skeleton className="h-20 w-full max-w-2xl mx-auto md:mx-0" />
-            <div className="flex justify-center md:justify-start gap-4">
-              <Skeleton className="h-6 w-20" />
-              <Skeleton className="h-6 w-20" />
+      <div className="container max-w-6xl mx-auto py-8 lg:py-12 px-4 space-y-8 sm:space-y-12">
+        {/* Profile Header Skeleton Card */}
+        <div className="rounded-2xl md:rounded-3xl border border-white/50 bg-white/40 backdrop-blur-md shadow-sm p-6 sm:p-8 md:p-10 flex flex-row items-start gap-6 md:gap-10 text-left">
+          <Skeleton className="w-24 h-24 sm:w-32 sm:h-32 rounded-full shrink-0" />
+          <div className="space-y-4 text-left flex-1 max-w-2xl">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-20 w-full" />
+            <div className="flex justify-start gap-4">
+              <Skeleton className="h-8 w-24 rounded-full" />
+              <Skeleton className="h-8 w-24 rounded-full" />
             </div>
           </div>
         </div>
 
-        {/* Beats Grid Skeleton */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="aspect-square rounded-xl" />
-          ))}
+        {/* Beats Grid Skeleton Card */}
+        <div className="rounded-2xl md:rounded-3xl border border-white/50 bg-white/40 backdrop-blur-md shadow-sm p-6 sm:p-8 md:p-10 space-y-8">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-32" />
+            <Skeleton className="h-5 w-64" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="aspect-square rounded-2xl" />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -108,10 +116,12 @@ export default function ProducerPage() {
           style={{ backgroundImage: `url("${patternUrl}")` }}
         />
       )}
-      <div className="container max-w-6xl mx-auto py-8 lg:py-12 px-4 space-y-12">
-        {/* Profile Header */}
-        <section className="flex flex-row items-start gap-6 md:gap-10 text-left">
-          <Avatar className="w-24 h-24 sm:w-32 sm:h-32 shrink-0 border-4 border-background shadow-xl">
+      <div className={`container max-w-6xl mx-auto pt-8 lg:pt-12 px-4 space-y-8 sm:space-y-12 transition-all duration-300 ${
+        currentTrack ? "pb-36" : "pb-8 lg:pb-12"
+      }`}>
+        {/* Profile Header Glass Card */}
+        <section className="rounded-2xl md:rounded-3xl border border-white/50 bg-white/40 backdrop-blur-md shadow-sm p-6 sm:p-8 md:p-10 flex flex-row items-start gap-6 md:gap-10 text-left">
+          <Avatar className="w-24 h-24 sm:w-32 sm:h-32 shrink-0 border-4 border-white/80 shadow-lg">
             <AvatarImage src={profile.avatarUrl} alt={profile.displayName} />
             <AvatarFallback className="text-2xl sm:text-4xl bg-muted text-muted-foreground">
               {profile.displayName.substring(0, 2).toUpperCase()}
@@ -137,7 +147,7 @@ export default function ProducerPage() {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={buttonVariants({ variant: "secondary", size: "sm", className: "rounded-full gap-2" })}
+                    className={buttonVariants({ variant: "secondary", size: "sm", className: "rounded-full gap-2 shadow-xs" })}
                   >
                     <LinkIcon className="w-4 h-4" />
                     {link.platform}
@@ -148,15 +158,15 @@ export default function ProducerPage() {
           </div>
         </section>
 
-        {/* Beats Gallery */}
-        <section>
+        {/* Beats Gallery Glass Card */}
+        <section className="rounded-2xl md:rounded-3xl border border-white/50 bg-white/40 backdrop-blur-md shadow-sm p-6 sm:p-8 md:p-10">
           <div className="mb-8">
             <h2 className="text-2xl font-bold tracking-tight text-foreground">Gallery</h2>
             <p className="text-muted-foreground">Explore available beats by {profile.displayName}</p>
           </div>
 
           {beats.length === 0 ? (
-            <div className="text-center py-24 bg-muted/30 rounded-2xl border border-dashed border-border">
+            <div className="text-center py-20 bg-white/20 rounded-2xl border border-dashed border-border/60">
               <h3 className="text-lg font-medium text-foreground mb-2">No Beats Found</h3>
               <p className="text-muted-foreground">This producer hasn&apos;t published any beats yet.</p>
             </div>
