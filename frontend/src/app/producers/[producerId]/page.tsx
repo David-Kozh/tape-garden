@@ -6,10 +6,10 @@ import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
 import { BeatCard } from "@/components/BeatCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LinkIcon } from "lucide-react";
 import { HERO_PATTERNS } from "@/lib/patterns";
+import { SocialLinkButton, parseSocialLinks } from "@/components/social/SocialLinks";
 
 // Assuming types based on Cloud Function return
 interface ProducerProfile {
@@ -50,7 +50,10 @@ export default function ProducerPage() {
           samplePacks?: Record<string, unknown>[];
         };
 
-        setProfile(data.profile);
+        setProfile({
+          ...data.profile,
+          socialLinks: parseSocialLinks(data.profile.socialLinks),
+        });
         setBeats(data.beats.map(b => ({
           ...b,
           producer: {
@@ -85,13 +88,15 @@ export default function ProducerPage() {
         {/* Profile Header Skeleton Card */}
         <div className="rounded-2xl md:rounded-3xl border border-white/35 bg-white/20 backdrop-blur-sm shadow-sm p-6 sm:p-8 md:p-10 flex flex-row items-start gap-6 md:gap-10 text-left">
           <Skeleton className="w-24 h-24 sm:w-32 sm:h-32 rounded-full shrink-0" />
-          <div className="space-y-4 text-left flex-1 max-w-2xl">
-            <Skeleton className="h-8 w-64" />
-            <Skeleton className="h-20 w-full" />
-            <div className="flex justify-start gap-4">
-              <Skeleton className="h-8 w-24 rounded-full" />
-              <Skeleton className="h-8 w-24 rounded-full" />
+          <div className="space-y-4 text-left flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-3 sm:gap-4 w-full">
+              <Skeleton className="h-8 w-48 sm:w-64" />
+              <div className="flex items-center gap-2 shrink-0">
+                <Skeleton className="h-8 w-8 sm:w-24 rounded-full" />
+                <Skeleton className="h-8 w-8 sm:w-24 rounded-full" />
+              </div>
             </div>
+            <Skeleton className="h-20 w-full max-w-2xl" />
           </div>
         </div>
 
@@ -141,32 +146,29 @@ export default function ProducerPage() {
             </AvatarFallback>
           </Avatar>
 
-          <div className="space-y-3 sm:space-y-4 max-w-2xl min-w-0 flex-1">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              {profile.displayName}
-            </h1>
+          <div className="space-y-3 sm:space-y-4 min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-3 sm:gap-4 w-full">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground truncate">
+                {profile.displayName}
+              </h1>
+
+              {profile.socialLinks && profile.socialLinks.length > 0 && (
+                <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto">
+                  {profile.socialLinks.map((link, idx) => (
+                    <SocialLinkButton
+                      key={idx}
+                      platform={link.platform}
+                      url={link.url}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
 
             {profile.bio && (
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl">
                 {profile.bio}
               </p>
-            )}
-
-            {profile.socialLinks && profile.socialLinks.length > 0 && (
-              <div className="flex flex-wrap justify-start gap-2.5 sm:gap-3 pt-1 sm:pt-2">
-                {profile.socialLinks.map((link, idx) => (
-                  <a
-                    key={idx}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={buttonVariants({ variant: "secondary", size: "sm", className: "rounded-full gap-2 shadow-xs" })}
-                  >
-                    <LinkIcon className="w-4 h-4" />
-                    {link.platform}
-                  </a>
-                ))}
-              </div>
             )}
           </div>
         </section>

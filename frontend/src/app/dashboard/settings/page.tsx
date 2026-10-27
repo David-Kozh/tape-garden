@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { db, storage } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch, Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { User } from "@/types";
@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Trash2, Plus, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { SocialIcon } from "@/components/social/SocialLinks";
 
 const notify = (title: string, description: string, type: "success" | "error" = "success") => {
   if (type === "error") {
@@ -27,7 +28,7 @@ const notify = (title: string, description: string, type: "success" | "error" = 
   }
 };
 
-const socialPlatforms = ["SoundCloud", "Instagram", "Twitter", "YouTube", "Spotify", "Other"] as const;
+const socialPlatforms = ["SoundCloud", "Instagram", "Twitter", "YouTube", "Spotify", "Bandcamp", "Apple Music", "Other"] as const;
 
 const socialLinkSchema = z.object({
   platform: z.enum(socialPlatforms),
@@ -42,6 +43,20 @@ const profileSchema = z.object({
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
+
+function PlatformIcon({
+  control,
+  index,
+}: {
+  control: Control<ProfileFormValues>;
+  index: number;
+}) {
+  const platform = useWatch({
+    control,
+    name: `socialLinks.${index}.platform` as const,
+  });
+  return <SocialIcon platform={platform || "Other"} className="w-4 h-4" />;
+}
 
 export default function SettingsPage() {
   const { user, role, loading: authLoading } = useAuth();
@@ -327,9 +342,12 @@ export default function SettingsPage() {
 
                   {fields.map((field, index) => (
                     <div key={field.id} className="flex items-start gap-2">
-                      <div className="w-1/3">
+                      <div className="w-1/3 relative flex items-center">
+                        <div className="absolute left-2.5 pointer-events-none text-muted-foreground flex items-center justify-center">
+                          <PlatformIcon control={form.control} index={index} />
+                        </div>
                         <select
-                          className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent pl-8 pr-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                           {...form.register(`socialLinks.${index}.platform`)}
                         >
                           {socialPlatforms.map((p) => (
