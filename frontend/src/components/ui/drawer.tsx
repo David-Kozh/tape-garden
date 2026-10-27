@@ -73,7 +73,7 @@ function DrawerOverlay({
     <DrawerPrimitive.Backdrop
       data-slot="drawer-overlay"
       className={cn(
-        "fixed inset-0 z-50 min-h-dvh bg-black/40 opacity-[max(var(--drawer-overlay-min-opacity,0),calc(1-var(--drawer-swipe-progress)))] transition-opacity duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] select-none data-ending-style:pointer-events-none data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*300ms)] data-snap-points:[--drawer-overlay-min-opacity:0.5] data-starting-style:opacity-0 data-swiping:duration-0 supports-backdrop-filter:backdrop-blur-xs supports-[-webkit-touch-callout:none]:absolute",
+        "fixed inset-0 z-50 min-h-dvh bg-black/40 opacity-[max(var(--drawer-overlay-min-opacity,0),calc(1-var(--drawer-swipe-progress)))] transition-opacity duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] select-none data-ending-style:pointer-events-none data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*300ms)] data-snap-points:[--drawer-overlay-min-opacity:0.5] data-starting-style:opacity-0 data-swiping:duration-0 supports-backdrop-filter:backdrop-blur-xs supports-[-webkit-touch-callout:none]:absolute touch-none",
         className
       )}
       {...props}
@@ -112,13 +112,13 @@ function DrawerContent({
 
   return (
     <DrawerPortal data-slot="drawer-portal">
-      {modal === true && (
+      {modal !== false && (
         <DrawerOverlay data-snap-points={hasSnapPoints ? "" : undefined} />
       )}
       <DrawerPrimitive.Viewport
         data-slot="drawer-viewport"
         data-modal={modal}
-        className="pointer-events-none fixed inset-0 z-50 select-none data-[modal=true]:pointer-events-auto"
+        className="pointer-events-none fixed inset-0 z-50 select-none data-[modal=true]:pointer-events-auto data-[modal=trap-focus]:pointer-events-auto"
       >
         <DrawerPrimitive.Popup
           data-slot="drawer-popup"

@@ -62,7 +62,7 @@ export function NavDrawer() {
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen} swipeDirection="right">
+    <Drawer open={open} onOpenChange={setOpen} swipeDirection="right" modal="trap-focus">
       <DrawerTrigger
         className="flex items-center justify-center p-2 -ml-2 -mr-4 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer"
         aria-label="Open menu"
