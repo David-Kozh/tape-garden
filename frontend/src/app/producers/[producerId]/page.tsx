@@ -173,50 +173,53 @@ export default function ProducerPage() {
 
         {/* Gallery Glass Card */}
         <section className="flex-1 rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 backdrop-blur-[2px] shadow-sm p-6 sm:p-8 md:p-10">
-          <div className="mb-8 space-y-4">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight text-foreground">Gallery</h2>
-              <p className="text-muted-foreground">
-                {activeTab === "beats"
-                  ? `Explore available beats by ${profile.displayName}`
-                  : `Explore sample packs by ${profile.displayName}`}
-              </p>
+          <div className="mb-8 space-y-3">
+            <div className="flex items-end justify-between border-b border-border/30">
+              <h2 className="text-2xl font-bold tracking-tight text-foreground pb-2.5">
+                Gallery
+              </h2>
+
+              {samplePacks.length > 0 && (
+                <div role="tablist" aria-label="Producer content" className="flex items-center gap-6 -mb-px">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === "beats"}
+                    onClick={() => setActiveTab("beats")}
+                    className={`relative pb-2.5 text-sm sm:text-base font-semibold transition-colors cursor-pointer ${activeTab === "beats"
+                      ? "text-foreground"
+                      : "text-brand-lgrey hover:text-foreground/80"
+                      }`}
+                  >
+                    Beats
+                    {activeTab === "beats" && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground rounded-full" />
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === "packs"}
+                    onClick={() => setActiveTab("packs")}
+                    className={`relative pb-2.5 text-sm sm:text-base font-semibold transition-colors cursor-pointer ${activeTab === "packs"
+                      ? "text-foreground"
+                      : "text-brand-lgrey hover:text-foreground/80"
+                      }`}
+                  >
+                    Sample Packs
+                    {activeTab === "packs" && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground rounded-full" />
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
 
-            {samplePacks.length > 0 && (
-              <div role="tablist" aria-label="Producer content" className="flex items-center gap-6 border-b border-border/30 pt-1">
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === "beats"}
-                  onClick={() => setActiveTab("beats")}
-                  className={`relative pb-2.5 text-sm sm:text-base font-semibold transition-colors cursor-pointer ${activeTab === "beats"
-                    ? "text-foreground"
-                    : "text-brand-lgrey hover:text-foreground/80"
-                    }`}
-                >
-                  Beats
-                  {activeTab === "beats" && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground rounded-full" />
-                  )}
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === "packs"}
-                  onClick={() => setActiveTab("packs")}
-                  className={`relative pb-2.5 text-sm sm:text-base font-semibold transition-colors cursor-pointer ${activeTab === "packs"
-                    ? "text-foreground"
-                    : "text-brand-lgrey hover:text-foreground/80"
-                    }`}
-                >
-                  Sample Packs
-                  {activeTab === "packs" && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground rounded-full" />
-                  )}
-                </button>
-              </div>
-            )}
+            <p className="text-muted-foreground text-sm sm:text-base">
+              {activeTab === "beats"
+                ? `Explore available beats by ${profile.displayName}`
+                : `Explore sample packs by ${profile.displayName}`}
+            </p>
           </div>
 
           {activeTab === "beats" ? (
