@@ -50,10 +50,10 @@ export function AudioPlayer() {
         isDashboard ? "bottom-16 md:bottom-0" : "bottom-0"
       }`}
     >
-      <div className="container mx-auto max-w-7xl flex items-center justify-between w-full h-full gap-4">
+      <div className="container mx-auto max-w-7xl flex items-center justify-between w-full h-full gap-2 sm:gap-4">
         
         {/* Track Info */}
-        <div className="flex items-center gap-4 w-[30%] min-w-[200px]">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0 sm:w-[30%] sm:min-w-[200px]">
           <div className="relative w-14 h-14 rounded-md overflow-hidden bg-secondary flex-shrink-0 hidden sm:block">
             {currentTrack.coverArtUrl ? (
               <Image 
@@ -68,18 +68,18 @@ export function AudioPlayer() {
               </div>
             )}
           </div>
-          <div className="flex flex-col truncate">
-            <Link href={currentTrack.itemType === "samplePack" ? `/sample-packs/${currentTrack.id}` : `/beats/${currentTrack.id}`} className="font-semibold hover:underline truncate">
+          <div className="flex flex-col truncate min-w-0">
+            <Link href={currentTrack.itemType === "samplePack" ? `/sample-packs/${currentTrack.id}` : `/beats/${currentTrack.id}`} className="font-semibold hover:underline truncate text-sm sm:text-base">
               {currentTrack.title}
             </Link>
-            <Link href={`/producers/${currentTrack.producer.uid}`} className="text-sm text-muted-foreground hover:underline truncate">
+            <Link href={`/producers/${currentTrack.producer.uid}`} className="text-xs sm:text-sm text-muted-foreground hover:underline truncate">
               {currentTrack.producer.displayName}
             </Link>
           </div>
         </div>
 
         {/* Player Controls */}
-        <div className="flex flex-col items-center justify-center flex-1 max-w-2xl gap-2">
+        <div className="flex flex-col items-center justify-center flex-1 min-w-0 max-w-2xl gap-2">
           <div className="flex items-center justify-center gap-6">
             <Button 
               variant="secondary" 
@@ -94,7 +94,7 @@ export function AudioPlayer() {
               )}
             </Button>
           </div>
-          <div className="flex items-center w-full gap-3 text-xs text-muted-foreground font-mono">
+          <div className="flex items-center w-full gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground font-mono">
             <span>{formatTime(progress)}</span>
             <Slider
               value={[progress]}
@@ -108,7 +108,7 @@ export function AudioPlayer() {
         </div>
 
         {/* Volume & Actions */}
-        <div className="flex items-center justify-end w-[30%] min-w-[120px] gap-2">
+        <div className="flex items-center justify-end sm:w-[30%] sm:min-w-[120px] gap-1 sm:gap-2 shrink-0">
           <Button variant="ghost" size="icon" onClick={handleVolumeToggle} className="hidden sm:inline-flex">
             {isMuted ? (
               <VolumeX className="h-5 w-5" />
@@ -124,7 +124,7 @@ export function AudioPlayer() {
               onValueChange={handleVolumeChange}
             />
           </div>
-          <Button variant="ghost" size="icon" onClick={closePlayer} className="ml-2 text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" size="icon" onClick={closePlayer} className="text-muted-foreground hover:text-foreground sm:ml-2">
             <X className="h-5 w-5" />
           </Button>
         </div>
