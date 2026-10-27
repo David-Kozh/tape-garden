@@ -270,6 +270,23 @@ export const getProducerProfile = functions
         ...doc.data()
       }));
 
+      // 3. Fetch published sample packs
+      const samplePacksSnapshot = await db.collection("samplePacks")
+        .where("producerId", "==", producerId)
+        .where("status", "==", "published")
+        .orderBy("createdAt", "desc")
+        .get();
+
+      const samplePacks = samplePacksSnapshot.docs.map(doc => {
+        const data = doc.data();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { fileUrl, ...safeData } = data;
+        return {
+          id: doc.id,
+          ...safeData
+        };
+      });
+
       return {
         profile: {
           displayName: userData.displayName,
@@ -279,6 +296,7 @@ export const getProducerProfile = functions
           backgroundPattern: userData.producerProfile?.backgroundPattern || "none",
         },
         beats,
+        samplePacks,
       };
     } catch (error) {
       const err = error as Error;

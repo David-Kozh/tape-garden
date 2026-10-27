@@ -1,3 +1,4 @@
+// DEPRECATED: Navigation has been consolidated into the unified Navbar Drawer.
 "use client";
 
 import Link from "next/link";

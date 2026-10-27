@@ -9,9 +9,10 @@ import { SamplePackWithProducer } from "@/lib/services/samplePacks";
 import { useAudio } from "@/context/AudioContext";
 interface SamplePackCardProps {
   pack: SamplePackWithProducer;
+  showProducer?: boolean;
 }
 
-export function SamplePackCard({ pack }: SamplePackCardProps) {
+export function SamplePackCard({ pack, showProducer = true }: SamplePackCardProps) {
   const { currentTrack, isPlaying, play, togglePlayPause } = useAudio();
 
   const isCurrentPack = currentTrack?.id === pack.id;
@@ -71,9 +72,11 @@ export function SamplePackCard({ pack }: SamplePackCardProps) {
         <Link href={`/sample-packs/${pack.id}`} className="font-bold text-lg truncate text-foreground hover:underline block">
           {pack.title}
         </Link>
-        <Link href={`/producers/${pack.producer.uid}`} className="text-sm text-muted-foreground hover:text-secondary transition-colors inline-block mt-0.5">
-          {pack.producer.displayName}
-        </Link>
+        {showProducer && (
+          <Link href={`/producers/${pack.producer.uid}`} className="text-sm text-muted-foreground hover:text-secondary transition-colors inline-block mt-0.5">
+            {pack.producer.displayName}
+          </Link>
+        )}
         <div className="flex items-center justify-between mt-2 text-sm text-muted-foreground">
           <span className="truncate max-w-[140px]">
             {pack.description}

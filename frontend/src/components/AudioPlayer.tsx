@@ -6,7 +6,6 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 function formatTime(seconds: number) {
@@ -17,8 +16,6 @@ function formatTime(seconds: number) {
 }
 
 export function AudioPlayer() {
-  const pathname = usePathname();
-  const isDashboard = pathname?.startsWith("/dashboard");
   const { currentTrack, isPlaying, progress, duration, volume, togglePlayPause, seek, setVolume, closePlayer } = useAudio();
   const [previousVolume, setPreviousVolume] = useState(0.5);
   const isMuted = volume === 0;
@@ -46,8 +43,7 @@ export function AudioPlayer() {
 
   return (
     <div
-      className={`fixed left-0 right-0 h-24 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t border-border z-50 flex items-center px-4 sm:px-8 transition-all duration-300 ${isDashboard ? "bottom-16 md:bottom-0" : "bottom-0"
-        }`}
+      className="fixed left-0 bottom-0 right-0 h-24 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t border-border z-50 flex items-center px-4 sm:px-8 transition-all duration-300"
     >
       <div className="container mx-auto max-w-7xl flex items-center justify-between w-full h-full gap-2 sm:gap-4">
 

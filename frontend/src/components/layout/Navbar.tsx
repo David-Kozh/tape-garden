@@ -2,22 +2,15 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter, usePathname } from "next/navigation";
-import { ArrowRight, ShoppingCart, Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { ArrowRight, ShoppingCart } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { NavDrawer } from "@/components/layout/NavDrawer";
 
 export function Navbar() {
-  const { user, role, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   const { itemCount } = useCart();
-  const router = useRouter();
   const pathname = usePathname();
   const isGallery = pathname === "/gallery" || pathname === "/gallery/";
 
@@ -74,81 +67,8 @@ export function Navbar() {
           </>
         )}
 
-        {loading ? (
-          <div className="w-8 h-8 bg-zinc-200 animate-pulse rounded-md" />
-        ) : (
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center justify-center p-2 -ml-2 -mr-4 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer">
-              <Menu className="w-5 h-5 text-brand-grey" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-brand-bglight-400 border-border shadow-lg backdrop-blur-md">
-              {user ? (
-                <>
-                  <DropdownMenuItem onClick={() => router.push("/gallery")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                    <span className="w-full font-medium text-brand-black">
-                      Explore
-                    </span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator className="bg-border/50" />
-
-                  {role === "admin" && (
-                    <DropdownMenuItem onClick={() => router.push("/admin/users")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                      <span className="w-full font-medium text-brand-black">
-                        Admin Portal
-                      </span>
-                    </DropdownMenuItem>
-                  )}
-                  {role === "producer" && (
-                    <>
-                      <DropdownMenuItem onClick={() => router.push("/dashboard")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                        <span className="w-full font-medium text-brand-black">
-                          Dashboard
-                        </span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => router.push("/#backroom")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                        <span className="w-full font-medium text-brand-black">
-                          Back Room
-                        </span>
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                  {role === "buyer" && (
-                    <DropdownMenuItem onClick={() => router.push("/dashboard/collection")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                      <span className="w-full font-medium text-brand-black">
-                        My Purchases
-                      </span>
-                    </DropdownMenuItem>
-                  )}
-                  {role && <DropdownMenuSeparator className="bg-border/50" />}
-                  <DropdownMenuItem
-                    onClick={logout}
-                    className="cursor-pointer text-red-600 font-medium hover:text-red-700 focus:text-red-700 hover:bg-red-50 focus:bg-red-50"
-                  >
-                    Sign Out
-                  </DropdownMenuItem>
-                </>
-              ) : (
-                <>
-                  <DropdownMenuItem onClick={() => router.push("/gallery")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                    <span className="w-full font-medium text-brand-black">
-                      Explore
-                    </span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/apply")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                    <span className="w-full font-medium text-brand-black">
-                      Apply
-                    </span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/about")} className="cursor-pointer hover:bg-zinc-100 focus:bg-zinc-100">
-                    <span className="w-full font-medium text-brand-black">
-                      About Us
-                    </span>
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        {/* Unified Navigation Drawer Trigger */}
+        <NavDrawer />
       </nav>
     </header>
   );
