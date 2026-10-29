@@ -16,8 +16,8 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border/50 bg-white/10 px-6 py-4 md:px-12 flex justify-between items-center transition-all duration-300 relative">
-      <Link href="/" className="flex items-center gap-3 group cursor-pointer z-10">
-        <div className="w-12 h-9 sm:w-18 sm:h-12 rounded-lg bg-zinc-100/30 border border-brand-secondary-500/20 flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/30 group-hover:border-brand-accent-500/50 overflow-hidden p-0.5">
+      <Link href="/" className="flex items-center gap-2 group cursor-pointer z-10">
+        <div className="w-15 h-10 sm:w-16 sm:h-12 rounded-lg bg-zinc-100/0 border border-brand-secondary-500/0 flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/0 group-hover:border-brand-accent-500/0 overflow-hidden p-0.5">
           <Image
             src="/logo.svg"
             alt="Tape Garden Logo"
@@ -26,8 +26,9 @@ export function Navbar() {
             className="w-full h-full object-contain"
           />
         </div>
-        <span className="hidden md:inline font-lexend font-extrabold text-lg lg:text-xl transition-all">
-          <span className="text-transparent bg-gradient-to-r from-brand-secondary-500 to-brand-primary-500 bg-clip-text group-hover:opacity-80 transition-opacity">Tape Garden</span>
+        <span className="hidden md:inline text-[22px] lg:text-[26px] transition-all">
+          <span className="font-semibold text-brand-grey group-hover:opacity-80 transition-opacity">Tape </span>
+          <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-grey to-brand-primary-900 group-hover:opacity-80 transition-opacity">Garden</span>
         </span>
       </Link>
 

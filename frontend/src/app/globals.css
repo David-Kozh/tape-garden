@@ -61,6 +61,8 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* Brand colors & shades */
+  --color-brand-bglight-100: #fae4d7;
+  --color-brand-bglight-200: #f9e0d0;
   --color-brand-bglight-300: #f9dbc9;
   --color-brand-bglight-400: #f8d7c3;
   --color-brand-bglight-500: #f7d2bc;
@@ -110,6 +112,8 @@
   --navbar-height: 81px;
 
   /* Brand colors & shades */
+  --color-brand-bglight-100: #fae4d7;
+  --color-brand-bglight-200: #f9e0d0;
   --color-brand-bglight-300: #f9dbc9;
   --color-brand-bglight-400: #f8d7c3;
   --color-brand-bglight-500: #f7d2bc;
@@ -169,11 +173,11 @@
   --text2: #e5e5ff;
   --text3: #606077;
 
-  --background: var(--color-brand-bglight-400);
+  --background: var(--color-brand-bglight-300);
   --foreground: var(--color-brand-black);
-  --card: var(--color-brand-bglight-300);
+  --card: var(--color-brand-bglight-200);
   --card-foreground: var(--color-brand-black);
-  --popover: var(--color-brand-bglight-300);
+  --popover: var(--color-brand-bglight-200);
   --popover-foreground: var(--color-brand-black);
   --primary: var(--color-brand-primary-500);
   --primary-foreground: var(--color-brand-white);
@@ -193,7 +197,7 @@
   --chart-4: oklch(0.7 0.15 200);
   --chart-5: oklch(0.75 0.15 150);
   --radius: 0.625rem;
-  --sidebar: var(--color-brand-bglight-300);
+  --sidebar: var(--color-brand-bglight-200);
   --sidebar-foreground: var(--color-brand-black);
   --sidebar-primary: var(--color-brand-primary-500);
   --sidebar-primary-foreground: var(--color-brand-white);
