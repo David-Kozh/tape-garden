@@ -62,7 +62,7 @@ export default async function Home() {
             decoding="sync"
             placeholder="blur"
             sizes="(max-width: 1024px) 100vw, 1024px"
-            className="object-cover object-center opacity-90 pointer-events-none mix-blend-overlay z-0"
+            className="object-cover object-center opacity-90 pointer-events-none z-0"
           />
 
 
