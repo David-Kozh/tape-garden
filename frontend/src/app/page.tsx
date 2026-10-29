@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { CuratorBench } from "@/components/CuratorBench";
 import { getRandomCuratedBeats } from "@/lib/services/gallery";
 import { CuratorTrack } from "@/components/CuratorCard";
+import heroBackground from "../../public/background.jpg";
 
 export default async function Home() {
   const curatedBeats = await getRandomCuratedBeats(2);
@@ -50,13 +51,17 @@ export default async function Home() {
 
         {/* Hero Copy */}
         <div
-          className="w-full flex flex-col gap-6 relative p-8 md:p-12 lg:p-16 md:rounded-3xl overflow-hidden border-b md:border border-zinc-200/50 shadow-sm"
+          className="w-full flex flex-col gap-6 relative p-8 md:p-12 lg:p-16 md:rounded-3xl overflow-hidden border-b md:border border-zinc-200/50 shadow-sm bg-background"
         >
           <Image
-            src="/background.jpg"
+            src={heroBackground}
             alt=""
             fill
-            priority
+            preload
+            fetchPriority="high"
+            decoding="sync"
+            placeholder="blur"
+            sizes="(max-width: 1024px) 100vw, 1024px"
             className="object-cover object-center opacity-90 pointer-events-none mix-blend-overlay z-0"
           />
 
