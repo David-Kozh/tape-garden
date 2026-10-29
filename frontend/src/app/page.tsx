@@ -80,7 +80,7 @@ export default async function Home() {
                 </span>
               </h1>
 
-              <div className="flex flex-col gap-8 p-6 md:p-8 rounded-2xl bg-gray-600/50 backdrop-blur-sm border border-white/30 shadow-sm max-w-2xl">
+              <div className="flex flex-col gap-8 p-6 md:p-8 rounded-2xl bg-gray-700/40 backdrop-blur-sm border border-white/30 shadow-sm max-w-2xl">
                 <p className="text-base lg:text-lg text-white/85 leading-relaxed">
                   A deliberately minimal space designed for music producers to show their best work.<br />Buy and sell beats without the extra noise.
                 </p>

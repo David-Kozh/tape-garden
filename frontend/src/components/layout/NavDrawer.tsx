@@ -69,7 +69,7 @@ export function NavDrawer() {
     <>
       <Drawer open={open} onOpenChange={setOpen} swipeDirection="right" modal="trap-focus">
         <DrawerTrigger
-          className="flex items-center justify-center p-2 -ml-2 -mr-4 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer"
+          className="flex items-center justify-center p-2 -ml-2 md:-mr-4 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer"
           aria-label="Open menu"
         >
           <Menu className="w-5 h-5 text-brand-grey" />
