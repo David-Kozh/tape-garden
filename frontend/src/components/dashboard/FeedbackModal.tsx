@@ -18,9 +18,23 @@ import { toast } from "sonner";
 import { FeedbackCategory } from "@/types";
 import { MessageSquare } from "lucide-react";
 
-export function FeedbackModal() {
+interface FeedbackModalProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  showTrigger?: boolean;
+}
+
+export function FeedbackModal({
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
+  showTrigger = true,
+}: FeedbackModalProps = {}) {
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
+  const setOpen = isControlled ? setControlledOpen! : setUncontrolledOpen;
   const [category, setCategory] = useState<FeedbackCategory>("general");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,14 +66,16 @@ export function FeedbackModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          <Button variant="secondary" className="gap-2 w-full sm:w-auto" />
-        }
-      >
-        <MessageSquare className="w-4 h-4" />
-        Leave Feedback
-      </DialogTrigger>
+      {showTrigger && (
+        <DialogTrigger
+          render={
+            <Button variant="secondary" className="gap-2 w-full sm:w-auto" />
+          }
+        >
+          <MessageSquare className="w-4 h-4" />
+          Leave Feedback
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Provide Feedback</DialogTitle>

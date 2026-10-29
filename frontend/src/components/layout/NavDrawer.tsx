@@ -17,9 +17,12 @@ import {
   LogIn,
   LogOut,
   ShoppingCart,
+  UserCircle,
+  MessageSquare,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
+import { FeedbackModal } from "@/components/dashboard/FeedbackModal";
 import {
   Drawer,
   DrawerTrigger,
@@ -32,6 +35,7 @@ import {
 
 export function NavDrawer() {
   const [open, setOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const { user, role, loading, logout } = useAuth();
   const { itemCount } = useCart();
   const pathname = usePathname();
@@ -62,7 +66,8 @@ export function NavDrawer() {
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen} swipeDirection="right" modal="trap-focus">
+    <>
+      <Drawer open={open} onOpenChange={setOpen} swipeDirection="right" modal="trap-focus">
       <DrawerTrigger
         className="flex items-center justify-center p-2 -ml-2 -mr-4 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer"
         aria-label="Open menu"
@@ -250,6 +255,29 @@ export function NavDrawer() {
                         <Settings className="w-5 h-5 shrink-0" />
                         <span>Settings</span>
                       </Link>
+                      <Link
+                        href={`/producers/${user.uid}`}
+                        onClick={handleLinkClick}
+                        className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                          isItemActive(`/producers/${user.uid}`)
+                            ? "bg-brand-primary-500 text-white shadow-sm"
+                            : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                        }`}
+                      >
+                        <UserCircle className="w-5 h-5 shrink-0" />
+                        <span>View Profile</span>
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpen(false);
+                          setFeedbackOpen(true);
+                        }}
+                        className="flex items-center gap-3 px-3 py-2.5 w-full text-sm font-medium rounded-lg transition-colors text-brand-black hover:bg-white/60 hover:text-brand-primary-600 cursor-pointer"
+                      >
+                        <MessageSquare className="w-5 h-5 shrink-0" />
+                        <span>Leave Feedback</span>
+                      </button>
                     </div>
                   </div>
                 )}
@@ -348,6 +376,14 @@ export function NavDrawer() {
           )}
         </DrawerFooter>
       </DrawerContent>
-    </Drawer>
+      </Drawer>
+      {user && role === "producer" && (
+        <FeedbackModal
+          open={feedbackOpen}
+          onOpenChange={setFeedbackOpen}
+          showTrigger={false}
+        />
+      )}
+    </>
   );
 }

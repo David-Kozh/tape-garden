@@ -1,18 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { db, functions } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, getCountFromServer } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import type { User } from "@/types";
-import { Clock, CheckCircle2, AlertCircle, UserCircle, Loader2 } from "lucide-react";
+import { Clock, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BasicSalesStats } from "@/components/dashboard/BasicSalesStats";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { FeedbackModal } from "@/components/dashboard/FeedbackModal";
 export default function DashboardOverview() {
   const { user, role } = useAuth();
   const router = useRouter();
@@ -143,22 +141,9 @@ export default function DashboardOverview() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Studio Overview</h1>
-          <p className="text-muted-foreground mt-1">Manage your presence and check your slot usage.</p>
-        </div>
-        {user && (
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
-            <FeedbackModal />
-            <Link href={`/producers/${user.uid}`} className="w-full sm:w-auto">
-              <Button className="gap-2 w-full sm:w-auto">
-                <UserCircle className="w-4 h-4" />
-                View Public Profile
-              </Button>
-            </Link>
-          </div>
-        )}
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Studio Overview</h1>
+        <p className="text-muted-foreground mt-1">Manage your presence and check your slot usage.</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
