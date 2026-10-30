@@ -51,7 +51,7 @@ export default async function Home() {
 
         {/* Hero Copy */}
         <div
-          className="w-full flex flex-col gap-6 relative p-8 md:p-12 lg:p-16 md:rounded-3xl overflow-hidden border-b md:border border-zinc-200/50 shadow-sm bg-background"
+          className="w-full flex flex-col gap-6 relative p-6 md:p-12 lg:p-16 md:rounded-3xl overflow-hidden border-b md:border border-zinc-200/50 shadow-sm bg-background"
         >
           <Image
             src={heroBackground}
