@@ -15,7 +15,7 @@ export function Navbar() {
   const isGallery = pathname === "/gallery" || pathname === "/gallery/";
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border/50 bg-white/10 px-5 py-3 md:px-12 flex justify-between items-center transition-all duration-300 relative">
+    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border/50 bg-white/10 px-3 py-2 md:py-3 md:px-12 flex justify-between items-center transition-all duration-300 relative">
       <Link href="/" className="flex items-center gap-2 group cursor-pointer z-10">
         <div className="w-15 h-10 sm:w-16 sm:h-12 rounded-lg bg-zinc-100/0 border border-brand-secondary-500/0 flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/0 group-hover:border-brand-accent-500/0 overflow-hidden p-0.5">
           <Image
