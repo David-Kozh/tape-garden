@@ -16,7 +16,7 @@ import {
   Info,
   LogIn,
   LogOut,
-  ShoppingCart,
+  ShoppingBag,
   UserCircle,
   MessageSquare,
 } from "lucide-react";
@@ -67,7 +67,7 @@ export function NavDrawer() {
 
   return (
     <>
-      <Drawer open={open} onOpenChange={setOpen} swipeDirection="right" modal="trap-focus">
+      <Drawer open={open} onOpenChange={setOpen} swipeDirection="left" modal="trap-focus">
         <DrawerTrigger
           className="flex items-center justify-center p-2 -ml-2 -mr-2 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer"
           aria-label="Open menu"
@@ -75,7 +75,7 @@ export function NavDrawer() {
           <Menu className="w-5 h-5 text-brand-grey" />
         </DrawerTrigger>
 
-        <DrawerContent className="w-[85%] max-w-sm sm:w-96 border-l border-border/50 text-brand-black flex flex-col justify-between">
+        <DrawerContent className="w-[85%] max-w-sm sm:w-96 border-r border-border/50 text-brand-black flex flex-col justify-between">
           <div>
             {/* Header */}
             <DrawerHeader className="p-0 pb-5 border-b border-border/40 pr-8">
@@ -84,7 +84,7 @@ export function NavDrawer() {
                 onClick={handleLinkClick}
                 className="flex items-center gap-3 group cursor-pointer"
               >
-                <div className="w-10 h-8 rounded-lg bg-zinc-100/40 border border-brand-secondary-500/20 flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/30 group-hover:border-brand-accent-500/50 overflow-hidden p-0.5">
+                <div className="w-12 h-9 rounded-lg flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/30 group-hover:border-brand-accent-500/50 overflow-hidden">
                   <Image
                     src="/logo.svg"
                     alt="Tape Garden Logo"
@@ -94,7 +94,7 @@ export function NavDrawer() {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <DrawerTitle className="font-lexend font-extrabold text-base tracking-tight text-transparent bg-gradient-to-r from-brand-secondary-500 to-brand-primary-500 bg-clip-text">
+                  <DrawerTitle className="font-extrabold text-base tracking-tight text-transparent bg-gradient-to-r from-brand-secondary-500 to-brand-primary-500 bg-clip-text">
                     Tape Garden
                   </DrawerTitle>
                   <DrawerDescription className="text-xs text-brand-grey/70">
@@ -161,7 +161,7 @@ export function NavDrawer() {
                         }`}
                     >
                       <div className="flex items-center gap-3">
-                        <ShoppingCart className="w-5 h-5 shrink-0" />
+                        <ShoppingBag className="w-5 h-5 shrink-0" />
                         <span>Cart</span>
                       </div>
                       <span className="bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-xs">

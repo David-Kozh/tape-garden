@@ -3,34 +3,39 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { ArrowRight, ShoppingCart } from "lucide-react";
+import { ArrowRight, Library, ShoppingBag, UserCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { NavDrawer } from "@/components/layout/NavDrawer";
 
 export function Navbar() {
-  const { user, loading } = useAuth();
+  const { user, role, loading } = useAuth();
   const { itemCount } = useCart();
   const pathname = usePathname();
   const isGallery = pathname === "/gallery" || pathname === "/gallery/";
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border/50 bg-white/10 px-3 pb-2 pt-1.5 md:px-12 flex justify-between items-center transition-all duration-300 relative">
-      <Link href="/" className="flex items-center gap-2 group cursor-pointer z-10">
-        <div className="w-15 h-10 sm:w-16 sm:h-12 rounded-lg bg-zinc-100/0 border border-brand-secondary-500/0 flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/0 group-hover:border-brand-accent-500/0 overflow-hidden p-0.5">
-          <Image
-            src="/logo.svg"
-            alt="Tape Garden Logo"
-            width={128}
-            height={128}
-            className="w-full h-full object-contain"
-          />
-        </div>
-        <span className="hidden md:inline text-[22px] lg:text-[26px] transition-all">
-          <span className="font-semibold text-brand-grey group-hover:opacity-80 transition-opacity">Tape </span>
-          <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-grey to-brand-primary-900 group-hover:opacity-80 transition-opacity">Garden</span>
-        </span>
-      </Link>
+      <div className="flex items-center gap-3 md:gap-4 z-10">
+        {/* Unified Navigation Drawer Trigger */}
+        <NavDrawer />
+
+        <Link href="/" className="flex items-center gap-2 group cursor-pointer">
+          <div className="w-15 h-10 sm:w-16 sm:h-12 rounded-lg bg-zinc-100/0 border border-brand-secondary-500/0 flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/0 group-hover:border-brand-accent-500/0 overflow-hidden p-0.5">
+            <Image
+              src="/logo.svg"
+              alt="Tape Garden Logo"
+              width={128}
+              height={128}
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <span className="hidden md:inline text-[22px] lg:text-[26px] transition-all">
+            <span className="font-semibold text-brand-grey group-hover:opacity-80 transition-opacity">Tape </span>
+            <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-grey to-brand-primary-900 group-hover:opacity-80 transition-opacity">Garden</span>
+          </span>
+        </Link>
+      </div>
 
       {/* Gallery Heading on Mobile */}
       {isGallery && (
@@ -55,21 +60,45 @@ export function Navbar() {
           </div>
         )}
 
-        {/* Cart Icon */}
-        {itemCount > 0 && (
-          <>
-            <Link href="/checkout" className="relative group flex items-center justify-center">
-              <ShoppingCart className="w-5 h-5 text-zinc-500 group-hover:text-emerald-700 transition-colors" />
-              <span className="absolute -top-1.5 -right-2 bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-md">
-                {itemCount}
-              </span>
+        {!loading && user && role === "producer" && (
+          <div className="flex items-center gap-4 md:gap-6">
+            <Link
+              href={`/producers/${user.uid}`}
+              aria-label="View profile"
+              className="relative group flex items-center justify-center"
+            >
+              <UserCircle className="w-5 h-5 text-zinc-500 group-hover:text-emerald-700 transition-colors" />
             </Link>
-            <div className="h-5 w-[1px] bg-zinc-400" />
-          </>
+            <div className="h-5 w-[1px] bg-border/40" />
+          </div>
         )}
 
-        {/* Unified Navigation Drawer Trigger */}
-        <NavDrawer />
+        {!loading && user && role === "buyer" && (
+          <div className="flex items-center gap-4 md:gap-6">
+            <Link
+              href="/dashboard/collection"
+              aria-label="My collection"
+              className="relative group flex items-center justify-center"
+            >
+              <Library className="w-5 h-5 text-zinc-500 group-hover:text-emerald-700 transition-colors" />
+            </Link>
+            <div className="h-5 w-[1px] bg-border/40" />
+          </div>
+        )}
+
+        {/* Cart Icon */}
+        <Link
+          href="/checkout"
+          aria-label="Shopping cart"
+          className="relative group flex items-center justify-center"
+        >
+          <ShoppingBag className="w-5 h-5 text-zinc-500 group-hover:text-emerald-700 transition-colors" />
+          {itemCount > 0 && (
+            <span className="absolute -top-1.5 -right-2 bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-md">
+              {itemCount}
+            </span>
+          )}
+        </Link>
       </nav>
     </header>
   );
