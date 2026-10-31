@@ -168,10 +168,10 @@ export function BeatsGalleryClient() {
             onValueChange={(val) => handleViewChange(val as "beats" | "packs" | "artists")}
             className="shrink-0"
           >
-            <TabsList className="!h-12 p-1 rounded-full border border-input bg-brand-bglight-600 border-opacity-30">
-              <TabsTrigger value="beats" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground">Beats</TabsTrigger>
-              <TabsTrigger value="packs" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground">Samples</TabsTrigger>
-              <TabsTrigger value="artists" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground">Artists</TabsTrigger>
+            <TabsList className="!h-12 p-1 rounded-full border border-input bg-brand-bglight-500 dark:bg-brand-lgrey/20 border-opacity-30">
+              <TabsTrigger value="beats" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-500 data-active:!text-foreground dark:data-active:!bg-brand-lgrey/20">Beats</TabsTrigger>
+              <TabsTrigger value="packs" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground dark:data-active:!bg-brand-lgrey/20">Samples</TabsTrigger>
+              <TabsTrigger value="artists" className="rounded-full px-3 sm:px-6 text-[10px] md:text-xs data-active:!bg-brand-bglight-400 data-active:!text-foreground dark:data-active:!bg-brand-lgrey/20">Artists</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>

@@ -40,7 +40,7 @@ export function Navbar() {
       {/* Gallery Heading on Mobile */}
       {isGallery && (
         <div className="md:hidden absolute left-1/2 -translate-x-1/2 flex items-center pointer-events-none select-none">
-          <h1 className="font-extrabold text-xl sm:text-2xl tracking-tight text-brand-grey">
+          <h1 className="font-extrabold text-xl sm:text-2xl tracking-tight text-muted-foreground">
             Gallery
           </h1>
         </div>

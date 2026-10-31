@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   Menu,
   Compass,
@@ -17,8 +18,10 @@ import {
   LogIn,
   LogOut,
   ShoppingBag,
-  UserCircle,
+  User,
   MessageSquare,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -36,10 +39,18 @@ import {
 export function NavDrawer() {
   const [open, setOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { user, role, loading, logout } = useAuth();
   const { itemCount } = useCart();
+  const { resolvedTheme, setTheme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted && resolvedTheme === "dark";
 
   const handleLinkClick = () => {
     setOpen(false);
@@ -72,10 +83,10 @@ export function NavDrawer() {
           className="flex items-center justify-center p-2 -ml-2 -mr-2 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer"
           aria-label="Open menu"
         >
-          <Menu className="w-5 h-5 text-brand-grey" />
+          <Menu className="w-5 h-5" />
         </DrawerTrigger>
 
-        <DrawerContent className="w-[85%] max-w-sm sm:w-96 border-r border-border/50 text-brand-black flex flex-col justify-between">
+        <DrawerContent className="w-[85%] max-w-sm sm:w-96 border-r border-border/50 flex flex-col justify-between">
           <div>
             {/* Header */}
             <DrawerHeader className="p-0 pb-5 border-b border-border/40 pr-8">
@@ -94,18 +105,18 @@ export function NavDrawer() {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <DrawerTitle className="font-extrabold text-base tracking-tight text-transparent bg-gradient-to-r from-brand-secondary-500 to-brand-primary-500 bg-clip-text">
+                  <DrawerTitle className="font-bold text-base tracking-tight text-transparent bg-gradient-to-r from-brand-secondary-500 dark:from-brand-secondary-300 to-brand-primary-500 dark:to-brand-primary-300 bg-clip-text">
                     Tape Garden
                   </DrawerTitle>
-                  <DrawerDescription className="text-xs text-brand-grey/70">
+                  <DrawerDescription className="text-xs text-muted-foreground/70">
                     Curated Beats & Sample Packs
                   </DrawerDescription>
                 </div>
               </Link>
 
               {user && (
-                <div className="mt-4 p-2.5 rounded-lg bg-white/40 border border-border/30 flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-brand-primary-500/15 text-brand-primary-600 flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                <div className="mt-4 p-2.5 rounded-lg bg-foreground/5 border border-border/30 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/15 text-primary flex items-center justify-center font-bold text-xs uppercase shrink-0">
                     {user.displayName
                       ? user.displayName.substring(0, 2)
                       : user.email
@@ -113,15 +124,15 @@ export function NavDrawer() {
                         : "U"}
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-semibold text-brand-black truncate">
+                    <span className="text-sm font-semibold truncate">
                       {user.displayName || user.email}
                     </span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] text-brand-grey/70 truncate">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] text-muted-foreground/70 truncate">
                         {user.email}
                       </span>
                       {role && (
-                        <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-brand-primary-500/20 text-brand-primary-700">
+                        <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-primary/20 text-primary">
                           {role}
                         </span>
                       )}
@@ -135,16 +146,16 @@ export function NavDrawer() {
             <div className="py-4 space-y-6">
               {/* General Discovery Links */}
               <div className="space-y-1">
-                <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-brand-grey/60">
+                <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
                   Discover
                 </span>
                 <div className="mt-1 space-y-1">
                   <Link
                     href="/gallery"
                     onClick={handleLinkClick}
-                    className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/gallery")
-                      ? "bg-brand-primary-500 text-white shadow-sm"
-                      : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                    className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/gallery")
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "hover:bg-foreground/10 hover:text-primary"
                       }`}
                   >
                     <Compass className="w-5 h-5 shrink-0" />
@@ -156,11 +167,11 @@ export function NavDrawer() {
                       href="/checkout"
                       onClick={handleLinkClick}
                       className={`flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/checkout")
-                        ? "bg-brand-primary-500 text-white shadow-sm"
-                        : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "hover:bg-foreground/10 hover:text-primary"
                         }`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-4">
                         <ShoppingBag className="w-5 h-5 shrink-0" />
                         <span>Cart</span>
                       </div>
@@ -178,16 +189,16 @@ export function NavDrawer() {
                   {/* Admin Portal section if admin */}
                   {role === "admin" && (
                     <div className="space-y-1">
-                      <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-brand-grey/60">
+                      <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
                         Administration
                       </span>
                       <div className="mt-1 space-y-1">
                         <Link
                           href="/admin/users"
                           onClick={handleLinkClick}
-                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/admin")
-                            ? "bg-brand-primary-500 text-white shadow-sm"
-                            : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                          className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/admin")
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "hover:bg-foreground/10 hover:text-primary"
                             }`}
                         >
                           <Shield className="w-5 h-5 shrink-0" />
@@ -200,16 +211,16 @@ export function NavDrawer() {
                   {/* Dashboard / Creator Studio Links - Producers only */}
                   {role === "producer" && (
                     <div className="space-y-1">
-                      <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-brand-grey/60">
+                      <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
                         Creator Studio
                       </span>
-                      <div className="mt-1 space-y-1">
+                      <div className="mt-1 space-y-1.5">
                         <Link
                           href="/dashboard"
                           onClick={handleLinkClick}
-                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard")
-                            ? "bg-brand-primary-500 text-white shadow-sm"
-                            : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                          className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard")
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "hover:bg-foreground/10 hover:text-primary"
                             }`}
                         >
                           <LayoutDashboard className="w-5 h-5 shrink-0" />
@@ -218,9 +229,9 @@ export function NavDrawer() {
                         <Link
                           href="/dashboard/uploads"
                           onClick={handleLinkClick}
-                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard/uploads")
-                            ? "bg-brand-primary-500 text-white shadow-sm"
-                            : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                          className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard/uploads")
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "hover:bg-foreground/10 hover:text-primary"
                             }`}
                         >
                           <Upload className="w-5 h-5 shrink-0" />
@@ -229,9 +240,9 @@ export function NavDrawer() {
                         <Link
                           href="/dashboard/collection"
                           onClick={handleLinkClick}
-                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard/collection")
-                            ? "bg-brand-primary-500 text-white shadow-sm"
-                            : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                          className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard/collection")
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "hover:bg-foreground/10 hover:text-primary"
                             }`}
                         >
                           <Library className="w-5 h-5 shrink-0" />
@@ -240,9 +251,9 @@ export function NavDrawer() {
                         <Link
                           href="/dashboard/settings"
                           onClick={handleLinkClick}
-                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard/settings")
-                            ? "bg-brand-primary-500 text-white shadow-sm"
-                            : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                          className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard/settings")
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "hover:bg-foreground/10 hover:text-primary"
                             }`}
                         >
                           <Settings className="w-5 h-5 shrink-0" />
@@ -251,12 +262,12 @@ export function NavDrawer() {
                         <Link
                           href={`/producers/${user.uid}`}
                           onClick={handleLinkClick}
-                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive(`/producers/${user.uid}`)
-                            ? "bg-brand-primary-500 text-white shadow-sm"
-                            : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                          className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive(`/producers/${user.uid}`)
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "hover:bg-foreground/10 hover:text-primary"
                             }`}
                         >
-                          <UserCircle className="w-5 h-5 shrink-0" />
+                          <User className="w-5 h-5 shrink-0" />
                           <span>View Profile</span>
                         </Link>
                         <button
@@ -265,7 +276,7 @@ export function NavDrawer() {
                             setOpen(false);
                             setFeedbackOpen(true);
                           }}
-                          className="flex items-center gap-3 px-3 py-2.5 w-full text-sm font-medium rounded-lg transition-colors text-brand-black hover:bg-white/60 hover:text-brand-primary-600 cursor-pointer"
+                          className="flex items-center gap-4 px-3 py-2.5 w-full text-sm font-medium rounded-lg transition-colors hover:bg-foreground/10 hover:text-primary cursor-pointer"
                         >
                           <MessageSquare className="w-5 h-5 shrink-0" />
                           <span>Leave Feedback</span>
@@ -277,16 +288,16 @@ export function NavDrawer() {
                   {/* Buyer Account Links */}
                   {role === "buyer" && (
                     <div className="space-y-1">
-                      <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-brand-grey/60">
+                      <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
                         My Account
                       </span>
                       <div className="mt-1 space-y-1">
                         <Link
                           href="/dashboard/collection"
                           onClick={handleLinkClick}
-                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard/collection")
-                            ? "bg-brand-primary-500 text-white shadow-sm"
-                            : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                          className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard/collection")
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "hover:bg-foreground/10 hover:text-primary"
                             }`}
                         >
                           <Library className="w-5 h-5 shrink-0" />
@@ -295,9 +306,9 @@ export function NavDrawer() {
                         <Link
                           href="/dashboard/settings"
                           onClick={handleLinkClick}
-                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard/settings")
-                            ? "bg-brand-primary-500 text-white shadow-sm"
-                            : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                          className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/dashboard/settings")
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "hover:bg-foreground/10 hover:text-primary"
                             }`}
                         >
                           <Settings className="w-5 h-5 shrink-0" />
@@ -310,16 +321,16 @@ export function NavDrawer() {
               ) : (
                 /* Guest Links */
                 <div className="space-y-1">
-                  <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-brand-grey/60">
+                  <span className="px-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
                     Join Tape Garden
                   </span>
                   <div className="mt-1 space-y-1">
                     <Link
                       href="/apply"
                       onClick={handleLinkClick}
-                      className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/apply")
-                        ? "bg-brand-primary-500 text-white shadow-sm"
-                        : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                      className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/apply")
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "hover:bg-foreground/10 hover:text-primary"
                         }`}
                     >
                       <Sparkles className="w-5 h-5 shrink-0" />
@@ -328,9 +339,9 @@ export function NavDrawer() {
                     <Link
                       href="/about"
                       onClick={handleLinkClick}
-                      className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/about")
-                        ? "bg-brand-primary-500 text-white shadow-sm"
-                        : "text-brand-black hover:bg-white/60 hover:text-brand-primary-600"
+                      className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/about")
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "hover:bg-foreground/10 hover:text-primary"
                         }`}
                     >
                       <Info className="w-5 h-5 shrink-0" />
@@ -342,12 +353,26 @@ export function NavDrawer() {
             </div>
           </div>
 
-          {/* Footer with Sign Out / Log In */}
+          {/* Footer with Theme Toggle & Sign Out / Log In */}
           <DrawerFooter className="p-0 pt-4 border-t border-border/40 mt-auto">
+            <button
+              type="button"
+              onClick={() => setTheme(isDark ? "light" : "dark")}
+              className="flex items-center gap-4 px-3 py-2.5 w-full text-sm font-medium rounded-lg hover:bg-foreground/10 hover:text-primary transition-colors cursor-pointer"
+              aria-label="Toggle dark mode"
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5 shrink-0 text-amber-500" />
+              ) : (
+                <Moon className="w-5 h-5 shrink-0" />
+              )}
+              <span>{isDark ? "Light Mode" : "Dark Mode"}</span>
+            </button>
+
             {user ? (
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-3 px-3 py-2.5 w-full text-sm font-semibold rounded-lg text-red-600 hover:text-red-700 hover:bg-red-500/10 transition-colors cursor-pointer"
+                className="flex items-center gap-4 px-3 py-2.5 w-full text-sm font-semibold rounded-lg text-red-600 hover:text-red-700 hover:bg-red-500/10 transition-colors cursor-pointer"
               >
                 <LogOut className="w-5 h-5 shrink-0" />
                 <span>Sign Out</span>

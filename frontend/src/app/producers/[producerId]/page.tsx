@@ -138,7 +138,7 @@ export default function ProducerPage() {
       <div className={`flex-1 flex flex-col container max-w-6xl mx-auto pt-8 lg:pt-12 px-4 space-y-8 sm:space-y-12 transition-all duration-300 ${currentTrack ? "pb-36" : "pb-8 lg:pb-12"
         }`}>
         {/* Profile Header Glass Card */}
-        <section className="rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 backdrop-blur-[2px] shadow-sm p-6 sm:p-8 md:p-10 flex flex-row items-start gap-6 md:gap-10 text-left">
+        <section className="rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-brand-grey/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm p-6 sm:p-8 md:p-10 flex flex-row items-start gap-6 md:gap-10 text-left">
           <Avatar className="w-24 h-24 sm:w-32 sm:h-32 shrink-0 border-4 border-white/80 shadow-lg">
             <AvatarImage src={profile.avatarUrl} alt={profile.displayName} />
             <AvatarFallback className="text-2xl sm:text-4xl bg-muted text-muted-foreground">
@@ -174,7 +174,7 @@ export default function ProducerPage() {
         </section>
 
         {/* Gallery Glass Card */}
-        <section className="flex-1 rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 backdrop-blur-[2px] shadow-sm p-6 sm:p-8 md:p-10">
+        <section className="flex-1 rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-brand-grey/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm p-6 sm:p-8 md:p-10">
           <div className="mb-8 space-y-3">
             <div className="flex items-end justify-between border-b border-border/30">
               <h2 className="text-2xl font-bold tracking-tight text-foreground pb-2.5">

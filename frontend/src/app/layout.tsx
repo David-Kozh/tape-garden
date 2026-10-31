@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Inter, Outfit, Lexend } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/context/AuthContext";
 import { AudioProvider } from "@/context/AudioContext";
 import { CartProvider } from "@/context/CartContext";
@@ -56,20 +57,23 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${outfit.variable} ${lexend.variable} antialiased`}
     >
       <body className="min-h-screen flex flex-col relative">
-        <TexturedBackground />
-        <AuthProvider>
-          <CartProvider>
-            <AudioProvider>
-              <Navbar />
-              {children}
-              <AudioPlayer />
-            </AudioProvider>
-          </CartProvider>
-        </AuthProvider>
-        <Toaster />
+        <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
+          <TexturedBackground />
+          <AuthProvider>
+            <CartProvider>
+              <AudioProvider>
+                <Navbar />
+                {children}
+                <AudioPlayer />
+              </AudioProvider>
+            </CartProvider>
+          </AuthProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

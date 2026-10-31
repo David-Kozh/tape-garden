@@ -155,6 +155,7 @@
 
   --color-brand-white: #e5e5ff;
   --color-brand-lgrey: #8d9494;
+  --color-brand-lgrey1: #c5c5d8;
   --color-brand-lgrey2: #5b5f5f;
   --color-brand-grey: #2b2d2e;
   --color-brand-black: #111122;
@@ -215,17 +216,17 @@
   --beat-terracotta: #C95D40;
 
   --background: var(--beat-graphite);
-  --foreground: var(--beat-paper);
+  --foreground: var(--color-brand-white);
   --card: var(--beat-graphite);
-  --card-foreground: var(--beat-paper);
+  --card-foreground: var(--color-brand-white);
   --popover: var(--beat-graphite);
-  --popover-foreground: var(--beat-paper);
-  --primary: var(--beat-moss);
-  --primary-foreground: var(--beat-graphite);
-  --secondary: var(--beat-gold);
-  --secondary-foreground: var(--beat-graphite);
+  --popover-foreground: var(--color-brand-white);
+  --primary: var(--color-brand-primary-500);
+  --primary-foreground: var(--color-brand-white);
+  --secondary: var(--color-brand-secondary-500);
+  --secondary-foreground: var(--color-brand-white);
   --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
+  --muted-foreground: var(--color-brand-lgrey1);
   --accent: var(--beat-terracotta);
   --accent-foreground: var(--beat-paper);
   --destructive: var(--beat-terracotta);
