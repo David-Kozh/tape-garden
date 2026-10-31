@@ -56,7 +56,7 @@ export function Navbar() {
               Login
               <ArrowRight className="w-3 h-3" />
             </Link>
-            <div className="h-5 w-[1px] bg-border/40" />
+            <div className="h-5 w-[1px] bg-muted-foreground/60" />
           </div>
         )}
 
@@ -67,9 +67,9 @@ export function Navbar() {
               aria-label="View profile"
               className="relative group flex items-center justify-center"
             >
-              <UserCircle className="w-5 h-5 text-zinc-500 group-hover:text-emerald-700 transition-colors" />
+              <UserCircle className="w-5 h-5 text-muted-foreground group-hover:text-emerald-700 transition-colors" />
             </Link>
-            <div className="h-5 w-[1px] bg-border/40" />
+            <div className="h-5 w-[1px] bg-muted-foreground/60" />
           </div>
         )}
 
@@ -80,9 +80,9 @@ export function Navbar() {
               aria-label="My collection"
               className="relative group flex items-center justify-center"
             >
-              <Library className="w-5 h-5 text-zinc-500 group-hover:text-emerald-700 transition-colors" />
+              <Library className="w-5 h-5 text-muted-foreground group-hover:text-emerald-700 transition-colors" />
             </Link>
-            <div className="h-5 w-[1px] bg-border/40" />
+            <div className="h-5 w-[1px] bg-muted-foreground/60" />
           </div>
         )}
 
@@ -92,7 +92,7 @@ export function Navbar() {
           aria-label="Shopping cart"
           className="relative group flex items-center justify-center"
         >
-          <ShoppingBag className="w-5 h-5 text-zinc-500 group-hover:text-emerald-700 transition-colors" />
+          <ShoppingBag className="w-5 h-5 text-muted-foreground group-hover:text-emerald-700 transition-colors" />
           {itemCount > 0 && (
             <span className="absolute -top-1.5 -right-2 bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-md">
               {itemCount}

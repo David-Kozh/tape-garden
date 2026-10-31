@@ -104,6 +104,8 @@
 
   --color-brand-white: #e5e5ff;
   --color-brand-lgrey: #8d9494;
+  --color-brand-lgrey1: #c5c5d8;
+  --color-brand-lgrey2: #5b5f5f;
   --color-brand-grey: #2b2d2e;
   --color-brand-black: #111122;
 }
@@ -227,7 +229,7 @@
   --secondary-foreground: var(--color-brand-white);
   --muted: oklch(0.269 0 0);
   --muted-foreground: var(--color-brand-lgrey1);
-  --accent: var(--beat-terracotta);
+  --accent: var(--color-brand-accent-500);
   --accent-foreground: var(--beat-paper);
   --destructive: var(--beat-terracotta);
   --border: oklch(1 0 0 / 10%);

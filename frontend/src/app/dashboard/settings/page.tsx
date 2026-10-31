@@ -247,7 +247,7 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-2">
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="secondary"
                       size="sm"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploadingAvatar}
@@ -325,7 +325,7 @@ export default function SettingsPage() {
                   <Label>Social Links</Label>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
                     onClick={() => append({ platform: "SoundCloud", url: "" })}
                     disabled={fields.length >= 5}
@@ -371,7 +371,7 @@ export default function SettingsPage() {
                       </div>
                       <Button
                         type="button"
-                        variant="ghost"
+                        variant="destructive"
                         size="icon"
                         onClick={() => remove(index)}
                         className="text-muted-foreground hover:text-destructive"
