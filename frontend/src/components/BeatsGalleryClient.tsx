@@ -132,7 +132,7 @@ export function BeatsGalleryClient() {
 
             {view !== "artists" && (
               <Dialog open={isFilterModalOpen} onOpenChange={setIsFilterModalOpen}>
-                <DialogTrigger render={<Button className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full p-0 bg-background hover:!bg-white/40 text-brand-grey hover:bg-brand-bglight-500 hover:text-brand-black transition-colors z-10" />}>
+                <DialogTrigger render={<Button className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full p-0 bg-background hover:!bg-white/40 text-muted-foreground hover:bg-brand-bglight-500 hover:text-brand-black transition-colors z-10" />}>
                   <SlidersHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
                   {activeTags.length > 0 && (
                     <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-600" />
