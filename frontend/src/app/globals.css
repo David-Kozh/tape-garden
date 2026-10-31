@@ -225,11 +225,11 @@
   --popover-foreground: var(--color-brand-white);
   --primary: var(--color-brand-primary-500);
   --primary-foreground: var(--color-brand-white);
-  --secondary: var(--color-brand-secondary-500);
+  --secondary: var(--color-brand-accent-800);
   --secondary-foreground: var(--color-brand-white);
   --muted: oklch(0.269 0 0);
   --muted-foreground: var(--color-brand-lgrey1);
-  --accent: var(--color-brand-accent-500);
+  --accent: var(--color-brand-accent-400);
   --accent-foreground: var(--beat-paper);
   --destructive: var(--beat-terracotta);
   --border: oklch(1 0 0 / 10%);

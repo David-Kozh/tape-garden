@@ -3,12 +3,17 @@ import Image from "next/image";
 import { CassetteTape, Flower2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { CuratorBench } from "@/components/CuratorBench";
-import { getRandomCuratedBeats } from "@/lib/services/gallery";
+import { getRandomCuratedBeats, BeatWithProducer } from "@/lib/services/gallery";
 import { CuratorTrack } from "@/components/CuratorCard";
 import heroBackground from "../../public/background.jpg";
 
 export default async function Home() {
-  const curatedBeats = await getRandomCuratedBeats(2);
+  let curatedBeats: BeatWithProducer[] = [];
+  try {
+    curatedBeats = await getRandomCuratedBeats(2);
+  } catch (error) {
+    console.error("Error fetching curated beats:", error);
+  }
 
   // Format the real beats to match the CuratorTrack interface
   const formattedBeats: CuratorTrack[] = curatedBeats.map(beat => ({
