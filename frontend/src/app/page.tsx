@@ -73,7 +73,7 @@ export default async function Home() {
               <h1 className="text-4xl md:text-6xl font-lexend font-bold tracking-tight text-zinc-900 leading-tight">
                 Curated Beats.<br />
                 <span className="relative inline-block mt-1">
-                  <div className="absolute inset-x-[-7%] top-[-20%] bottom-[-35%] bg-background opacity-60 blur-[40px] -z-10 rounded-full pointer-events-none" />
+                  <div className="absolute inset-x-[-7%] top-[-20%] bottom-[-35%] bg-background dark:bg-brand-white opacity-60 blur-[40px] -z-10 rounded-full pointer-events-none" />
                   <span className="bg-gradient-to-r from-brand-primary-800 via-brand-primary-500 to-brand-secondary-600 bg-clip-text text-transparent relative z-10">
                     Grow Your Garden.
                   </span>

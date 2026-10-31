@@ -31,8 +31,8 @@ export function Navbar() {
             />
           </div>
           <span className="hidden md:inline text-[22px] lg:text-[26px] transition-all">
-            <span className="font-semibold text-brand-grey group-hover:opacity-80 transition-opacity">Tape </span>
-            <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-grey to-brand-primary-900 group-hover:opacity-80 transition-opacity">Garden</span>
+            <span className="font-semibold text-brand-grey dark:text-brand-white group-hover:opacity-80 transition-opacity">Tape </span>
+            <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-grey dark:from-brand-white to-brand-primary-800 dark:to-brand-primary-100 group-hover:opacity-80 transition-opacity">Garden</span>
           </span>
         </Link>
       </div>

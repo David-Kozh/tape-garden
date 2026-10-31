@@ -13,7 +13,7 @@ export function CuratorBench({ tracks }: CuratorBenchProps) {
   return (
     <div className="flex flex-col gap-8 pb-6 mx-3 md:mx-0">
       <div className="flex justify-between items-end border-b border-zinc-400/80 pb-2">
-        <h2 className="text-xl font-bold text-zinc-900">Curator&apos;s Bench</h2>
+        <h2 className="text-xl font-bold text-muted-foreground">Curator&apos;s Bench</h2>
         <span className="text-xs text-emerald-600/80 font-semibold tracking-wider uppercase">
           {tracks.length < 10 ? `0${tracks.length}` : tracks.length} releases
         </span>
