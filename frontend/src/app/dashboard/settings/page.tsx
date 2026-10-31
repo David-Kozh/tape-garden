@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trash2, Plus, Upload, Loader2 } from "lucide-react";
+import { Trash2, Plus, Upload, Loader2, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { SocialIcon } from "@/components/social/SocialLinks";
 
@@ -347,13 +347,16 @@ export default function SettingsPage() {
                           <PlatformIcon control={form.control} index={index} />
                         </div>
                         <select
-                          className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent pl-8 pr-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          className="appearance-none flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent pl-8 pr-8 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                           {...form.register(`socialLinks.${index}.platform`)}
                         >
                           {socialPlatforms.map((p) => (
                             <option key={p} value={p}>{p}</option>
                           ))}
                         </select>
+                        <div className="absolute right-2.5 pointer-events-none text-muted-foreground flex items-center justify-center">
+                          <ChevronDown className="h-4 w-4 opacity-50" />
+                        </div>
                       </div>
                       <div className="flex-1 space-y-1">
                         <Input
