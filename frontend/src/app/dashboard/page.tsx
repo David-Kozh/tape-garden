@@ -209,7 +209,7 @@ export default function DashboardOverview() {
               </div>
               <div className="w-full bg-muted/50 rounded-full h-3 mb-1 overflow-hidden">
                 <div
-                  className={`h-3 rounded-full transition-all duration-500 ${beatProgress >= 100 ? 'bg-destructive' : 'bg-brand-secondary-500'}`}
+                  className={`h-3 rounded-full transition-all duration-500 ${beatProgress >= 100 ? 'bg-destructive' : 'bg-lilac-500'}`}
                   style={{ width: `${Math.min(beatProgress, 100)}%` }}
                 ></div>
               </div>
@@ -235,7 +235,7 @@ export default function DashboardOverview() {
               </div>
               <div className="w-full bg-muted/50 rounded-full h-3 mb-1 overflow-hidden">
                 <div
-                  className={`h-3 rounded-full transition-all duration-500 ${packProgress >= 100 ? 'bg-destructive' : 'bg-brand-primary-600'}`}
+                  className={`h-3 rounded-full transition-all duration-500 ${packProgress >= 100 ? 'bg-destructive' : 'bg-leaf-600'}`}
                   style={{ width: `${Math.min(packProgress, 100)}%` }}
                 ></div>
               </div>

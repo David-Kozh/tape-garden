@@ -81,7 +81,7 @@ export function BeatCard({ beat, showProducer = true }: BeatCardProps) {
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="flex items-center justify-center w-full h-full bg-brand-secondary-200/50 text-brand-secondary-200">
+          <div className="flex items-center justify-center w-full h-full bg-lilac-200/50 text-lilac-200">
             <Music className="w-20 h-20 group-hover:opacity-0 transition-opacity duration-300" />
           </div>
         )}

@@ -105,7 +105,7 @@ export function NavDrawer() {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <DrawerTitle className="font-bold text-base tracking-tight text-transparent bg-gradient-to-r from-brand-secondary-500 dark:from-brand-secondary-300 to-leaf-500 dark:to-leaf-300 bg-clip-text">
+                  <DrawerTitle className="font-bold text-base tracking-tight text-transparent bg-gradient-to-r from-lilac-500 dark:from-lilac-300 to-leaf-500 dark:to-leaf-300 bg-clip-text">
                     Tape Garden
                   </DrawerTitle>
                   <DrawerDescription className="text-xs text-muted-foreground/70">

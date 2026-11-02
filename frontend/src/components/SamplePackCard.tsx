@@ -35,7 +35,7 @@ export function SamplePackCard({ pack, showProducer = true }: SamplePackCardProp
 
   return (
     <Card className="overflow-hidden rounded-2xl group hover:ring-secondary/20 transition-colors duration-300 p-0 gap-0">
-      <div className="relative aspect-square rounded-2xl bg-brand-secondary-200/50 flex flex-col items-center justify-center text-brand-secondary-200">
+      <div className="relative aspect-square rounded-2xl bg-lilac-200/50 flex flex-col items-center justify-center text-lilac-200">
         <Link href={`/sample-packs/${pack.id}`} className="absolute inset-0 z-10">
           <span className="sr-only">View {pack.title}</span>
         </Link>

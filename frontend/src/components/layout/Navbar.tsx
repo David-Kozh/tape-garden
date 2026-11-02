@@ -21,7 +21,7 @@ export function Navbar() {
         <NavDrawer />
 
         <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-          <div className="w-15 h-10 sm:w-16 sm:h-12 rounded-lg bg-zinc-100/0 border border-brand-secondary-500/0 flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/0 group-hover:border-brand-accent-500/0 overflow-hidden p-0.5">
+          <div className="w-15 h-10 sm:w-16 sm:h-12 rounded-lg bg-zinc-100/0 border border-lilac-500/0 flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/0 group-hover:border-brand-accent-500/0 overflow-hidden p-0.5">
             <Image
               src="/logo.svg"
               alt="Tape Garden Logo"
@@ -32,7 +32,7 @@ export function Navbar() {
           </div>
           <span className="hidden md:inline text-[22px] lg:text-[26px] transition-all">
             <span className="font-semibold text-brand-grey dark:text-brand-white group-hover:opacity-80 transition-opacity">Tape </span>
-            <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-grey dark:from-brand-white to-brand-primary-800 dark:to-brand-primary-100 group-hover:opacity-80 transition-opacity">Garden</span>
+            <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-brand-grey dark:from-brand-white to-leaf-950 dark:to-leaf-50 group-hover:opacity-80 transition-opacity">Garden</span>
           </span>
         </Link>
       </div>
