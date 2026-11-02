@@ -56,7 +56,7 @@ export default async function Home() {
 
         {/* Hero Copy */}
         <div
-          className="w-full flex flex-col gap-6 relative p-6 md:p-12 lg:p-16 md:rounded-3xl overflow-hidden border-b md:border border-zinc-200/50 shadow-sm bg-background"
+          className="w-full flex flex-col gap-6 relative p-4 md:p-12 lg:p-16 md:rounded-3xl overflow-hidden border-b md:border border-zinc-200/50 shadow-sm bg-background"
         >
           <Image
             src={heroBackground}
@@ -79,22 +79,22 @@ export default async function Home() {
                 Curated Beats.<br />
                 <span className="relative inline-block mt-1">
                   <div className="absolute inset-x-[-7%] top-[-20%] bottom-[-35%] bg-background dark:bg-brand-white opacity-60 blur-[40px] -z-10 rounded-full pointer-events-none" />
-                  <span className="bg-gradient-to-r from-brand-primary-800 via-brand-primary-500 to-brand-secondary-600 bg-clip-text text-transparent relative z-10">
+                  <span className="bg-gradient-to-r from-leaf-700 via-leaf-950 to-lilac-950 bg-clip-text text-transparent relative z-10">
                     Grow Your Garden.
                   </span>
                 </span>
               </h1>
 
-              <div className="flex flex-col gap-8 p-6 md:p-8 rounded-2xl bg-gray-700/40 backdrop-blur-sm border border-white/30 shadow-sm max-w-2xl">
-                <p className="text-base lg:text-lg text-white/85 leading-relaxed">
+              <div className="flex flex-col gap-8 p-6 md:p-8 rounded-2xl bg-graphite-600/50 backdrop-blur-sm border border-white/30 shadow-sm max-w-2xl">
+                <p className="text-base lg:text-lg text-brand-white leading-relaxed tracking-wide">
                   A deliberately minimal space designed for music producers to show their best work.<br />Buy and sell beats without the extra noise.
                 </p>
 
                 <div className="flex items-center gap-4">
-                  <Link href="/gallery" className={buttonVariants({ variant: "default", size: "lg", className: "!bg-emerald-600 !border-emerald-600 hover:!bg-emerald-800 hover:!border-emerald-400 text-white/90 rounded-md !px-8 shadow-md !font-bold !text-md" })}>
+                  <Link href="/gallery" className={buttonVariants({ variant: "default", size: "lg", className: "!bg-leaf-500 !border-leaf-500 hover:!bg-leaf-800 hover:!border-leaf-400 text-white/90 rounded-md !px-8 shadow-md !font-bold !text-md" })}>
                     Browse
                   </Link>
-                  <Link href="/login" className={buttonVariants({ variant: "ghost", size: "lg", className: "!border-emerald-300 !text-emerald-300 hover:!bg-emerald-800 hover:!text-white/90 rounded-md !px-8 !font-bold !text-md" })}>
+                  <Link href="/login" className={buttonVariants({ variant: "ghost", size: "lg", className: "!border-lilac-400 !text-lilac-400 hover:!bg-lilac-800 hover:!text-white/90 rounded-md !px-8 !font-bold !text-md" })}>
                     Login
                   </Link>
                 </div>
@@ -102,7 +102,7 @@ export default async function Home() {
             </div>
 
             {/* Right Side Tag */}
-            <div className="order-first md:order-last inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-300/50 border border-emerald-500/20 text-emerald-700 text-xs lg:text-sm font-semibold whitespace-nowrap shrink-0 md:mt-3">
+            <div className="order-first md:order-last inline-flex items-center gap-2 px-3 py-1 rounded-full bg-leaf-300/50 border border-leaf-500/20 text-leaf-800 text-xs lg:text-sm font-semibold whitespace-nowrap shrink-0 md:mt-3">
               <Flower2 className="w-4 h-4 animate-pulse" />
               Now Entering Alpha
             </div>

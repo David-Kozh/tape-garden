@@ -78,16 +78,16 @@ export function FeedbackModal({
       )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Provide Feedback</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg">Provide Feedback</DialogTitle>
+          <DialogDescription className="text-base">
             Tell us what&apos;s working, what&apos;s broken, or what you want next.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="category"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="block text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               Category
             </label>
@@ -104,10 +104,10 @@ export function FeedbackModal({
               <option value="ux_issue">UX Issue</option>
             </select>
           </div>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <label
               htmlFor="message"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              className="block text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               Message
             </label>

@@ -23,23 +23,23 @@ interface CuratorCardProps {
 
 export function CuratorCard({ track, isPlaying, onPlayToggle }: CuratorCardProps) {
   return (
-    <Card className="group relative rounded-2xl border-zinc-200/80 bg-white/40 dark:bg-brand-white/10 backdrop-blur-sm hover:border-emerald-500/30 hover:bg-white/60 transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden p-0">
+    <Card className="group relative rounded-2xl border-zinc-200/80 bg-white/40 dark:bg-graphite-600 backdrop-blur-sm hover:border-emerald-500/30 hover:bg-white/60 transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden p-0">
       {/* Background Hover Glow */}
-      <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/0 via-emerald-500/0 to-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-gradient-to-b from-leaf-500/0 via-leaf-500/0 to-leaf-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0" />
 
       <CardContent className="p-0 flex flex-row items-stretch relative z-10 h-full">
         {/* Left Side: Text Content */}
         <div className="flex flex-col justify-between flex-1 gap-4 p-6 pr-4 lg:pr-8">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-[11px] text-emerald-700 dark:text-emerald-200 tracking-wider bg-emerald-100/50 dark:bg-emerald-900/50 hover:bg-emerald-100/50 pr-1 pl-1.5 py-0.5 rounded border border-emerald-500/20">
+              <Badge variant="secondary" className="text-[11px] text-leaf-700 dark:text-leaf-200 tracking-wider bg-leaf-100/30 dark:bg-leaf-900/30 hover:bg-leaf-100/50 pr-1 pl-1.5 py-0.5 rounded border border-leaf-500/20">
                 {track.type}
               </Badge>
               <span className="text-[11px] text-zinc-500 font-mono pt-0.5">{track.tempo}</span>
             </div>
 
             <Link href={`/beats/${track.id}`} className="hover:underline">
-              <h3 className="text-lg font-bold text-muted-foreground group-hover:text-emerald-700 transition-colors line-clamp-1">
+              <h3 className="text-lg font-bold text-muted-foreground group-hover:text-leaf-700 transition-colors line-clamp-1">
                 {track.title}
               </h3>
             </Link>
@@ -72,7 +72,7 @@ export function CuratorCard({ track, isPlaying, onPlayToggle }: CuratorCardProps
               className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="flex items-center justify-center w-full h-full bg-emerald-500/5 text-emerald-700/30 dark:text-emerald-500/50">
+            <div className="flex items-center justify-center w-full h-full bg-lilac-200/5 text-lilac-700/30 dark:text-lilac-500/50">
               <Volume2 className="w-8 h-8" />
             </div>
           )}
@@ -89,7 +89,7 @@ export function CuratorCard({ track, isPlaying, onPlayToggle }: CuratorCardProps
               className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform text-zinc-900 hover:bg-brand-accent-100"
             >
               {isPlaying ? (
-                <PauseCircle className="size-10 stroke-[1.5] text-emerald-600" />
+                <PauseCircle className="size-10 stroke-[1.5]" />
               ) : (
                 <PlayCircle className="size-10 stroke-[1.5]" />
               )}

@@ -80,7 +80,7 @@ export function NavDrawer() {
     <>
       <Drawer open={open} onOpenChange={setOpen} swipeDirection="left" modal="trap-focus">
         <DrawerTrigger
-          className="flex items-center justify-center p-2 -ml-2 -mr-2 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer"
+          className="text-muted-foreground dark:text-lilac-200 flex items-center justify-center p-2 -ml-2 -mr-2 rounded-md hover:bg-zinc-200/50 transition-colors focus:outline-none cursor-pointer"
           aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
@@ -105,7 +105,7 @@ export function NavDrawer() {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <DrawerTitle className="font-bold text-base tracking-tight text-transparent bg-gradient-to-r from-brand-secondary-500 dark:from-brand-secondary-300 to-brand-primary-500 dark:to-brand-primary-300 bg-clip-text">
+                  <DrawerTitle className="font-bold text-base tracking-tight text-transparent bg-gradient-to-r from-brand-secondary-500 dark:from-brand-secondary-300 to-leaf-500 dark:to-leaf-300 bg-clip-text">
                     Tape Garden
                   </DrawerTitle>
                   <DrawerDescription className="text-xs text-muted-foreground/70">
@@ -175,7 +175,7 @@ export function NavDrawer() {
                         <ShoppingBag className="w-5 h-5 shrink-0" />
                         <span>Cart</span>
                       </div>
-                      <span className="bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-xs">
+                      <span className="bg-leaf-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-xs">
                         {itemCount}
                       </span>
                     </Link>
@@ -381,7 +381,7 @@ export function NavDrawer() {
               <Link
                 href="/login"
                 onClick={handleLinkClick}
-                className="flex items-center justify-center gap-2 px-3 py-2.5 w-full text-sm font-semibold rounded-lg bg-brand-primary-500 text-white hover:bg-brand-primary-600 shadow-sm transition-colors cursor-pointer"
+                className="flex items-center justify-center gap-2 px-3 py-2.5 w-full text-sm font-semibold rounded-lg bg-leaf-600 text-white hover:bg-leaf-700 shadow-sm transition-colors cursor-pointer"
               >
                 <LogIn className="w-4 h-4 shrink-0" />
                 <span>Log In</span>

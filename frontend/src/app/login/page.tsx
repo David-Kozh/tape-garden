@@ -151,20 +151,20 @@ function LoginContent() {
   // Prevent flash of empty form while redirecting authenticated users
   if (authLoading || (user && !loading)) {
     return (
-      <div className="flex-1 w-full flex items-center justify-center text-zinc-900 py-24">
-        <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+      <div className="flex-1 w-full flex items-center justify-center text-muted-foreground py-24">
+        <Loader2 className="w-8 h-8 text-leaf-600 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="flex-1 w-full relative text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-center items-center px-4 overflow-x-hidden font-sans antialiased py-12 md:py-24">
+    <div className="flex-1 w-full relative text-muted-foreground selection:bg-leaf-500/20 selection:text-leaf-900 flex flex-col justify-center items-center px-4 overflow-x-hidden font-sans antialiased py-12 md:py-24">
 
       <div className="w-full max-w-md z-10 flex flex-col gap-8">
 
         {/* Sleek Logo / Header */}
         <div className="flex flex-col items-center gap-4 text-center">
-          <div className="w-18 h-12 rounded-lg bg-zinc-100/30 border border-emerald-500/20 flex items-center justify-center shadow-sm overflow-hidden p-0.5">
+          <div className="w-18 h-12 rounded-lg bg-muted-foreground/10 border border-leaf-500/20 flex items-center justify-center shadow-sm overflow-hidden">
             <Image
               src="/logo.svg"
               alt="Tape Garden Logo"
@@ -174,7 +174,7 @@ function LoginContent() {
             />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900">
+            <h1 className="text-2xl font-bold text-muted-foreground">
               {activeTab === "signin" ? "Enter the Garden" : "Join the Garden"}
             </h1>
             <p className="text-md text-zinc-500 mt-1 max-w-lg mx-auto">
@@ -187,7 +187,7 @@ function LoginContent() {
         </div>
 
         {/* Auth Container Card */}
-        <div className="relative rounded-2xl border border-zinc-200/80 bg-white/60 p-8 shadow-sm backdrop-blur-md">
+        <div className="relative rounded-2xl border border-border/30 bg-card p-8 shadow-sm backdrop-blur-md">
 
           <div className="flex flex-col gap-6">
 
@@ -196,7 +196,7 @@ function LoginContent() {
               onClick={handleGoogleSignIn}
               disabled={loading}
               id="google-signin-btn"
-              className="w-full py-4 px-4 rounded-xl bg-white border border-zinc-300 hover:bg-zinc-50 hover:border-zinc-400 text-zinc-700 text-md font-semibold transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer shadow-sm"
+              className="w-full py-4 px-4 rounded-xl bg-paper-100 dark:bg-graphite-500 border border-border hover:bg-zinc-50 hover:border-zinc-400 text-muted-foreground text-md font-semibold transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer shadow-sm"
             >
               <svg className="w-6 h-6" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -215,14 +215,14 @@ function LoginContent() {
             </div>
 
             {/* Email/Password Custom Tabs */}
-            <div className="flex rounded-lg bg-zinc-100/80 p-1 border border-zinc-200">
+            <div className="flex rounded-lg bg-input p-1 border border-border">
               <button
                 onClick={() => {
                   setActiveTab("signin");
                   setError(null);
                 }}
                 className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all duration-300 cursor-pointer ${activeTab === "signin"
-                  ? "bg-white text-emerald-800 shadow-sm border border-zinc-200/50"
+                  ? "bg-paper-50 dark:bg-graphite-600 text-leaf-500 shadow-sm border border-zinc-200/50"
                   : "text-zinc-500 hover:text-zinc-700"
                   }`}
               >
@@ -234,7 +234,7 @@ function LoginContent() {
                   setError(null);
                 }}
                 className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all duration-300 cursor-pointer ${activeTab === "register"
-                  ? "bg-white text-emerald-800 shadow-sm border border-zinc-200/50"
+                  ? "bg-white text-leaf-800 shadow-sm border border-zinc-200/50"
                   : "text-zinc-500 hover:text-zinc-700"
                   }`}
               >
@@ -256,11 +256,11 @@ function LoginContent() {
               {/* Full Name field (Register only) */}
               {activeTab === "register" && (
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="name-input" className="text-xs text-zinc-700 font-medium px-1">
+                  <label htmlFor="name-input" className="text-xs text-muted-foreground font-medium px-1">
                     Display Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
                       type="text"
                       id="name-input"
@@ -269,7 +269,7 @@ function LoginContent() {
                       placeholder="e.g. John Doe"
                       disabled={loading}
                       required={activeTab === "register"}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-emerald-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-leaf-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-muted-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-leaf-500/20"
                     />
                   </div>
                 </div>
@@ -277,11 +277,11 @@ function LoginContent() {
 
               {/* Email Address */}
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="email-input" className="text-xs text-zinc-700 font-medium px-1">
+                <label htmlFor="email-input" className="text-xs text-muted-foreground font-medium px-1">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="email"
                     id="email-input"
@@ -290,7 +290,7 @@ function LoginContent() {
                     placeholder="you@domain.com"
                     disabled={loading}
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-emerald-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-leaf-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-muted-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-leaf-500/20"
                   />
                 </div>
               </div>
@@ -298,12 +298,12 @@ function LoginContent() {
               {/* Password */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex justify-between items-center px-1">
-                  <label htmlFor="password-input" className="text-xs text-zinc-700 font-medium">
+                  <label htmlFor="password-input" className="text-xs text-muted-foreground font-medium">
                     Password
                   </label>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="password"
                     id="password-input"
@@ -312,7 +312,7 @@ function LoginContent() {
                     placeholder="•••••••"
                     disabled={loading}
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-emerald-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-leaf-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-muted-foreground placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-leaf-500/20"
                   />
                 </div>
               </div>
@@ -321,7 +321,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-md disabled:opacity-50 cursor-pointer"
+                className="w-full mt-2 py-3 px-4 rounded-xl bg-leaf-700 hover:bg-leaf-600 text-white font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-md disabled:opacity-50 cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -356,8 +356,8 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="flex-1 w-full flex items-center justify-center text-zinc-900 py-24">
-        <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+      <div className="flex-1 w-full flex items-center justify-center text-muted-foreground py-24">
+        <Loader2 className="w-8 h-8 text-leaf-600 animate-spin" />
       </div>
     }>
       <LoginContent />

@@ -15,7 +15,7 @@ export function Navbar() {
   const isGallery = pathname === "/gallery" || pathname === "/gallery/";
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border/50 bg-white/10 px-3 pb-2 pt-1.5 md:px-12 flex justify-between items-center transition-all duration-300 relative">
+    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-border/50 bg-paper-500/50 dark:bg-graphite-600/50 px-3 pb-2 pt-1.5 md:px-12 flex justify-between items-center transition-all duration-300 relative">
       <div className="flex items-center gap-3 md:gap-4 z-10">
         {/* Unified Navigation Drawer Trigger */}
         <NavDrawer />
@@ -51,12 +51,12 @@ export function Navbar() {
           <div className="flex items-center gap-4 md:gap-6">
             <Link
               href="/login"
-              className="text-sm font-semibold text-brand-primary-500 hover:text-brand-primary-400 transition-colors flex items-center gap-1"
+              className="text-sm font-semibold text-leaf-700 dark:text-leaf-500 hover:text-leaf-400 transition-colors flex items-center gap-1"
             >
               Login
               <ArrowRight className="w-3 h-3" />
             </Link>
-            <div className="h-5 w-[1px] bg-muted-foreground/60" />
+            <div className="h-5 w-[1px] bg-muted-foreground/50" />
           </div>
         )}
 
@@ -67,9 +67,9 @@ export function Navbar() {
               aria-label="View profile"
               className="relative group flex items-center justify-center"
             >
-              <UserCircle className="w-5 h-5 text-muted-foreground group-hover:text-emerald-700 transition-colors" />
+              <UserCircle className="w-5 h-5 text-muted-foreground group-hover:text-leaf-700 transition-colors" />
             </Link>
-            <div className="h-5 w-[1px] bg-muted-foreground/60" />
+            <div className="h-5 w-[1px] bg-muted-foreground/50" />
           </div>
         )}
 
@@ -80,9 +80,9 @@ export function Navbar() {
               aria-label="My collection"
               className="relative group flex items-center justify-center"
             >
-              <Library className="w-5 h-5 text-muted-foreground group-hover:text-emerald-700 transition-colors" />
+              <Library className="w-5 h-5 text-muted-foreground group-hover:text-leaf-700 transition-colors" />
             </Link>
-            <div className="h-5 w-[1px] bg-muted-foreground/60" />
+            <div className="h-5 w-[1px] bg-muted-foreground/50" />
           </div>
         )}
 
@@ -92,9 +92,9 @@ export function Navbar() {
           aria-label="Shopping cart"
           className="relative group flex items-center justify-center"
         >
-          <ShoppingBag className="w-5 h-5 text-muted-foreground group-hover:text-emerald-700 transition-colors" />
+          <ShoppingBag className="w-5 h-5 text-muted-foreground dark:text-lilac-200 group-hover:text-leaf-700 transition-colors" />
           {itemCount > 0 && (
-            <span className="absolute -top-1.5 -right-2 bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-md">
+            <span className="absolute -top-1.5 -right-2 bg-leaf-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-md">
               {itemCount}
             </span>
           )}

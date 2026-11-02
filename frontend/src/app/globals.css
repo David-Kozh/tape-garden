@@ -69,8 +69,51 @@
   --color-brand-bglight-600: #debda9;
   --color-brand-bglight-700: #c6a896;
 
-  --color-brand-bgdark: #2b2d2e;
-  /* ^ same as brand-gray for now */
+  --color-graphite-50: #727272;
+  --color-graphite-100: #6a6a6a;
+  --color-graphite-200: #5e5e5e;
+  --color-graphite-300: #555555;
+  --color-graphite-400: #494949;
+  --color-graphite-500: #3e3e3e;
+  --color-graphite-600: #343231;
+  --color-graphite-700: #2b2a28;
+  --color-graphite-800: #211f1c;
+  --color-graphite-900: #141312;
+  --color-graphite-950: #0b0b0b;
+  --color-lilac-50: #e8d8e8;
+  --color-lilac-100: #e2cee2;
+  --color-lilac-200: #dac2da;
+  --color-lilac-300: #d1b2d1;
+  --color-lilac-400: #c8a2c8;
+  --color-lilac-500: #bb8cbb;
+  --color-lilac-600: #aa78aa;
+  --color-lilac-700: #976b97;
+  --color-lilac-800: #825b82;
+  --color-lilac-900: #6d4c6d;
+  --color-lilac-950: #624462;
+  --color-leaf-50: #9ffcbf;
+  --color-leaf-50: #abfac0;
+  --color-leaf-100: #78f699;
+  --color-leaf-200: #67e48f;
+  --color-leaf-300: #57cf85;
+  --color-leaf-400: #49bd7b;
+  --color-leaf-500: #39a96f;
+  --color-leaf-600: #2b9865;
+  --color-leaf-700: #1b8559;
+  --color-leaf-800: #07744f;
+  --color-leaf-900: #006143;
+  --color-leaf-950: #00593f;
+  --color-paper-50: #fefcfa;
+  --color-paper-100: #fef8f5;
+  --color-paper-200: #fdf1eb;
+  --color-paper-300: #fbebe1;
+  --color-paper-400: #fae4d7;
+  --color-paper-500: #f9dbc9;
+  --color-paper-600: #f6c5a3;
+  --color-paper-700: #f4ac6f;
+  --color-paper-800: #e3984e;
+  --color-paper-900: #ce8946;
+  --color-paper-950: #c08041;
 
   --color-brand-primary-100: #90ab8b;
   --color-brand-primary-200: #7e9d77;
@@ -121,9 +164,6 @@
   --color-brand-bglight-500: #f7d2bc;
   --color-brand-bglight-600: #debda9;
   --color-brand-bglight-700: #c6a896;
-
-  --color-brand-bgdark: #2b2d2e;
-  /* ^ same as brand-gray for now */
 
   --color-brand-primary-100: #90ab8b;
   --color-brand-primary-200: #7e9d77;
@@ -176,15 +216,15 @@
   --text2: #e5e5ff;
   --text3: #606077;
 
-  --background: var(--color-brand-bglight-300);
+  --background: var(--color-paper-400);
   --foreground: var(--color-brand-black);
-  --card: var(--color-brand-bglight-200);
+  --card: var(--color-paper-300);
   --card-foreground: var(--color-brand-black);
-  --popover: var(--color-brand-bglight-200);
+  --popover: var(--color-paper-300);
   --popover-foreground: var(--color-brand-black);
-  --primary: var(--color-brand-primary-500);
+  --primary: var(--color-leaf-600);
   --primary-foreground: var(--color-brand-white);
-  --secondary: var(--color-brand-secondary-500);
+  --secondary: var(--color-lilac-600);
   --secondary-foreground: var(--color-brand-white);
   --muted: var(--color-brand-grey);
   --muted-foreground: var(--color-brand-grey);
@@ -192,7 +232,7 @@
   --accent-foreground: var(--color-brand-black);
   --destructive: var(--beat-terracotta);
   --border: var(--color-brand-lgrey);
-  --input: var(--color-brand-lgrey2);
+  --input: var(--color-paper-200);
   --ring: oklch(0.45 0.22 285);
   --chart-1: oklch(0.5 0.22 285);
   --chart-2: oklch(0.6 0.18 320);
@@ -217,23 +257,23 @@
   --beat-moss: #5C873C;
   --beat-terracotta: #C95D40;
 
-  --background: var(--beat-graphite);
+  --background: var(--color-graphite-800);
   --foreground: var(--color-brand-white);
-  --card: var(--beat-graphite);
+  --card: var(--color-graphite-600);
   --card-foreground: var(--color-brand-white);
-  --popover: var(--beat-graphite);
+  --popover: var(--color-graphite-700);
   --popover-foreground: var(--color-brand-white);
-  --primary: var(--color-brand-primary-500);
+  --primary: var(--color-leaf-800);
   --primary-foreground: var(--color-brand-white);
-  --secondary: var(--color-brand-accent-800);
+  --secondary: var(--color-lilac-700);
   --secondary-foreground: var(--color-brand-white);
   --muted: oklch(0.269 0 0);
   --muted-foreground: var(--color-brand-lgrey1);
-  --accent: var(--color-brand-accent-400);
-  --accent-foreground: var(--beat-paper);
+  --accent: var(--color-lilac-500);
+  --accent-foreground: var(---color-brand-white);
   --destructive: var(--beat-terracotta);
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --input: var(--color-graphite-600);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
