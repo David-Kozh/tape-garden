@@ -35,7 +35,7 @@ export function SamplePackCard({ pack, showProducer = true }: SamplePackCardProp
 
   return (
     <Card className="overflow-hidden rounded-2xl group hover:ring-secondary/20 transition-colors duration-300 p-0 gap-0">
-      <div className="relative aspect-square rounded-2xl bg-lilac-200/50 flex flex-col items-center justify-center text-lilac-200">
+      <div className="relative aspect-square rounded-2xl bg-lilac-200/50 dark:bg-lilac-900/50 flex flex-col items-center justify-center text-lilac-500">
         <Link href={`/sample-packs/${pack.id}`} className="absolute inset-0 z-10">
           <span className="sr-only">View {pack.title}</span>
         </Link>
@@ -61,7 +61,7 @@ export function SamplePackCard({ pack, showProducer = true }: SamplePackCardProp
         {/* Tags */}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap z-20 pointer-events-none">
           {pack.tags?.slice(0, 2).map((tag) => (
-            <Badge key={tag} className="bg-black/5 hover:bg-black/10 border border-black/5 backdrop-blur-sm text-xs">
+            <Badge key={tag} className="bg-black/10 border border-black/5 backdrop-blur-sm text-xs dark:text-muted-foreground/80">
               {tag}
             </Badge>
           ))}

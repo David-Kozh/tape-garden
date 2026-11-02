@@ -51,7 +51,7 @@ export function Navbar() {
           <div className="flex items-center gap-4 md:gap-6">
             <Link
               href="/login"
-              className="text-sm font-semibold text-leaf-700 dark:text-leaf-500 hover:text-leaf-400 transition-colors flex items-center gap-1"
+              className="text-sm font-semibold text-leaf-700 dark:text-leaf-600 hover:text-leaf-400 transition-colors flex items-center gap-1"
             >
               Login
               <ArrowRight className="w-3 h-3" />
@@ -67,7 +67,7 @@ export function Navbar() {
               aria-label="View profile"
               className="relative group flex items-center justify-center"
             >
-              <UserCircle className="w-5 h-5 text-muted-foreground group-hover:text-leaf-700 transition-colors" />
+              <UserCircle className="w-5 h-5 text-muted-foreground dark:text-lilac-200 group-hover:text-leaf-700 transition-colors" />
             </Link>
             <div className="h-5 w-[1px] bg-muted-foreground/50" />
           </div>
@@ -80,7 +80,7 @@ export function Navbar() {
               aria-label="My collection"
               className="relative group flex items-center justify-center"
             >
-              <Library className="w-5 h-5 text-muted-foreground group-hover:text-leaf-700 transition-colors" />
+              <Library className="w-5 h-5 text-muted-foreground dark:text-lilac-200 group-hover:text-leaf-700 transition-colors" />
             </Link>
             <div className="h-5 w-[1px] bg-muted-foreground/50" />
           </div>

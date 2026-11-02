@@ -81,7 +81,7 @@ export function BeatCard({ beat, showProducer = true }: BeatCardProps) {
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="flex items-center justify-center w-full h-full bg-lilac-200/50 text-lilac-200">
+          <div className="flex items-center justify-center w-full h-full bg-lilac-200/50 dark:bg-lilac-500/30 text-lilac-500">
             <Music className="w-20 h-20 group-hover:opacity-0 transition-opacity duration-300" />
           </div>
         )}
@@ -105,7 +105,7 @@ export function BeatCard({ beat, showProducer = true }: BeatCardProps) {
         {/* Tags */}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap z-20 pointer-events-none">
           {beat.tags?.slice(0, 2).map((tag) => (
-            <Badge key={tag} className="bg-black/5 hover:bg-black/10 border border-black/5 backdrop-blur-sm text-xs text-muted/80">
+            <Badge key={tag} className="bg-black/10 border border-black/5 backdrop-blur-sm text-xs text-muted/80 dark:text-muted-foreground/80">
               {tag}
             </Badge>
           ))}

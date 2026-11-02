@@ -44,9 +44,8 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
   };
 
   return (
-    <div className={`container mx-auto px-4 pt-8 max-w-5xl transition-all duration-300 ${
-      currentTrack ? "pb-36" : "pb-8"
-    }`}>
+    <div className={`container mx-auto px-4 pt-8 max-w-5xl transition-all duration-300 ${currentTrack ? "pb-36" : "pb-8"
+      }`}>
       {/* Hero Section */}
       <div className="flex flex-col md:flex-row gap-8 mb-12 items-start">
         {/* Cover Art */}
@@ -156,7 +155,7 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
                   )}
                 </ul>
               </CardContent>
-              <CardFooter className="!bg-brand-bglight-600">
+              <CardFooter className="!bg-brand-bglight-600 !dark:bg-brand-bgdark-600">
                 {beat.producer.acceptingPayments ? (
                   <Button className="w-full" onClick={() => handleAddToCart(license)}>Add to Cart</Button>
                 ) : (
