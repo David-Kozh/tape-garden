@@ -95,7 +95,7 @@ export function NavDrawer() {
                 onClick={handleLinkClick}
                 className="flex items-center gap-3 group cursor-pointer"
               >
-                <div className="w-12 h-9 rounded-lg flex items-center justify-center transition-all duration-300 group-hover:bg-brand-accent-500/30 group-hover:border-brand-accent-500/50 overflow-hidden">
+                <div className="w-12 h-9 rounded-lg flex items-center justify-center transition-all duration-300 group-hover:bg-leaf-300/30 group-hover:border-leaf-300/50 overflow-hidden">
                   <Image
                     src="/logo.svg"
                     alt="Tape Garden Logo"
