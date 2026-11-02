@@ -231,7 +231,7 @@
   --accent: var(--color-brand-accent-500);
   --accent-foreground: var(--color-brand-black);
   --destructive: var(--beat-terracotta);
-  --border: var(--color-brand-lgrey);
+  --border: var(--color-brand-lgrey1);
   --input: var(--color-paper-200);
   --ring: oklch(0.45 0.22 285);
   --chart-1: oklch(0.5 0.22 285);
@@ -267,7 +267,7 @@
   --primary-foreground: var(--color-brand-white);
   --secondary: var(--color-lilac-700);
   --secondary-foreground: var(--color-brand-white);
-  --muted: oklch(0.269 0 0);
+  --muted: var(--color-graphite-300);
   --muted-foreground: var(--color-brand-lgrey1);
   --accent: var(--color-lilac-500);
   --accent-foreground: var(---color-brand-white);

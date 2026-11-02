@@ -209,9 +209,9 @@ function LoginContent() {
 
             {/* Visual Separator */}
             <div className="flex items-center gap-4 py-1">
-              <div className="h-[1px] flex-1 bg-zinc-300" />
-              <span className="text-[12px] text-zinc-500 font-mono uppercase tracking-widest">or email</span>
-              <div className="h-[1px] flex-1 bg-zinc-300" />
+              <div className="h-[1px] flex-1 bg-muted-foreground/50" />
+              <span className="text-[12px] text-muted-foreground/80 font-mono uppercase tracking-widest">or email</span>
+              <div className="h-[1px] flex-1 bg-muted-foreground/50" />
             </div>
 
             {/* Email/Password Custom Tabs */}
@@ -221,9 +221,9 @@ function LoginContent() {
                   setActiveTab("signin");
                   setError(null);
                 }}
-                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all duration-300 cursor-pointer ${activeTab === "signin"
-                  ? "bg-paper-50 dark:bg-graphite-600 text-leaf-500 shadow-sm border border-zinc-200/50"
-                  : "text-zinc-500 hover:text-zinc-700"
+                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all duration-200 cursor-pointer ${activeTab === "signin"
+                  ? "bg-paper-50 dark:bg-graphite-500 text-leaf-500 shadow-sm border border-border"
+                  : "text-zinc-500 hover:text-zinc-700 dark:hover:text-brand-white"
                   }`}
               >
                 Sign In
@@ -233,9 +233,9 @@ function LoginContent() {
                   setActiveTab("register");
                   setError(null);
                 }}
-                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all duration-300 cursor-pointer ${activeTab === "register"
-                  ? "bg-white text-leaf-800 shadow-sm border border-zinc-200/50"
-                  : "text-zinc-500 hover:text-zinc-700"
+                className={`flex-1 py-1.5 px-3 rounded-md text-xs font-semibold transition-all duration-200 cursor-pointer ${activeTab === "register"
+                  ? "bg-paper-50 dark:bg-graphite-500 text-leaf-500 shadow-sm border border-border"
+                  : "text-zinc-500 hover:text-zinc-700 dark:hover:text-brand-white"
                   }`}
               >
                 Create Account
@@ -269,7 +269,7 @@ function LoginContent() {
                       placeholder="e.g. John Doe"
                       disabled={loading}
                       required={activeTab === "register"}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-leaf-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-muted-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-leaf-500/20"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-paper-50 dark:bg-graphite-500 border border-border focus:border-leaf-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-muted-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-leaf-500/20"
                     />
                   </div>
                 </div>
@@ -290,7 +290,7 @@ function LoginContent() {
                     placeholder="you@domain.com"
                     disabled={loading}
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-leaf-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-muted-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-leaf-500/20"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-paper-50 dark:bg-graphite-500 border border-border focus:border-leaf-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-muted-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-leaf-500/20"
                   />
                 </div>
               </div>
@@ -312,7 +312,7 @@ function LoginContent() {
                     placeholder="•••••••"
                     disabled={loading}
                     required
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/60 border border-zinc-300 focus:border-leaf-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-muted-foreground placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-leaf-500/20"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-paper-50 dark:bg-graphite-500 border border-border focus:border-leaf-500/50 focus:bg-white hover:border-zinc-400 transition-all text-sm text-muted-foreground placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-leaf-500/20"
                   />
                 </div>
               </div>
@@ -321,7 +321,7 @@ function LoginContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-3 px-4 rounded-xl bg-leaf-700 hover:bg-leaf-600 text-white font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-md disabled:opacity-50 cursor-pointer"
+                className="w-full mt-2 py-3 px-4 rounded-xl bg-leaf-800 hover:bg-leaf-600 text-white font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-md disabled:opacity-50 cursor-pointer"
               >
                 {loading ? (
                   <>
@@ -343,9 +343,9 @@ function LoginContent() {
         {/* Back Link to Gallery */}
         <button
           onClick={() => router.push("/")}
-          className="text-xs text-zinc-600 hover:text-zinc-800 transition-colors text-center font-medium tracking-wide cursor-pointer"
+          className="text-xs text-muted-foreground hover:text-zinc-800 dark:hover:text-brand-white transition-colors text-center font-medium tracking-wide cursor-pointer"
         >
-          ← Return to Curated Home page
+          ← Return to Tape Garden
         </button>
 
       </div>

@@ -62,7 +62,7 @@ export default function ApplyPage() {
 
   if (isSuccess) {
     return (
-      <main className="min-h-screen bg-background text-foreground flex items-center justify-center p-6">
+      <main className="h-full bg-background text-foreground flex items-center justify-center p-6">
         <div className="max-w-md w-full space-y-6 text-center">
           <h1 className="text-2xl font-medium tracking-tight">Application Received</h1>
           <p className="text-muted-foreground leading-relaxed">
@@ -74,12 +74,12 @@ export default function ApplyPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground flex items-center justify-center p-6">
-      <div className="max-w-xl w-full py-12 space-y-10">
+    <main className="h-full bg-background text-foreground flex justify-center p-6">
+      <div className="max-w-xl w-full py-4 space-y-10">
         <header className="space-y-4">
           <h1 className="text-3xl font-medium tracking-tight">Apply for Tape Garden</h1>
           <p className="text-muted-foreground leading-relaxed">
-            We are currently reviewing producers for the next intake. Please share your details and a link to your best work.
+            We are always reviewing producers for the next intake. Please share your details and a link to your work.
           </p>
         </header>
 
@@ -100,7 +100,7 @@ export default function ApplyPage() {
                 {...register("displayName")}
                 disabled={isSubmitting}
                 className="w-full px-4 py-3 bg-background text-foreground border border-input rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring disabled:opacity-50 transition-colors"
-                placeholder="How should we call you?"
+                placeholder="What should we call you?"
               />
               {errors.displayName && (
                 <p className="text-sm text-destructive">{errors.displayName.message}</p>
@@ -151,7 +151,7 @@ export default function ApplyPage() {
                 disabled={isSubmitting}
                 rows={4}
                 className="w-full px-4 py-3 bg-background text-foreground border border-input rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring disabled:opacity-50 transition-colors resize-y"
-                placeholder="Anything else you'd like us to know?"
+                placeholder="Anything else you'd like us to know? (i.e. what genres you produce, any links to your socials, etc.)"
               />
               {errors.note && (
                 <p className="text-sm text-destructive">{errors.note.message}</p>

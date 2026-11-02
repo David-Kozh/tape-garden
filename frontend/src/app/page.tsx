@@ -75,7 +75,7 @@ export default async function Home() {
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start gap-2 w-full">
             {/* Left Side Copy */}
             <div className="flex flex-col gap-8 max-w-3xl">
-              <h1 className="text-4xl md:text-6xl font-lexend font-bold tracking-tight text-zinc-900 leading-tight">
+              <h1 className="text-4xl md:text-6xl font-lexend font-bold tracking-tight text-brand-black leading-tight">
                 Curated Beats.<br />
                 <span className="relative inline-block mt-1">
                   <div className="absolute inset-x-[-7%] top-[-20%] bottom-[-35%] bg-background dark:bg-brand-white opacity-60 blur-[40px] -z-10 rounded-full pointer-events-none" />
@@ -117,7 +117,7 @@ export default async function Home() {
       {/* Footer */}
       <footer className="border-t border-zinc-400/40 px-6 pt-4 pb-2 md:px-12 text-zinc-500 text-xs flex flex-col md:flex-row justify-between items-center gap-4 mt-auto">
         <div className="flex items-center gap-2">
-          <CassetteTape className="w-4 h-4 text-emerald-600/60" />
+          <CassetteTape className="w-5 h-5 text-leaf-600/60" />
           <span>&copy; {new Date().getFullYear()} Tape Garden. All rights reserved.</span>
         </div>
         <div className="flex gap-6">
