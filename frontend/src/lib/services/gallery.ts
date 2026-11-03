@@ -1,8 +1,13 @@
 "use server";
 
 import { adminDb } from "../firebase-admin";
-import { Beat, User, BeatLicense } from "../../types";
+import { Beat, SamplePack, User, BeatLicense } from "../../types";
+import { SamplePackWithProducer } from "./samplePacks";
 import { Query, QueryDocumentSnapshot } from "firebase-admin/firestore";
+
+export type CuratedCatalogItem =
+  | ({ itemType: "beat" } & BeatWithProducer)
+  | ({ itemType: "samplePack" } & SamplePackWithProducer);
 
 export interface BeatWithProducer extends Omit<Beat, "licenses"> {
   producer: {
@@ -202,50 +207,54 @@ export async function getApprovedProducers(options: GetProducersOptions = {}): P
 }
 
 /**
- * Fetches a random selection of published and curated beats.
- * Since curated beats are a small manually-selected subset, we can efficiently
+ * Fetches a random selection of published and curated items (beats and sample packs).
+ * Since curated items are a small manually-selected subset, we can efficiently
  * fetch a pool of them and randomly select the desired count on the server.
  */
-export async function getRandomCuratedBeats(count: number = 2): Promise<BeatWithProducer[]> {
+export async function getRandomCuratedItems(count: number = 2): Promise<CuratedCatalogItem[]> {
   const beatsRef = adminDb.collection("beats");
-  
-  // 1. Fetch published & curated beats (limiting to an upper bound for safety)
-  // Multiple equality filters (`==`) are efficiently handled by Firestore via Index Merging.
-  const q = beatsRef
-    .where("status", "==", "published")
-    .where("curated", "==", true)
-    .limit(100); 
+  const packsRef = adminDb.collection("samplePacks");
 
-  const snapshot = await q.get();
-  
-  if (snapshot.empty) {
+  // 1. Fetch published & curated beats and sample packs in parallel
+  const [beatsSnapshot, packsSnapshot] = await Promise.all([
+    beatsRef.where("status", "==", "published").where("curated", "==", true).limit(100).get(),
+    packsRef.where("status", "==", "published").where("curated", "==", true).limit(100).get(),
+  ]);
+
+  if (beatsSnapshot.empty && packsSnapshot.empty) {
     return [];
   }
-  
-  const allCuratedDocs = snapshot.docs;
-  
+
+  const combinedPool: Array<{ itemType: "beat" | "samplePack"; doc: QueryDocumentSnapshot }> = [
+    ...beatsSnapshot.docs.map((doc) => ({ itemType: "beat" as const, doc })),
+    ...packsSnapshot.docs.map((doc) => ({ itemType: "samplePack" as const, doc })),
+  ];
+
   // 2. Server-side random shuffle
-  const shuffled = allCuratedDocs.sort(() => 0.5 - Math.random());
-  const selectedDocs = shuffled.slice(0, count);
-  
-  // 3. Map to Beat objects
-  const beats = selectedDocs.map((doc: QueryDocumentSnapshot) => {
+  const shuffled = combinedPool.sort(() => 0.5 - Math.random());
+  const selectedEntries = shuffled.slice(0, count);
+
+  // 3. Map to raw objects & collect producer IDs
+  const rawItems = selectedEntries.map(({ itemType, doc }) => {
     const data = doc.data();
     return {
-      id: doc.id,
-      ...data,
-      createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
-      updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : data.updatedAt
-    } as Beat;
+      itemType,
+      data: {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+      } as Beat | SamplePack,
+    };
   });
 
   // 4. Populate producers efficiently
-  const producerIds = Array.from(new Set(beats.map((b: Beat) => b.producerId).filter(Boolean)));
-  
+  const producerIds = Array.from(new Set(rawItems.map((entry) => entry.data.producerId).filter(Boolean)));
+
   const producersMap = new Map<string, Partial<User> & { uid: string }>();
   if (producerIds.length > 0) {
     const producerDocs = await Promise.all(
-      producerIds.map(id => adminDb.collection("users").doc(id).get())
+      producerIds.map((id) => adminDb.collection("users").doc(id).get())
     );
     for (const doc of producerDocs) {
       if (doc.exists) {
@@ -254,27 +263,40 @@ export async function getRandomCuratedBeats(count: number = 2): Promise<BeatWith
     }
   }
 
-  const beatsWithProducers: BeatWithProducer[] = beats.map((beat: Beat) => {
-    const producer = producersMap.get(beat.producerId);
-    
-    // Strip fileUrl for safety
-    const safeLicenses = beat.licenses?.map((license: BeatLicense) => ({
-      type: license.type,
-      price: license.price
-    })) as Omit<BeatLicense, "fileUrl">[];
-
-    return {
-      ...beat,
-      licenses: safeLicenses,
-      producer: {
-        uid: beat.producerId,
-        displayName: producer?.displayName || "Unknown Producer",
-        avatarUrl: producer?.producerProfile?.avatarUrl,
-        acceptingPayments: producer?.producerProfile?.stripeStatus === "active",
-      }
+  const itemsWithProducers: CuratedCatalogItem[] = rawItems.map(({ itemType, data }) => {
+    const producer = producersMap.get(data.producerId);
+    const producerInfo = {
+      uid: data.producerId,
+      displayName: producer?.displayName || "Unknown Producer",
+      avatarUrl: producer?.producerProfile?.avatarUrl,
+      acceptingPayments: producer?.producerProfile?.stripeStatus === "active",
     };
+
+    if (itemType === "beat") {
+      const beat = data as Beat;
+      const safeLicenses = beat.licenses?.map((license: BeatLicense) => ({
+        type: license.type,
+        price: license.price,
+      })) as Omit<BeatLicense, "fileUrl">[];
+
+      return {
+        ...beat,
+        itemType: "beat",
+        licenses: safeLicenses,
+        producer: producerInfo,
+      };
+    } else {
+      const pack = data as SamplePack;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { fileUrl, ...safePack } = pack;
+      return {
+        ...safePack,
+        itemType: "samplePack",
+        producer: producerInfo,
+      };
+    }
   });
 
-  return JSON.parse(JSON.stringify(beatsWithProducers));
+  return JSON.parse(JSON.stringify(itemsWithProducers));
 }
 

@@ -3,57 +3,58 @@
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs, orderBy, Timestamp } from "firebase/firestore";
-import { FlaggedBeat } from "@/types";
-import { resolveFlaggedBeat } from "@/lib/services/adminClient";
+import { FlaggedItem, ItemType } from "@/types";
+import { resolveFlaggedItem } from "@/lib/services/adminClient";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, CheckCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminModerationDashboard() {
-  const [flaggedBeats, setFlaggedBeats] = useState<FlaggedBeat[]>([]);
+  const [flaggedItems, setFlaggedItems] = useState<FlaggedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchFlaggedBeats() {
+    async function fetchFlaggedItems() {
       try {
         setLoading(true);
         const q = query(
-          collection(db, "flaggedBeats"),
+          collection(db, "flaggedItems"),
           where("status", "==", "pending"),
           orderBy("flaggedAt", "desc")
         );
         const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => doc.data() as FlaggedBeat);
-        setFlaggedBeats(data);
+        const data = snapshot.docs.map(doc => doc.data() as FlaggedItem);
+        setFlaggedItems(data);
       } catch (error) {
-        console.error("Error fetching flagged beats:", error);
+        console.error("Error fetching flagged items:", error);
         toast.error("Error fetching moderation queue", {
-          description: "Failed to load flagged beats.",
+          description: "Failed to load flagged items.",
         });
       } finally {
         setLoading(false);
       }
     }
 
-    fetchFlaggedBeats();
+    fetchFlaggedItems();
   }, []);
 
-  async function handleResolve(beatId: string, action: 'dismiss' | 'remove') {
+  async function handleResolve(itemId: string, itemType: ItemType, action: 'dismiss' | 'remove') {
     try {
-      setProcessingId(beatId);
-      await resolveFlaggedBeat(beatId, action);
+      setProcessingId(itemId);
+      await resolveFlaggedItem(itemId, itemType, action);
       
-      setFlaggedBeats(prev => prev.filter(fb => fb.beatId !== beatId));
+      setFlaggedItems(prev => prev.filter(item => item.itemId !== itemId));
       
       toast.success("Success", {
-        description: action === 'dismiss' ? "Flag dismissed successfully." : "Beat removed successfully.",
+        description: action === 'dismiss' ? "Flag dismissed successfully." : "Item removed successfully.",
       });
     } catch (error) {
       console.error("Error resolving flag:", error);
       toast.error("Action failed", {
-        description: "Failed to resolve the flagged beat.",
+        description: "Failed to resolve the flagged item.",
       });
     } finally {
       setProcessingId(null);
@@ -75,7 +76,7 @@ export default function AdminModerationDashboard() {
           <ShieldAlert className="h-8 w-8 text-destructive" />
           Moderation Queue
         </h1>
-        <p className="text-muted-foreground mt-1">Review and manage flagged beats on the platform.</p>
+        <p className="text-muted-foreground mt-1">Review and manage flagged items on the platform.</p>
       </div>
 
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
@@ -87,14 +88,14 @@ export default function AdminModerationDashboard() {
             <TableHeader>
               <TableRow>
                 <TableHead>Date Flagged</TableHead>
-                <TableHead>Beat</TableHead>
+                <TableHead>Item</TableHead>
                 <TableHead>Producer</TableHead>
                 <TableHead>Reason</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {flaggedBeats.length === 0 ? (
+              {flaggedItems.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center">
@@ -104,24 +105,31 @@ export default function AdminModerationDashboard() {
                   </TableCell>
                 </TableRow>
               ) : (
-                flaggedBeats.map((fb) => {
-                  const date = fb.flaggedAt instanceof Date 
-                    ? fb.flaggedAt 
-                    : typeof fb.flaggedAt === 'string'
-                      ? new Date(fb.flaggedAt)
-                      : (fb.flaggedAt as Timestamp).toDate();
+                flaggedItems.map((fi) => {
+                  const date = fi.flaggedAt instanceof Date 
+                    ? fi.flaggedAt 
+                    : typeof fi.flaggedAt === 'string'
+                      ? new Date(fi.flaggedAt)
+                      : (fi.flaggedAt as Timestamp).toDate();
                   
-                  const isProcessing = processingId === fb.beatId;
+                  const isProcessing = processingId === fi.itemId;
 
                   return (
-                    <TableRow key={fb.beatId}>
+                    <TableRow key={fi.itemId}>
                       <TableCell className="text-muted-foreground whitespace-nowrap">
                         {date.toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="font-medium">{fb.title}</TableCell>
-                      <TableCell>{fb.producerName}</TableCell>
-                      <TableCell className="max-w-[300px] truncate text-muted-foreground" title={fb.reason}>
-                        {fb.reason}
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <span>{fi.title}</span>
+                          <Badge variant="secondary" className="text-xs">
+                            {fi.itemType === "samplePack" ? "Sample Pack" : "Beat"}
+                          </Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell>{fi.producerName}</TableCell>
+                      <TableCell className="max-w-[300px] truncate text-muted-foreground" title={fi.reason}>
+                        {fi.reason}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
@@ -129,7 +137,7 @@ export default function AdminModerationDashboard() {
                             variant="outline" 
                             size="sm"
                             disabled={isProcessing}
-                            onClick={() => handleResolve(fb.beatId, 'dismiss')}
+                            onClick={() => handleResolve(fi.itemId, fi.itemType, 'dismiss')}
                           >
                             Dismiss
                           </Button>
@@ -137,11 +145,11 @@ export default function AdminModerationDashboard() {
                             variant="destructive" 
                             size="sm"
                             disabled={isProcessing}
-                            onClick={() => handleResolve(fb.beatId, 'remove')}
+                            onClick={() => handleResolve(fi.itemId, fi.itemType, 'remove')}
                             className="gap-1.5"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                            Remove Beat
+                            Remove Item
                           </Button>
                         </div>
                       </TableCell>

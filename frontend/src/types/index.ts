@@ -90,6 +90,7 @@ export interface SamplePack {
   description: string;
   tags: string[];
   price: number;
+  coverArtUrl?: string;
   status: "draft" | "published" | "hidden" | "suspended";
   createdAt: Date | string;
   updatedAt: Date | string;
@@ -99,6 +100,9 @@ export interface SamplePack {
 
   // GCS path to downloadable archive ZIP (Private GCS)
   fileUrl: string;
+
+  // Admin curation
+  curated?: boolean;
 }
 
 /**
@@ -140,11 +144,12 @@ export interface Application {
 }
 
 /**
- * 8. Flagged Beats Collection
- * Matches collection `/flaggedBeats`
+ * 8. Flagged Items Collection
+ * Matches collection `/flaggedItems`
  */
-export interface FlaggedBeat {
-  beatId: string;
+export interface FlaggedItem {
+  itemId: string;
+  itemType: ItemType;
   flaggedBy: string; // Admin UID
   flaggedAt: Date | string;
   reason: string;

@@ -1,62 +1,65 @@
 import { db, auth } from "../firebase";
 import { doc, updateDoc, setDoc, serverTimestamp, getDoc, deleteDoc } from "firebase/firestore";
-import { Beat } from "@/types";
+import { Beat, SamplePack, ItemType } from "@/types";
 
 /**
- * Toggles the curated status of a beat.
+ * Toggles the curated status of a beat or sample pack.
  */
-export async function toggleCurated(beatId: string, curated: boolean) {
+export async function toggleCurated(itemId: string, itemType: ItemType, curated: boolean) {
   if (!auth.currentUser) throw new Error("Not authenticated");
   
-  const beatRef = doc(db, "beats", beatId);
-  await updateDoc(beatRef, { curated });
+  const collectionName = itemType === "samplePack" ? "samplePacks" : "beats";
+  const itemRef = doc(db, collectionName, itemId);
+  await updateDoc(itemRef, { curated });
 }
 
 /**
- * Flags a beat for moderation by an admin.
+ * Flags a beat or sample pack for moderation by an admin.
  */
-export async function flagBeat(beatId: string, reason: string = "Admin moderation flag") {
+export async function flagItem(itemId: string, itemType: ItemType, reason: string = "Admin moderation flag") {
   if (!auth.currentUser) throw new Error("Not authenticated");
   
-  // Get beat for denormalization
-  const beatRef = doc(db, "beats", beatId);
-  const beatSnap = await getDoc(beatRef);
-  if (!beatSnap.exists()) throw new Error("Beat not found");
+  const collectionName = itemType === "samplePack" ? "samplePacks" : "beats";
+  const itemRef = doc(db, collectionName, itemId);
+  const itemSnap = await getDoc(itemRef);
+  if (!itemSnap.exists()) throw new Error("Item not found");
   
-  const beatData = beatSnap.data() as Beat;
+  const itemData = itemSnap.data() as Beat | SamplePack;
   
   // Get producer doc for denormalization
-  const producerRef = doc(db, "users", beatData.producerId);
+  const producerRef = doc(db, "users", itemData.producerId);
   const producerSnap = await getDoc(producerRef);
   const producerName = producerSnap.exists() ? producerSnap.data().displayName : "Unknown Producer";
   
   // Set flag document
-  const flaggedRef = doc(db, "flaggedBeats", beatId);
+  const flaggedRef = doc(db, "flaggedItems", itemId);
   await setDoc(flaggedRef, {
-    beatId,
+    itemId,
+    itemType,
     flaggedBy: auth.currentUser.uid,
     flaggedAt: serverTimestamp(),
     reason,
     status: "pending",
-    title: beatData.title,
-    producerId: beatData.producerId,
+    title: itemData.title,
+    producerId: itemData.producerId,
     producerName
   });
 }
 
 /**
- * Resolves a flagged beat by either dismissing the flag or removing the beat.
+ * Resolves a flagged item by either dismissing the flag or removing the item.
  */
-export async function resolveFlaggedBeat(beatId: string, action: 'dismiss' | 'remove') {
+export async function resolveFlaggedItem(itemId: string, itemType: ItemType, action: "dismiss" | "remove") {
   if (!auth.currentUser) throw new Error("Not authenticated");
   
-  const flaggedRef = doc(db, "flaggedBeats", beatId);
+  const flaggedRef = doc(db, "flaggedItems", itemId);
   
-  if (action === 'dismiss') {
+  if (action === "dismiss") {
     await deleteDoc(flaggedRef);
-  } else if (action === 'remove') {
-    const beatRef = doc(db, "beats", beatId);
-    await updateDoc(beatRef, { status: "suspended" });
+  } else if (action === "remove") {
+    const collectionName = itemType === "samplePack" ? "samplePacks" : "beats";
+    const itemRef = doc(db, collectionName, itemId);
+    await updateDoc(itemRef, { status: "suspended" });
     await updateDoc(flaggedRef, { status: "reviewed" });
   }
 }

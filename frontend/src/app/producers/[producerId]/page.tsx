@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
-import { BeatCard } from "@/components/BeatCard";
+import { ItemCard } from "@/components/ItemCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,7 +22,6 @@ interface ProducerProfile {
 
 import { useAudio } from "@/context/AudioContext";
 import { BeatWithProducer } from "@/lib/services/gallery";
-import { SamplePackCard } from "@/components/SamplePackCard";
 import { SamplePackWithProducer } from "@/lib/services/samplePacks";
 
 export default function ProducerPage() {
@@ -227,7 +226,7 @@ export default function ProducerPage() {
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                 {beats.map((beat) => (
-                  <BeatCard key={beat.id} beat={beat} showProducer={false} />
+                  <ItemCard key={beat.id} item={{ ...beat, itemType: "beat" }} showProducer={false} />
                 ))}
               </div>
             )
@@ -240,7 +239,7 @@ export default function ProducerPage() {
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                 {samplePacks.map((pack) => (
-                  <SamplePackCard key={pack.id} pack={pack} showProducer={false} />
+                  <ItemCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} showProducer={false} />
                 ))}
               </div>
             )

@@ -3,27 +3,27 @@ import Image from "next/image";
 import { CassetteTape, Flower2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { CuratorBench } from "@/components/CuratorBench";
-import { getRandomCuratedBeats, BeatWithProducer } from "@/lib/services/gallery";
+import { getRandomCuratedItems, CuratedCatalogItem } from "@/lib/services/gallery";
 import { CuratorTrack } from "@/components/CuratorCard";
 import heroBackground from "../../public/background.jpg";
 
 export default async function Home() {
-  let curatedBeats: BeatWithProducer[] = [];
+  let curatedItems: CuratedCatalogItem[] = [];
   try {
-    curatedBeats = await getRandomCuratedBeats(2);
+    curatedItems = await getRandomCuratedItems(2);
   } catch (error) {
-    console.error("Error fetching curated beats:", error);
+    console.error("Error fetching curated items:", error);
   }
 
-  // Format the real beats to match the CuratorTrack interface
-  const formattedBeats: CuratorTrack[] = curatedBeats.map(beat => ({
-    id: beat.id,
-    title: beat.title,
-    type: "Beat",
-    tempo: `${beat.bpm} BPM`,
-    tags: beat.tags?.slice(0, 3) || [],
-    description: `Produced by ${beat.producer.displayName}.`,
-    coverArtUrl: beat.coverArtUrl,
+  // Format the real items to match the CuratorTrack interface
+  const formattedItems: CuratorTrack[] = curatedItems.map(item => ({
+    id: item.id,
+    title: item.title,
+    type: item.itemType === "samplePack" ? "Sample Pack" : "Beat",
+    tempo: item.itemType === "beat" && item.bpm ? `${item.bpm} BPM` : "",
+    tags: item.tags?.slice(0, 3) || [],
+    description: `Produced by ${item.producer.displayName}.`,
+    coverArtUrl: item.coverArtUrl,
   }));
 
   const defaultTracks: CuratorTrack[] = [
@@ -45,8 +45,8 @@ export default async function Home() {
     },
   ];
 
-  // Merge: Take all real curated beats, and if fewer than 2, fill the rest with defaultTracks
-  const displayTracks = [...formattedBeats, ...defaultTracks].slice(0, 2);
+  // Merge: Take all real curated items, and if fewer than 2, fill the rest with defaultTracks
+  const displayTracks = [...formattedItems, ...defaultTracks].slice(0, 2);
 
   return (
     <div className="flex-1 w-full relative text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-between overflow-x-hidden antialiased md:px-4">

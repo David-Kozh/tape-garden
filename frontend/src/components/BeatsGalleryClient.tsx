@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { BeatCard } from "@/components/BeatCard";
-import { SamplePackCard } from "@/components/SamplePackCard";
+import { ItemCard } from "@/components/ItemCard";
 import { ProducerCard } from "@/components/ProducerCard";
 import { getPublishedBeats, getApprovedProducers, BeatWithProducer } from "@/lib/services/gallery";
 import { getPublishedSamplePacks, SamplePackWithProducer } from "@/lib/services/samplePacks";
@@ -186,7 +185,7 @@ export function BeatsGalleryClient() {
           {view === "beats" && (
             filteredBeats.length > 0 ? (
               filteredBeats.map(beat => (
-                <BeatCard key={beat.id} beat={beat} />
+                <ItemCard key={beat.id} item={{ ...beat, itemType: "beat" }} />
               ))
             ) : (
               <div className="col-span-full text-center text-muted-foreground py-12">
@@ -198,7 +197,7 @@ export function BeatsGalleryClient() {
           {view === "packs" && (
             filteredPacks.length > 0 ? (
               filteredPacks.map(pack => (
-                <SamplePackCard key={pack.id} pack={pack} />
+                <ItemCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} />
               ))
             ) : (
               <div className="col-span-full text-center text-muted-foreground py-12">

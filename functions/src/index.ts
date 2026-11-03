@@ -316,6 +316,7 @@ interface PublishBeatData {
     bpm: number;
     key: string;
     tags: string[];
+    coverArtFile?: string;
     licenses: {
       type: string;
       price: number;
@@ -393,7 +394,27 @@ export const publishBeat = functions
       const stagingPrefix = `uploads-staging/${uid}/beats/${uploadId}/`;
 
       let audioPreviewUrl = "";
+      let coverArtUrl = "";
       const finalLicenses = [];
+
+      if (metadata.coverArtFile) {
+        const coverSrcPath = `${stagingPrefix}${metadata.coverArtFile}`;
+        const coverDestPath = `previews/beats/${beatId}/${metadata.coverArtFile}`;
+
+        const coverSrcFile = bucket.file(coverSrcPath);
+        const [coverExists] = await coverSrcFile.exists();
+        if (!coverExists) {
+          throw new functions.https.HttpsError("failed-precondition", `Staging cover art file missing: ${coverSrcPath}`);
+        }
+
+        const [coverMetadata] = await coverSrcFile.getMetadata();
+        if (Number(coverMetadata.size) > 10 * 1024 * 1024) {
+          throw new functions.https.HttpsError("invalid-argument", "Cover art file exceeds 10MB limit.");
+        }
+
+        await coverSrcFile.move(coverDestPath);
+        coverArtUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(coverDestPath)}?alt=media`;
+      }
 
       for (const license of metadata.licenses) {
         // Move preview
@@ -450,6 +471,7 @@ export const publishBeat = functions
         bpm: metadata.bpm || null,
         key: metadata.key || "",
         tags: metadata.tags || [],
+        ...(coverArtUrl ? { coverArtUrl } : {}),
         status: "published",
         audioPreviewUrl: audioPreviewUrl,
         licenses: finalLicenses,
@@ -728,6 +750,7 @@ interface PublishSamplePackData {
     price: number;
     audioPreviewFile: string;
     archiveFile: string;
+    coverArtFile?: string;
   };
 }
 
@@ -816,6 +839,26 @@ export const publishSamplePack = functions
 
       await archiveSrcFile.move(archiveDestPath);
 
+      let coverArtUrl = "";
+      if (metadata.coverArtFile) {
+        const coverSrcPath = `${stagingPrefix}${metadata.coverArtFile}`;
+        const coverDestPath = `previews/sample-packs/${packId}/${metadata.coverArtFile}`;
+
+        const coverSrcFile = bucket.file(coverSrcPath);
+        const [coverExists] = await coverSrcFile.exists();
+        if (!coverExists) {
+          throw new functions.https.HttpsError("failed-precondition", `Staging cover art file missing: ${coverSrcPath}`);
+        }
+
+        const [coverMetadata] = await coverSrcFile.getMetadata();
+        if (Number(coverMetadata.size) > 10 * 1024 * 1024) {
+          throw new functions.https.HttpsError("invalid-argument", "Cover art file exceeds 10MB limit.");
+        }
+
+        await coverSrcFile.move(coverDestPath);
+        coverArtUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(coverDestPath)}?alt=media`;
+      }
+
       // Create Firestore document
       await newPackRef.set({
         producerId: uid,
@@ -823,6 +866,7 @@ export const publishSamplePack = functions
         description: metadata.description || "",
         tags: metadata.tags || [],
         price: metadata.price,
+        ...(coverArtUrl ? { coverArtUrl } : {}),
         status: "published",
         audioPreviewUrl: audioPreviewUrl,
         fileUrl: archiveDestPath,

@@ -62,7 +62,7 @@
       ]
     },
     {
-      "collectionGroup": "flaggedBeats",
+      "collectionGroup": "flaggedItems",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "status", "order": "ASCENDING" },

@@ -38,7 +38,7 @@ export function CuratorCard({ track, isPlaying, onPlayToggle }: CuratorCardProps
               <span className="text-[11px] text-zinc-500 font-mono pt-0.5">{track.tempo}</span>
             </div>
 
-            <Link href={`/beats/${track.id}`} className="hover:underline">
+            <Link href={track.type === "Sample Pack" ? `/sample-packs/${track.id}` : `/beats/${track.id}`} className="hover:underline">
               <h3 className="text-lg font-bold text-muted-foreground group-hover:text-leaf-700 transition-colors line-clamp-1">
                 {track.title}
               </h3>

@@ -7,6 +7,7 @@ import { Play, Pause, User, Tag, PackageOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -31,6 +32,7 @@ export function SamplePackDetailClient({ pack }: SamplePackDetailClientProps) {
         producerId: pack.producer.uid,
         producer: pack.producer,
         audioPreviewUrl: pack.audioPreviewUrl,
+        coverArtUrl: pack.coverArtUrl,
         itemType: "samplePack",
       });
     }
@@ -44,6 +46,7 @@ export function SamplePackDetailClient({ pack }: SamplePackDetailClientProps) {
       price: pack.price,
       title: pack.title,
       producerId: pack.producer.uid,
+      coverArtUrl: pack.coverArtUrl,
     });
     toast.success(`Added ${pack.title} to cart`);
   };
@@ -54,9 +57,19 @@ export function SamplePackDetailClient({ pack }: SamplePackDetailClientProps) {
     }`}>
       {/* Hero Section */}
       <div className="flex flex-col md:flex-row gap-8 mb-12 items-start">
-        {/* Cover Placeholder */}
+        {/* Cover Art / Placeholder */}
         <div className="w-full md:w-1/3 aspect-square relative rounded-xl overflow-hidden bg-secondary/20 flex flex-col items-center justify-center text-secondary shadow-lg">
-          <PackageOpen className="w-32 h-32" />
+          {pack.coverArtUrl ? (
+            <Image
+              src={pack.coverArtUrl}
+              alt={pack.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <PackageOpen className="w-32 h-32" />
+          )}
         </div>
 
         {/* Metadata & Controls */}
