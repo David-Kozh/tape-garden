@@ -75,9 +75,9 @@ export default async function Home() {
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start gap-2 w-full">
             {/* Left Side Copy */}
             <div className="flex flex-col gap-8 max-w-3xl">
-              <h1 className="text-4xl md:text-6xl font-lexend font-bold tracking-tight text-brand-black leading-tight">
+              <h1 className="mt-2 text-[45px] sm:text-4xl md:text-6xl font-lexend font-bold tracking-tight text-brand-black leading-none">
                 Curated Beats.<br />
-                <span className="relative inline-block mt-1">
+                <span className="relative inline-block mt-2">
                   <div className="absolute inset-x-[-7%] top-[-20%] bottom-[-35%] bg-background dark:bg-brand-white opacity-60 blur-[40px] -z-10 rounded-full pointer-events-none" />
                   <span className="bg-gradient-to-r from-leaf-700 via-leaf-950 to-lilac-950 bg-clip-text text-transparent relative z-10">
                     Grow Your Garden.
@@ -85,7 +85,7 @@ export default async function Home() {
                 </span>
               </h1>
 
-              <div className="flex flex-col gap-8 p-6 md:p-8 rounded-2xl bg-graphite-600/50 backdrop-blur-sm border border-white/30 shadow-sm max-w-2xl">
+              <div className="flex flex-col gap-8 p-6 md:p-8 mb-2 rounded-2xl bg-graphite-600/50 backdrop-blur-sm border border-white/30 shadow-sm max-w-2xl">
                 <p className="text-base lg:text-lg text-brand-white leading-relaxed tracking-wide">
                   A deliberately minimal space designed for music producers to show their best work.<br />Buy and sell beats without the extra noise.
                 </p>
@@ -104,7 +104,7 @@ export default async function Home() {
             {/* Right Side Tag */}
             <div className="order-first md:order-last inline-flex items-center gap-2 px-3 py-1 rounded-full bg-leaf-300/50 border border-leaf-500/20 text-leaf-800 text-xs lg:text-sm font-semibold whitespace-nowrap shrink-0 md:mt-3">
               <Flower2 className="w-4 h-4 animate-pulse" />
-              Now Entering Alpha
+              Now Entering Beta
             </div>
           </div>
         </div>

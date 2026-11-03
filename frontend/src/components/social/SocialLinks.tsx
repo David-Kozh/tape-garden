@@ -258,7 +258,7 @@ export function SocialLinkButton({
       rel="noopener noreferrer"
       title={label}
       aria-label={label}
-      className={`group inline-flex items-center justify-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-full text-xs font-semibold bg-zinc-900/60 hover:bg-zinc-900/80 text-zinc-200 border border-white/15 backdrop-blur-md shadow-xs transition-all duration-300 ${glowClasses} ${className}`}
+      className={`group inline-flex items-center justify-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-full text-xs font-semibold bg-zinc-900/60 hover:bg-zinc-900/80 text-lilac-50 border border-white/15 backdrop-blur-md shadow-xs transition-all duration-300 ${glowClasses} ${className}`}
     >
       <SocialIcon
         platform={detectedPlatform}

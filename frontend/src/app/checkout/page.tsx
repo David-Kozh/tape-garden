@@ -48,14 +48,14 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-24 max-w-3xl flex flex-col items-center justify-center text-center min-h-[60vh]">
-        <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-6">
-          <Trash2 className="w-8 h-8 text-brand-lgrey opacity-50" />
+        <div className="w-20 h-20 bg-card rounded-full flex items-center justify-center mb-6">
+          <Trash2 className="w-8 h-8 text-lilac-200 opacity-50" />
         </div>
         <h1 className="text-3xl font-bold tracking-tight mb-4">Your cart is empty</h1>
         <p className="text-muted-foreground mb-8 max-w-md">
           Looks like you haven&apos;t added anything to your cart yet. Discover exclusive beats and sample packs in the gallery.
         </p>
-        <Link href="/#explore" className={cn(buttonVariants({ size: "lg" }), "gap-2")}>
+        <Link href="/gallery" className={cn(buttonVariants({ size: "lg" }), "gap-2")}>
           <ArrowLeft className="w-4 h-4" /> Back to Gallery
         </Link>
       </div>

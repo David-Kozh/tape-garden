@@ -102,7 +102,7 @@ export function BeatCard({ beat, showProducer = true }: BeatCardProps) {
           </Button>
         </div>
 
-        {/* Tags */}
+        {/* Tags -- DEPRECATED as of 11/2/2026
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap z-20 pointer-events-none">
           {beat.tags?.slice(0, 2).map((tag) => (
             <Badge key={tag} className="bg-black/10 border border-black/5 backdrop-blur-sm text-xs text-muted/80 dark:text-muted-foreground/80">
@@ -110,12 +110,13 @@ export function BeatCard({ beat, showProducer = true }: BeatCardProps) {
             </Badge>
           ))}
         </div>
+        */}
 
         {/* Admin Menu */}
         {role === "admin" && (
-          <div className="absolute top-2 right-2 z-30 bg-black">
+          <div className="absolute top-2 right-2 z-30">
             <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background" />}>
+              <DropdownMenuTrigger render={<Button variant="secondary" size="icon" className="h-6 w-6 rounded-full bg-graphite-800/60 dark:bg-background/60 backdrop-blur-sm hover:bg-graphite-800/80 dark:hover:bg-background/80" />}>
                 <MoreVertical className="h-4 w-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

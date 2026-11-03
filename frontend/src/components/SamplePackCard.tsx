@@ -58,7 +58,7 @@ export function SamplePackCard({ pack, showProducer = true }: SamplePackCardProp
           </Button>
         </div>
 
-        {/* Tags */}
+        {/* Tags -- DEPRECATED as of 11/2/2026
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap z-20 pointer-events-none">
           {pack.tags?.slice(0, 2).map((tag) => (
             <Badge key={tag} className="bg-black/10 border border-black/5 backdrop-blur-sm text-xs dark:text-muted-foreground/80">
@@ -66,6 +66,7 @@ export function SamplePackCard({ pack, showProducer = true }: SamplePackCardProp
             </Badge>
           ))}
         </div>
+        */}
       </div>
 
       <CardContent className="p-4 relative z-20">

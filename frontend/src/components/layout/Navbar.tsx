@@ -67,7 +67,7 @@ export function Navbar() {
               aria-label="View profile"
               className="relative group flex items-center justify-center"
             >
-              <UserCircle className="w-5 h-5 text-muted-foreground dark:text-lilac-200 group-hover:text-leaf-700 transition-colors" />
+              <UserCircle className="w-5 h-5 text-muted-foreground dark:text-lilac-100 group-hover:text-leaf-700 transition-colors" />
             </Link>
             <div className="h-5 w-[1px] bg-muted-foreground/50" />
           </div>
@@ -80,7 +80,7 @@ export function Navbar() {
               aria-label="My collection"
               className="relative group flex items-center justify-center"
             >
-              <Library className="w-5 h-5 text-muted-foreground dark:text-lilac-200 group-hover:text-leaf-700 transition-colors" />
+              <Library className="w-5 h-5 text-muted-foreground dark:text-lilac-100 group-hover:text-leaf-700 transition-colors" />
             </Link>
             <div className="h-5 w-[1px] bg-muted-foreground/50" />
           </div>
@@ -92,7 +92,7 @@ export function Navbar() {
           aria-label="Shopping cart"
           className="relative group flex items-center justify-center"
         >
-          <ShoppingBag className="w-5 h-5 mr-1 text-muted-foreground dark:text-lilac-200 group-hover:text-leaf-700 transition-colors" />
+          <ShoppingBag className="w-5 h-5 mr-1 text-muted-foreground dark:text-lilac-100 group-hover:text-leaf-700 transition-colors" />
           {itemCount > 0 && (
             <span className="absolute -top-1.5 -right-2 bg-leaf-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shadow-md">
               {itemCount}

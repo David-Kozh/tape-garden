@@ -115,6 +115,7 @@
   --color-paper-900: #ce8946;
   --color-paper-950: #c08041;
 
+  --color-lilac-white: #f2e5ff;
   --color-brand-white: #e5e5ff;
   --color-brand-lgrey: #8d9494;
   --color-brand-lgrey1: #c5c5d8;
@@ -127,6 +128,7 @@
   --navbar-height: 81px;
 
   --color-brand-white: #e5e5ff;
+  --color-lilac-white: #f2e5ff;
   --color-brand-lgrey: #8d9494;
   --color-brand-lgrey1: #c5c5d8;
   --color-brand-lgrey2: #5b5f5f;
@@ -172,19 +174,19 @@
   --beat-terracotta: #C95D40;
 
   --background: var(--color-graphite-800);
-  --foreground: var(--color-brand-white);
+  --foreground: var(--color-lilac-white);
   --card: var(--color-graphite-600);
-  --card-foreground: var(--color-brand-white);
+  --card-foreground: var(--color-lilac-white);
   --popover: var(--color-graphite-700);
-  --popover-foreground: var(--color-brand-white);
+  --popover-foreground: var(--color-lilac-white);
   --primary: var(--color-leaf-800);
-  --primary-foreground: var(--color-brand-white);
+  --primary-foreground: var(--color-lilac-white);
   --secondary: var(--color-lilac-700);
-  --secondary-foreground: var(--color-brand-white);
+  --secondary-foreground: var(--color-lilac-white);
   --muted: var(--color-graphite-300);
   --muted-foreground: var(--color-brand-lgrey1);
   --accent: var(--color-lilac-500);
-  --accent-foreground: var(---color-brand-white);
+  --accent-foreground: var(--color-lilac-white);
   --destructive: var(--beat-terracotta);
   --border: oklch(1 0 0 / 10%);
   --input: var(--color-graphite-600);

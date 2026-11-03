@@ -176,7 +176,7 @@ export default function ProducerPage() {
         {/* Gallery Glass Card */}
         <section className="flex-1 rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-graphite-600/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm p-6 sm:p-8 md:p-10">
           <div className="mb-8 space-y-3">
-            <div className="flex items-end justify-between border-b border-border/30">
+            <div className="flex items-end justify-between border-b border-border/30 dark:border-brand-white/50">
               <h2 className="text-2xl font-bold tracking-tight text-foreground pb-2.5">
                 Gallery
               </h2>
