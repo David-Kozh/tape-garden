@@ -75,7 +75,7 @@ export default async function Home() {
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-start gap-2 w-full">
             {/* Left Side Copy */}
             <div className="flex flex-col gap-8 max-w-3xl">
-              <h1 className="mt-2 text-[45px] sm:text-4xl md:text-6xl font-lexend font-bold tracking-tight text-brand-black leading-none">
+              <h1 className="mt-2 text-3xl sm:text-4xl md:text-6xl font-lexend font-bold tracking-tight text-brand-black leading-none">
                 Curated Beats.<br />
                 <span className="relative inline-block mt-2">
                   <div className="absolute inset-x-[-7%] top-[-20%] bottom-[-35%] bg-background dark:bg-brand-white opacity-60 blur-[40px] -z-10 rounded-full pointer-events-none" />

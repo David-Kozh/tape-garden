@@ -137,7 +137,7 @@ export default function ProducerPage() {
       <div className="flex-1 flex flex-col container max-w-6xl mx-auto pt-4 lg:pt-8 pb-8 lg:pb-12 px-4 space-y-6 sm:space-y-10">
         {/* Profile Header Glass Card */}
         <section className="rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-graphite-600/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm px-4 py-6 sm:p-8 md:p-10 flex flex-row items-start gap-4 md:gap-10 text-left">
-          <Avatar className="w-20 h-20 sm:w-28 sm:h-28 shrink-0 border-4 border-white/80 shadow-lg">
+          <Avatar className="w-18 h-18 sm:w-28 sm:h-28 shrink-0 border-4 border-white/80 shadow-lg">
             <AvatarImage src={profile.avatarUrl} alt={profile.displayName} />
             <AvatarFallback className="text-2xl sm:text-4xl bg-muted text-muted-foreground">
               {profile.displayName.substring(0, 2).toUpperCase()}
@@ -146,7 +146,7 @@ export default function ProducerPage() {
 
           <div className="space-y-3 sm:space-y-4 min-w-0 flex-1">
             <div className="flex items-center justify-between gap-3 sm:gap-4 w-full">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground truncate">
+              <h1 className="text-[24px] sm:text-3xl font-extrabold tracking-tight leading-tight text-foreground truncate">
                 {profile.displayName}
               </h1>
 
