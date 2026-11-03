@@ -134,11 +134,10 @@ export default function ProducerPage() {
       className="flex-1 flex flex-col w-full relative"
       style={patternUrl ? { backgroundImage: `url("${patternUrl}")` } : undefined}
     >
-      <div className={`flex-1 flex flex-col container max-w-6xl mx-auto pt-8 lg:pt-12 px-4 space-y-8 sm:space-y-12 transition-all duration-300 ${currentTrack ? "pb-36" : "pb-8 lg:pb-12"
-        }`}>
+      <div className="flex-1 flex flex-col container max-w-6xl mx-auto pt-4 lg:pt-8 pb-8 lg:pb-12 px-4 space-y-6 sm:space-y-10">
         {/* Profile Header Glass Card */}
-        <section className="rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-graphite-600/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm p-6 sm:p-8 md:p-10 flex flex-row items-start gap-6 md:gap-10 text-left">
-          <Avatar className="w-24 h-24 sm:w-32 sm:h-32 shrink-0 border-4 border-white/80 shadow-lg">
+        <section className="rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-graphite-600/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm px-4 py-6 sm:p-8 md:p-10 flex flex-row items-start gap-4 md:gap-10 text-left">
+          <Avatar className="w-20 h-20 sm:w-28 sm:h-28 shrink-0 border-4 border-white/80 shadow-lg">
             <AvatarImage src={profile.avatarUrl} alt={profile.displayName} />
             <AvatarFallback className="text-2xl sm:text-4xl bg-muted text-muted-foreground">
               {profile.displayName.substring(0, 2).toUpperCase()}
@@ -173,7 +172,7 @@ export default function ProducerPage() {
         </section>
 
         {/* Gallery Glass Card */}
-        <section className="flex-1 rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-graphite-600/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm p-6 sm:p-8 md:p-10">
+        <section className={`flex-1 rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-graphite-600/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm px-5 pt-4 sm:px-8 sm:pt-8 md:px-10 md:pt-10 ${currentTrack ? "pb-28" : "pb-4 sm:pb-8 md:pb-10"}`}>
           <div className="mb-8 space-y-3">
             <div className="flex items-end justify-between border-b border-border/30 dark:border-brand-white/50">
               <h2 className="text-2xl font-bold tracking-tight text-foreground pb-2.5">
