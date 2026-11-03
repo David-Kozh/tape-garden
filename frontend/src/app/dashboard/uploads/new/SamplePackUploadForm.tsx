@@ -9,7 +9,7 @@ import { httpsCallable } from "firebase/functions";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { AlertCircle, UploadCloud, CheckCircle2, Music, Loader2, ArrowLeft } from "lucide-react";
+import { AlertCircle, UploadCloud, CheckCircle2, Music, ImageIcon, Loader2, ArrowLeft } from "lucide-react";
 import type { User } from "@/types";
 
 export function SamplePackUploadForm({ onCancel }: { onCancel: () => void }) {
@@ -28,6 +28,7 @@ export function SamplePackUploadForm({ onCancel }: { onCancel: () => void }) {
 
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [archiveFile, setArchiveFile] = useState<File | null>(null);
+  const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
 
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -36,6 +37,7 @@ export function SamplePackUploadForm({ onCancel }: { onCancel: () => void }) {
 
   const fileInputRef1 = useRef<HTMLInputElement>(null);
   const fileInputRef2 = useRef<HTMLInputElement>(null);
+  const fileInputRef3 = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function checkSlots() {
@@ -105,6 +107,22 @@ export function SamplePackUploadForm({ onCancel }: { onCancel: () => void }) {
     }
   };
 
+  const handleCoverArtChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        setError("Cover art must be an image file.");
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        setError("Cover art file exceeds 10MB limit.");
+        return;
+      }
+      setCoverArtFile(file);
+      setError("");
+    }
+  };
+
   const uploadFile = async (file: File, path: string): Promise<void> => {
     return new Promise((resolve, reject) => {
       const storageRef = ref(storage, path);
@@ -143,6 +161,9 @@ export function SamplePackUploadForm({ onCancel }: { onCancel: () => void }) {
       const uploadId = Math.random().toString(36).substring(2, 15);
       const previewFileName = `preview_${Date.now()}_${previewFile.name.replace(/[^a-zA-Z0-9.]/g, "")}`;
       const archiveFileName = `archive_${Date.now()}_${archiveFile.name.replace(/[^a-zA-Z0-9.]/g, "")}`;
+      const coverArtFileName = coverArtFile
+        ? `cover_${Date.now()}_${coverArtFile.name.replace(/[^a-zA-Z0-9.]/g, "")}`
+        : undefined;
 
       // Upload Preview
       setUploadStatus("Uploading preview audio...");
@@ -152,7 +173,14 @@ export function SamplePackUploadForm({ onCancel }: { onCancel: () => void }) {
       // Upload Archive
       setUploadStatus("Uploading archive ZIP...");
       await uploadFile(archiveFile, `uploads-staging/${user.uid}/sample-packs/${uploadId}/${archiveFileName}`);
-      setUploadProgress(90);
+      setUploadProgress(coverArtFile ? 80 : 90);
+
+      // Upload Cover Art (optional)
+      if (coverArtFile && coverArtFileName) {
+        setUploadStatus("Uploading cover art...");
+        await uploadFile(coverArtFile, `uploads-staging/${user.uid}/sample-packs/${uploadId}/${coverArtFileName}`);
+        setUploadProgress(90);
+      }
 
       setUploadStatus("Finalizing sample pack publication...");
 
@@ -166,7 +194,8 @@ export function SamplePackUploadForm({ onCancel }: { onCancel: () => void }) {
           tags: tags.split(",").map(t => t.trim()).filter(Boolean),
           price: parseFloat(price),
           audioPreviewFile: previewFileName,
-          archiveFile: archiveFileName
+          archiveFile: archiveFileName,
+          ...(coverArtFileName ? { coverArtFile: coverArtFileName } : {})
         }
       });
       setUploadProgress(100);
@@ -347,6 +376,33 @@ export function SamplePackUploadForm({ onCancel }: { onCancel: () => void }) {
                   className="hidden"
                   ref={fileInputRef2}
                   onChange={handleArchiveChange}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-primary" />
+                Cover Art Image <span className="text-xs text-muted-foreground font-normal">(Optional, Max 10MB)</span>
+              </label>
+              <div className="flex items-center gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef3.current?.click()}
+                  disabled={isUploading}
+                >
+                  Select Image
+                </Button>
+                <span className="text-sm text-muted-foreground truncate max-w-xs">
+                  {coverArtFile ? coverArtFile.name : "No file selected"}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  ref={fileInputRef3}
+                  onChange={handleCoverArtChange}
                 />
               </div>
             </div>
