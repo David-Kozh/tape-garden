@@ -258,13 +258,13 @@ export function SocialLinkButton({
       rel="noopener noreferrer"
       title={label}
       aria-label={label}
-      className={`group inline-flex items-center justify-center gap-2 p-2 sm:px-3 sm:py-1.5 rounded-full text-xs font-semibold bg-zinc-900/60 hover:bg-zinc-900/80 text-lilac-50 border border-white/15 backdrop-blur-md shadow-xs transition-all duration-300 ${glowClasses} ${className}`}
+      className={`group inline-flex items-center justify-center gap-2 p-1.5 lg:px-3 lg:py-1.5 rounded-full text-xs font-semibold bg-graphite-800 hover:bg-graphite-700 text-lilac-50 border border-white/15 backdrop-blur-md shadow-xs transition-all duration-300 ${glowClasses} ${className}`}
     >
       <SocialIcon
         platform={detectedPlatform}
-        className="w-3.5 h-3.5 shrink-0 transition-transform duration-300 group-hover:scale-110"
+        className="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:scale-110"
       />
-      <span className="hidden sm:inline truncate max-w-[140px] md:max-w-none">
+      <span className="hidden lg:inline truncate max-w-[140px] lg:max-w-none">
         {label}
       </span>
     </a>

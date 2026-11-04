@@ -136,22 +136,22 @@ export default function ProducerPage() {
     >
       <div className="flex-1 flex flex-col container max-w-6xl mx-auto pt-4 lg:pt-8 pb-8 lg:pb-12 px-4 space-y-6 sm:space-y-10">
         {/* Profile Header Glass Card */}
-        <section className="rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-graphite-600/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm px-4 py-6 sm:p-8 md:p-10 flex flex-row items-start gap-4 md:gap-10 text-left">
-          <Avatar className="w-18 h-18 sm:w-28 sm:h-28 shrink-0 border-4 border-white/80 shadow-lg">
+        <section className="rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-graphite-600/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm px-4 py-3 sm:p-6 lg:p-8 flex flex-row items-start gap-4 md:gap-8 text-left">
+          <Avatar className="w-18 h-18 md:w-22 md:h-22 lg:w-28 lg:h-28 shrink-0 border-4 border-white/80 shadow-lg mt-2 sm:mt-0">
             <AvatarImage src={profile.avatarUrl} alt={profile.displayName} />
-            <AvatarFallback className="text-2xl sm:text-4xl bg-muted text-muted-foreground">
+            <AvatarFallback className="text-2xl md:text-4xl bg-muted text-muted-foreground">
               {profile.displayName.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
-          <div className="space-y-3 sm:space-y-4 min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-3 sm:gap-4 w-full">
-              <h1 className="text-[24px] sm:text-3xl font-extrabold tracking-tight leading-tight text-foreground truncate">
+          <div className="space-y-2 sm:space-y-4 min-w-0 flex-1 mt-2 sm:mt-0">
+            <div className="flex items-start justify-between gap-2 sm:gap-4 w-full">
+              <h1 className="text-[24px] md:text-2xl font-extrabold tracking-tight leading-tight text-foreground truncate">
                 {profile.displayName}
               </h1>
 
               {profile.socialLinks && profile.socialLinks.length > 0 && (
-                <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto">
+                <div className="hidden md:flex items-start gap-2.5 shrink-0 ml-auto">
                   {profile.socialLinks.map((link, idx) => (
                     <SocialLinkButton
                       key={idx}
@@ -169,6 +169,18 @@ export default function ProducerPage() {
               </p>
             )}
           </div>
+
+          {profile.socialLinks && profile.socialLinks.length > 0 && (
+            <div className="flex md:hidden flex-col items-end gap-2 shrink-0 ml-auto">
+              {profile.socialLinks.map((link, idx) => (
+                <SocialLinkButton
+                  key={idx}
+                  platform={link.platform}
+                  url={link.url}
+                />
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Gallery Glass Card */}
