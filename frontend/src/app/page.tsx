@@ -4,7 +4,7 @@ import { CassetteTape, Flower2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { CuratorBench } from "@/components/CuratorBench";
 import { getRandomCuratedItems, CuratedCatalogItem } from "@/lib/services/gallery";
-import { CuratorTrack } from "@/components/CuratorCard";
+import { CatalogItem } from "@/components/ItemCard";
 import heroBackground from "../../public/background.jpg";
 
 export default async function Home() {
@@ -15,44 +15,52 @@ export default async function Home() {
     console.error("Error fetching curated items:", error);
   }
 
-  // Format the real items to match the CuratorTrack interface
-  const formattedItems: CuratorTrack[] = curatedItems.map(item => ({
-    id: item.id,
-    title: item.title,
-    type: item.itemType === "samplePack" ? "Sample Pack" : "Beat",
-    tempo: item.itemType === "beat" && item.bpm ? `${item.bpm} BPM` : "",
-    tags: item.tags?.slice(0, 3) || [],
-    description: `Produced by ${item.producer.displayName}.`,
-    coverArtUrl: item.coverArtUrl,
-  }));
-
-  const defaultTracks: CuratorTrack[] = [
+  const defaultTracks: CatalogItem[] = [
     {
       id: "subterranean",
+      itemType: "beat",
+      producerId: "default",
       title: "Subterranean Textures",
-      type: "Beat",
-      tempo: "84 BPM",
+      bpm: 84,
+      key: "C Min",
       tags: ["Ambient", "Lo-Fi", "Analog"],
-      description: "Low-end focused textures with lush tape decay.",
+      status: "published",
+      createdAt: "",
+      updatedAt: "",
+      audioPreviewUrl: "",
+      licenses: [{ type: "non-exclusive", price: 29.99 }],
+      producer: {
+        uid: "default",
+        displayName: "Tape Garden",
+      },
     },
     {
       id: "analog-haze",
+      itemType: "samplePack",
+      producerId: "default",
       title: "Analog Haze",
-      type: "Sample Pack",
-      tempo: "",
-      tags: ["Warmth", "Saturated", "Synth"],
       description: "Vintage synthesizer loops recorded direct-to-tape.",
+      tags: ["Warmth", "Saturated", "Synth"],
+      price: 24.99,
+      status: "published",
+      createdAt: "",
+      updatedAt: "",
+      audioPreviewUrl: "",
+      producer: {
+        uid: "default",
+        displayName: "Tape Garden",
+      },
     },
   ];
 
   // Merge: Take all real curated items, and if fewer than 2, fill the rest with defaultTracks
-  const displayTracks = [...formattedItems, ...defaultTracks].slice(0, 2);
+  const displayTracks: CatalogItem[] = [...curatedItems, ...defaultTracks].slice(0, 2);
 
   return (
     <div className="flex-1 w-full relative text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-between overflow-x-hidden antialiased md:px-4">
 
       {/* Main Section */}
-      <main className="flex-1 max-w-5xl mx-auto w-full flex flex-col justify-around gap-8 relative z-10 md:pt-4">
+      <main className="flex-1 max-w-5xl mx-auto w-full flex flex-col gap-8 relative z-10 md:pt-4">
 
         {/* Hero Copy */}
         <div

@@ -153,7 +153,7 @@ export function ItemCard({ item, showProducer = true }: ItemCardProps) {
         )}
       </div>
 
-      <CardContent className="p-4 relative z-20">
+      <CardContent className="p-3.5 pt-2 relative z-20">
         <Link href={itemHref} className="font-bold text-lg truncate text-foreground hover:underline block">
           {item.title}
         </Link>
@@ -162,7 +162,7 @@ export function ItemCard({ item, showProducer = true }: ItemCardProps) {
             {item.producer.displayName}
           </Link>
         )}
-        <div className="flex items-center justify-between mt-2 text-sm text-muted-foreground">
+        <div className="flex items-center justify-between mt-1.5 text-sm text-muted-foreground">
           {item.itemType === "beat" ? (
             <>
               <span className="flex gap-2">

@@ -29,24 +29,26 @@ export function CuratorCard({ track, isPlaying, onPlayToggle }: CuratorCardProps
 
       <CardContent className="p-0 flex flex-row items-stretch relative z-10 h-full">
         {/* Left Side: Text Content */}
-        <div className="flex flex-col justify-between flex-1 gap-4 p-6 pr-4 lg:pr-8">
+        <div className="flex flex-col justify-between flex-1 gap-4 p-4 md:p-6 md:pr-4 pr-2 lg:pr-8">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-[11px] text-leaf-700 dark:text-leaf-200 tracking-wider bg-leaf-100/30 dark:bg-leaf-900/30 hover:bg-leaf-100/50 pr-1 pl-1.5 py-0.5 rounded border border-leaf-500/20">
+              <Badge variant="secondary" className="text-[9.5px] md:text-[10px] text-leaf-700 dark:text-leaf-200 tracking-wider bg-leaf-100/30 dark:bg-leaf-900/30 hover:bg-leaf-100/50 px-1 py-0 md:px-1.5 leading-tight rounded border border-leaf-500/20">
                 {track.type}
               </Badge>
-              <span className="text-[11px] text-zinc-500 font-mono pt-0.5">{track.tempo}</span>
+              <span className="text-[10px] text-zinc-500 font-mono pt-0.5">{track.tempo}</span>
             </div>
 
-            <Link href={track.type === "Sample Pack" ? `/sample-packs/${track.id}` : `/beats/${track.id}`} className="hover:underline">
-              <h3 className="text-lg font-bold text-muted-foreground group-hover:text-leaf-700 transition-colors line-clamp-1">
-                {track.title}
-              </h3>
-            </Link>
+            <div>
+              <Link href={track.type === "Sample Pack" ? `/sample-packs/${track.id}` : `/beats/${track.id}`}>
+                <h3 className="text-lg font-bold text-muted-foreground group-hover:text-leaf-700 transition-colors line-clamp-1">
+                  {track.title}
+                </h3>
+              </Link>
 
-            <p className="text-sm text-muted-foreground/70 leading-relaxed line-clamp-1 lg:line-clamp-none">
-              {track.description}
-            </p>
+              <p className="text-sm text-muted-foreground/70 leading-relaxed line-clamp-1 lg:line-clamp-none">
+                {track.description}
+              </p>
+            </div>
           </div>
 
           <div className="flex gap-2 mt-auto">
@@ -63,7 +65,7 @@ export function CuratorCard({ track, isPlaying, onPlayToggle }: CuratorCardProps
         </div>
 
         {/* Right Side: Cover Art & Play Button */}
-        <div className="relative aspect-square shrink-0 bg-zinc-200/50 dark:bg-zinc-100/20 overflow-hidden border-l border-zinc-200/80 dark:border-zinc-100/40 rounded-2xl h-full">
+        <div className="relative aspect-square shrink-0 bg-graphite-200 overflow-hidden border-l border-graphite-300 rounded-2xl h-full">
           {track.coverArtUrl ? (
             <Image
               src={track.coverArtUrl}
@@ -97,6 +99,6 @@ export function CuratorCard({ track, isPlaying, onPlayToggle }: CuratorCardProps
           </div>
         </div>
       </CardContent>
-    </Card>
+    </Card >
   );
 }

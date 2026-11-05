@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
 import { ItemCard } from "@/components/ItemCard";
+import { FeaturedCard } from "@/components/FeaturedCard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -184,8 +185,8 @@ export default function ProducerPage() {
         </section>
 
         {/* Gallery Glass Card */}
-        <section className={`flex-1 rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-graphite-600/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm px-5 pt-4 sm:px-8 sm:pt-8 md:px-10 md:pt-10 ${currentTrack ? "pb-28" : "pb-4 sm:pb-8 md:pb-10"}`}>
-          <div className="mb-8 space-y-3">
+        <section className={`flex-1 rounded-2xl md:rounded-3xl border border-white/35 bg-white/15 dark:bg-graphite-600/50 backdrop-blur-[2px] dark:backdrop-blur-[3px] shadow-sm px-3.5 pt-3 sm:px-8 sm:pt-8 md:px-10 md:pt-10 ${currentTrack ? "pb-28" : "pb-4 sm:pb-8 md:pb-10"}`}>
+          <div className="mb-6 space-y-3">
             <div className="flex items-end justify-between border-b border-border/30 dark:border-brand-white/50">
               <h2 className="text-2xl font-bold tracking-tight text-foreground pb-2.5">
                 Gallery
@@ -236,9 +237,13 @@ export default function ProducerPage() {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                {beats.map((beat) => (
-                  <ItemCard key={beat.id} item={{ ...beat, itemType: "beat" }} showProducer={false} />
-                ))}
+                {beats.map((beat, idx) =>
+                  idx === 0 ? (
+                    <FeaturedCard key={beat.id} item={{ ...beat, itemType: "beat" }} showProducer={false} />
+                  ) : (
+                    <ItemCard key={beat.id} item={{ ...beat, itemType: "beat" }} showProducer={false} />
+                  )
+                )}
               </div>
             )
           ) : (
@@ -249,9 +254,13 @@ export default function ProducerPage() {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                {samplePacks.map((pack) => (
-                  <ItemCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} showProducer={false} />
-                ))}
+                {samplePacks.map((pack, idx) =>
+                  idx === 0 ? (
+                    <FeaturedCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} showProducer={false} />
+                  ) : (
+                    <ItemCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} showProducer={false} />
+                  )
+                )}
               </div>
             )
           )}
