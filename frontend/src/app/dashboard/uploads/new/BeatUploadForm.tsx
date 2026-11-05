@@ -39,6 +39,29 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
   const fileInputRef1 = useRef<HTMLInputElement>(null);
   const fileInputRef2 = useRef<HTMLInputElement>(null);
   const fileInputRef3 = useRef<HTMLInputElement>(null);
+  const isTypingBpmRef = useRef(false);
+
+  const handleBpmKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (bpm === "" && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+      e.preventDefault();
+      setBpm(e.key === "ArrowUp" ? "121" : "119");
+      return;
+    }
+    isTypingBpmRef.current = true;
+  };
+
+  const handleBpmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const wasTyping = isTypingBpmRef.current;
+    isTypingBpmRef.current = false;
+
+    if (bpm === "" && !wasTyping && (val === "1" || val === "-1")) {
+      setBpm(val === "1" ? "121" : "119");
+      return;
+    }
+
+    setBpm(val);
+  };
 
   useEffect(() => {
     async function checkSlots() {
@@ -149,7 +172,7 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (!title || !previewFile || !stemsFile || !price) {
+    if (!title.trim() || !bpm || !key.trim() || !previewFile || !stemsFile || !price) {
       setError("Please fill in all required fields and select files.");
       return;
     }
@@ -300,22 +323,26 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="bpm" className="text-sm font-medium">BPM</label>
+                <label htmlFor="bpm" className="text-sm font-medium">BPM *</label>
                 <input
                   id="bpm"
                   type="number"
+                  required
+                  min={bpm ? 1 : undefined}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="120"
                   value={bpm}
-                  onChange={(e) => setBpm(e.target.value)}
+                  onKeyDown={handleBpmKeyDown}
+                  onChange={handleBpmChange}
                   disabled={isUploading}
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="key" className="text-sm font-medium">Key</label>
+                <label htmlFor="key" className="text-sm font-medium">Key *</label>
                 <input
                   id="key"
                   type="text"
+                  required
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="C minor"
                   value={key}
@@ -482,7 +509,7 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
           <Button
             type="submit"
             size="lg"
-            disabled={isUploading || !title || !previewFile || !stemsFile || !price}
+            disabled={isUploading || !title.trim() || !bpm || !key.trim() || !previewFile || !stemsFile || !price}
             className="gap-2 shrink-0"
           >
             {isUploading ? (
