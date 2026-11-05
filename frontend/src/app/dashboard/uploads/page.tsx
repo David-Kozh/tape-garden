@@ -124,11 +124,18 @@ export default function UploadsDashboard() {
                 <p className="text-sm text-muted-foreground">No beats uploaded yet.</p>
               ) : (
                 <ul className="space-y-4">
-                  {beats.map(beat => (
+                  {beats.map(beat => {
+                    const lowestPrice = beat.licenses?.length
+                      ? Math.min(...beat.licenses.map(l => l.price))
+                      : null;
+
+                    return (
                     <li key={beat.id} className="flex justify-between items-center border-b border-border pb-2 last:border-0">
                       <div>
                         <p className="font-medium text-foreground">{beat.title}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{beat.status} • {beat.bpm} BPM</p>
+                        <p className="text-xs text-muted-foreground capitalize">
+                          {beat.status}{lowestPrice !== null ? ` • $${lowestPrice}` : ""}
+                        </p>
                       </div>
                       <div className="flex gap-2">
                         <Link href={`/dashboard/uploads/${beat.id}/edit`}>
@@ -171,7 +178,8 @@ export default function UploadsDashboard() {
                         </AlertDialog>
                       </div>
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               )}
             </CardContent>
