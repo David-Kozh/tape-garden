@@ -360,6 +360,7 @@ export default function InviteIntakePage() {
                   onChange={e => setBio(e.target.value)}
                   placeholder="Tell us a bit about your sound..."
                   disabled={isWorking}
+                  maxLength={200}
                   rows={3}
                 />
               </div>
