@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ItemCard } from "@/components/ItemCard";
+import { FeaturedCard } from "@/components/FeaturedCard";
 import { ProducerCard } from "@/components/ProducerCard";
 import { getPublishedBeats, getApprovedProducers, BeatWithProducer } from "@/lib/services/gallery";
 import { getPublishedSamplePacks, SamplePackWithProducer } from "@/lib/services/samplePacks";
@@ -184,9 +185,18 @@ export function BeatsGalleryClient() {
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {view === "beats" && (
             filteredBeats.length > 0 ? (
-              filteredBeats.map(beat => (
-                <ItemCard key={beat.id} item={{ ...beat, itemType: "beat" }} />
-              ))
+              <>
+                <div className="col-span-full grid grid-cols-2 gap-4 md:hidden">
+                  {filteredBeats.map(beat => (
+                    <FeaturedCard key={beat.id} item={{ ...beat, itemType: "beat" }} />
+                  ))}
+                </div>
+                <div className="col-span-full hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  {filteredBeats.map(beat => (
+                    <ItemCard key={beat.id} item={{ ...beat, itemType: "beat" }} />
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="col-span-full text-center text-muted-foreground py-12">
                 No beats found matching your criteria.
@@ -196,9 +206,18 @@ export function BeatsGalleryClient() {
 
           {view === "packs" && (
             filteredPacks.length > 0 ? (
-              filteredPacks.map(pack => (
-                <ItemCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} />
-              ))
+              <>
+                <div className="col-span-full grid grid-cols-2 gap-4 md:hidden">
+                  {filteredPacks.map(pack => (
+                    <FeaturedCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} />
+                  ))}
+                </div>
+                <div className="col-span-full hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  {filteredPacks.map(pack => (
+                    <ItemCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} />
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="col-span-full text-center text-muted-foreground py-12">
                 No sample packs found matching your criteria.

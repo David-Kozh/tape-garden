@@ -236,15 +236,18 @@ export default function ProducerPage() {
                 <p className="text-muted-foreground">This producer hasn&apos;t published any beats yet.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                {beats.map((beat, idx) =>
-                  idx === 0 ? (
+              <>
+                <div className="grid grid-cols-2 gap-4 md:hidden">
+                  {beats.map((beat) => (
                     <FeaturedCard key={beat.id} item={{ ...beat, itemType: "beat" }} showProducer={false} />
-                  ) : (
+                  ))}
+                </div>
+                <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                  {beats.map((beat) => (
                     <ItemCard key={beat.id} item={{ ...beat, itemType: "beat" }} showProducer={false} />
-                  )
-                )}
-              </div>
+                  ))}
+                </div>
+              </>
             )
           ) : (
             samplePacks.length === 0 ? (
@@ -253,15 +256,18 @@ export default function ProducerPage() {
                 <p className="text-muted-foreground">This producer hasn&apos;t published any sample packs yet.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                {samplePacks.map((pack, idx) =>
-                  idx === 0 ? (
+              <>
+                <div className="grid grid-cols-2 gap-4 md:hidden">
+                  {samplePacks.map((pack) => (
                     <FeaturedCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} showProducer={false} />
-                  ) : (
+                  ))}
+                </div>
+                <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                  {samplePacks.map((pack) => (
                     <ItemCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} showProducer={false} />
-                  )
-                )}
-              </div>
+                  ))}
+                </div>
+              </>
             )
           )}
         </section>
