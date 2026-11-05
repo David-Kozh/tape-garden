@@ -66,7 +66,7 @@ export default function ApplyPage() {
         <div className="max-w-md w-full space-y-6 text-center">
           <h1 className="text-2xl font-medium tracking-tight">Application Received</h1>
           <p className="text-muted-foreground leading-relaxed">
-            Thank you for sharing your work with us. We take the time to review each submission carefully, and we will be in touch via email soon.
+            Thank you! We take the time to review each submission carefully, and we will be in touch via email soon.
           </p>
         </div>
       </main>

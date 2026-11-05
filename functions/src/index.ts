@@ -30,6 +30,13 @@ export const onUserCreatedHandler = functions
     console.log(`[onUserCreated] Initializing profile for user: ${uid} (${finalEmail})`);
 
     try {
+      const db = getFirestore(admin.app(), "tape-garden-db");
+      const existingUserDoc = await db.collection("users").doc(uid).get();
+      if (existingUserDoc.exists && existingUserDoc.data()?.role && existingUserDoc.data()?.role !== "buyer") {
+        console.log(`[onUserCreated] User ${uid} already provisioned as ${existingUserDoc.data()?.role}, skipping buyer default.`);
+        return;
+      }
+
       // 1. Assign custom JWT claims (role and boolean flag for client-side and middleware route checking)
       await admin.auth().setCustomUserClaims(uid, {
         role: "buyer",
@@ -38,7 +45,6 @@ export const onUserCreatedHandler = functions
       console.log(`[onUserCreated] Successfully set custom claims (role: buyer) for user: ${uid}`);
 
       // 2. Provision the database profile document in the /users collection
-      const db = getFirestore(admin.app(), "tape-garden-db");
       await db.collection("users").doc(uid).set({
         uid: uid,
         role: "buyer",
@@ -139,7 +145,12 @@ export const reviewApplication = functions
           // Generate password reset link for new or existing users to set their password
           let resetLink = "";
           try {
-            resetLink = await admin.auth().generatePasswordResetLink(email);
+            const firebaseResetLink = await admin.auth().generatePasswordResetLink(email);
+            const parsedUrl = new URL(firebaseResetLink);
+            const oobCode = parsedUrl.searchParams.get("oobCode");
+            resetLink = oobCode
+              ? `https://www.tapegarden.shop/welcome?oobCode=${encodeURIComponent(oobCode)}`
+              : firebaseResetLink;
           } catch (e) {
             console.error(`[reviewApplication] Could not generate reset link for ${email}`, e);
           }
