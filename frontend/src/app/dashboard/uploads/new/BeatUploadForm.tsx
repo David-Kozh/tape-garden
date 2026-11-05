@@ -455,15 +455,16 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
           </CardContent>
         </Card>
 
-        <div className="bg-card border border-border p-6 rounded-xl flex items-center justify-between shadow-sm">
-          <div>
+        <div className="bg-card border border-border p-6 rounded-xl flex items-center justify-between gap-4 shadow-sm">
+          <div className="flex-1 min-w-0">
             {isUploading ? (
-              <div className="flex flex-col gap-2 w-64">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground flex items-center gap-1">
-                    <Loader2 className="w-3 h-3 animate-spin" /> {uploadStatus}
+              <div className="flex flex-col gap-2 w-full max-w-64">
+                <div className="flex justify-between items-center gap-2 text-sm">
+                  <span className="text-muted-foreground flex items-center gap-1 min-w-0">
+                    <Loader2 className="w-3 h-3 animate-spin shrink-0" />
+                    <span className="truncate">{uploadStatus}</span>
                   </span>
-                  <span className="font-medium">{Math.round(uploadProgress)}%</span>
+                  <span className="font-medium shrink-0">{Math.round(uploadProgress)}%</span>
                 </div>
                 <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                   <div
@@ -482,7 +483,7 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
             type="submit"
             size="lg"
             disabled={isUploading || !title || !previewFile || !stemsFile || !price}
-            className="gap-2"
+            className="gap-2 shrink-0"
           >
             {isUploading ? (
               <>Publishing...</>
