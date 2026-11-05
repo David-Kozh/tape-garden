@@ -18,7 +18,7 @@ import { Search, SlidersHorizontal, Loader2 } from "lucide-react";
 const AVAILABLE_BEAT_GENRES = ["Hip Hop", "R&B", "Trap", "Lo-Fi", "Pop", "Electronic", "Boom Bap", "Drill"];
 const AVAILABLE_PACK_CATEGORIES = ["Drums", "Melodies", "Vocals", "One Shots", "Loops", "FX", "Presets", "MIDI"];
 
-export function BeatsGalleryClient() {
+export function GalleryClient() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

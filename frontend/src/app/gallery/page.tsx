@@ -1,4 +1,4 @@
-import { BeatsGalleryClient } from "@/components/BeatsGalleryClient";
+import { GalleryClient } from "@/components/GalleryClient";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
@@ -14,7 +14,7 @@ export default function GalleryPage() {
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     }>
-      <BeatsGalleryClient />
+      <GalleryClient />
     </Suspense>
   );
 }
