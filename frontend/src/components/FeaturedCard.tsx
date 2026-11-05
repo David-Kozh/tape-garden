@@ -69,19 +69,20 @@ export function FeaturedCard({ item, showProducer = true, curated = false }: Fea
 
           {/* Play Overlay */}
           <div
-            className={`absolute inset-0 bg-black/20 flex items-center justify-center z-20 transition-opacity duration-300 ${isCurrentItem && isPlaying ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+            className={`absolute inset-0 flex items-center justify-center z-20 transition-colors duration-300 ${isCurrentItem && isPlaying ? "bg-black/20" : "bg-black/0 group-hover:bg-black/20"
               }`}
           >
             <Button
               size="icon"
-              variant="secondary"
+              variant="ghost"
               onClick={handlePlayClick}
-              className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform text-zinc-900 hover:bg-leaf-200"
+              className={`rounded-full w-12 h-12 bg-white/30 dark:bg-lilac-100/20 backdrop-blur-md border border-white/40 dark:border-bg-lilac-white/20 shadow-lg hover:scale-110 transition-all duration-300 text-zinc-900 dark:text-lilac-white hover:bg-lilac-200/20 dark:hover:bg-lilac-400/40 hover:border-lilac-200/60 dark:hover:border-lilac-400/40 hover:text-zinc-900 dark:hover:text-lilac-white ${isCurrentItem && isPlaying ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                }`}
             >
               {isCurrentItem && isPlaying ? (
-                <PauseCircle className="size-10 stroke-[1.5]" />
+                <PauseCircle className="size-10 stroke-[1] md:stroke-[1.5]" />
               ) : (
-                <PlayCircle className="size-10 stroke-[1.5]" />
+                <PlayCircle className="size-10 stroke-[1] md:stroke-[1.5]" />
               )}
             </Button>
           </div>
