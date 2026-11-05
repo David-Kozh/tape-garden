@@ -272,6 +272,7 @@ export default function SettingsPage() {
               <Label htmlFor="displayName">Display Name</Label>
               <Input
                 id="displayName"
+                className="bg-paper-400 dark:bg-graphite-700 dark:border-graphite-500/50"
                 placeholder="Your producer name"
                 {...form.register("displayName")}
               />
@@ -289,7 +290,7 @@ export default function SettingsPage() {
                 <Textarea
                   id="bio"
                   placeholder="Tell us about yourself and your sound..."
-                  className="h-32 resize-none"
+                  className="h-32 resize-none bg-paper-400 dark:bg-graphite-700 dark:border-graphite-500/50"
                   {...form.register("bio")}
                 />
                 {form.formState.errors.bio && (
@@ -306,7 +307,7 @@ export default function SettingsPage() {
                 <Label htmlFor="backgroundPattern">Profile Background Pattern</Label>
                 <select
                   id="backgroundPattern"
-                  className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-paper-400 dark:bg-graphite-700 dark:border-graphite-500/50 px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                   {...form.register("backgroundPattern")}
                 >
                   <option value="none">None (Solid Color)</option>
@@ -347,7 +348,7 @@ export default function SettingsPage() {
                           <PlatformIcon control={form.control} index={index} />
                         </div>
                         <select
-                          className="appearance-none flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent pl-8 pr-8 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          className="appearance-none flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-paper-400 dark:bg-graphite-700 dark:border-graphite-500/50 pl-8 pr-8 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                           {...form.register(`socialLinks.${index}.platform`)}
                         >
                           {socialPlatforms.map((p) => (
@@ -360,6 +361,7 @@ export default function SettingsPage() {
                       </div>
                       <div className="flex-1 space-y-1">
                         <Input
+                          className="h-9 border border-input bg-paper-400 dark:bg-graphite-700 dark:border-graphite-500/50"
                           placeholder="https://..."
                           {...form.register(`socialLinks.${index}.url`)}
                         />
