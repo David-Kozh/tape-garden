@@ -35,7 +35,7 @@ export interface ProducerIntakeProps {
 
 export function ProducerIntake({ mode, token, oobCode }: ProducerIntakeProps) {
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, refreshAuth } = useAuth();
 
   const [step, setStep] = useState<Step>("validating");
   const [errorTitle, setErrorTitle] = useState(
@@ -325,15 +325,6 @@ export function ProducerIntake({ mode, token, oobCode }: ProducerIntakeProps) {
     }
   };
 
-  const refreshSessionCookie = async () => {
-    if (!auth.currentUser) return;
-    const tokenResult = await auth.currentUser.getIdTokenResult(true);
-    const isSecure = window.location.protocol === "https:";
-    document.cookie = `__session=${tokenResult.token}; path=/; max-age=3600; SameSite=Lax${
-      isSecure ? "; Secure" : ""
-    }`;
-  };
-
   const handleAccept = async (skipProfile = false) => {
     setStep("accepting");
     try {
@@ -382,11 +373,11 @@ export function ProducerIntake({ mode, token, oobCode }: ProducerIntakeProps) {
         }
       }
 
-      // Force reload auth token & update __session cookie so middleware sees producer claim
-      await refreshSessionCookie();
+      // Force reload auth token, React AuthContext role state, & __session cookie
+      await refreshAuth();
 
       toast.success("Welcome to Tape Garden! Your producer account is ready.");
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     } catch (err: unknown) {
       const error = err as Error & { message?: string };
       console.error("Onboarding completion error:", error);

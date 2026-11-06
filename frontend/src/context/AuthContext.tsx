@@ -10,6 +10,7 @@ interface AuthContextType {
   role: UserRole | null;
   loading: boolean;
   logout: () => Promise<void>;
+  refreshAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType>({
   role: null,
   loading: true,
   logout: async () => { },
+  refreshAuth: async () => { },
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -24,30 +26,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const syncUserClaims = async (firebaseUser: User) => {
+    setUser(firebaseUser);
+    try {
+      // Force refresh the token to get the latest custom claims/roles
+      const tokenResult = await firebaseUser.getIdTokenResult(true);
+
+      // Set the session cookie for Next.js middleware security
+      const isSecure = window.location.protocol === "https:";
+      document.cookie = `__session=${tokenResult.token}; path=/; max-age=3600; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+
+      // Custom claims can be mapped directly to user role.
+      // Fallback checking for explicit flags like admin/producer or default to buyer.
+      const userRole =
+        (tokenResult.claims.role as UserRole) ||
+        (tokenResult.claims.admin ? "admin" : tokenResult.claims.producer ? "producer" : "buyer");
+
+      setRole(userRole);
+    } catch (error) {
+      console.error("Failed to load user custom claims:", error);
+      setRole("buyer"); // Default to buyer access on error
+    }
+  };
+
   useEffect(() => {
     // Listen to Firebase Auth state shifts
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        setUser(firebaseUser);
-        try {
-          // Force refresh the token to get the latest custom claims/roles
-          const tokenResult = await firebaseUser.getIdTokenResult(true);
-
-          // Set the session cookie for Next.js middleware security
-          const isSecure = window.location.protocol === "https:";
-          document.cookie = `__session=${tokenResult.token}; path=/; max-age=3600; SameSite=Lax${isSecure ? '; Secure' : ''}`;
-
-          // Custom claims can be mapped directly to user role.
-          // Fallback checking for explicit flags like admin/producer or default to buyer.
-          const userRole =
-            (tokenResult.claims.role as UserRole) ||
-            (tokenResult.claims.admin ? "admin" : tokenResult.claims.producer ? "producer" : "buyer");
-
-          setRole(userRole);
-        } catch (error) {
-          console.error("Failed to load user custom claims:", error);
-          setRole("buyer"); // Default to buyer access on error
-        }
+        await syncUserClaims(firebaseUser);
       } else {
         setUser(null);
         setRole(null);
@@ -60,12 +66,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  const refreshAuth = async () => {
+    if (auth.currentUser) {
+      await auth.currentUser.reload();
+      await syncUserClaims(auth.currentUser);
+    }
+  };
+
   const logout = async () => {
     await signOut(auth);
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, loading, logout }}>
+    <AuthContext.Provider value={{ user, role, loading, logout, refreshAuth }}>
       {children}
     </AuthContext.Provider>
   );
