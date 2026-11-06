@@ -191,7 +191,7 @@ export function GalleryClient() {
                     <FeaturedCard key={beat.id} item={{ ...beat, itemType: "beat" }} />
                   ))}
                 </div>
-                <div className="col-span-full hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div className="col-span-full hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                   {filteredBeats.map(beat => (
                     <ItemCard key={beat.id} item={{ ...beat, itemType: "beat" }} />
                   ))}
@@ -212,7 +212,7 @@ export function GalleryClient() {
                     <FeaturedCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} />
                   ))}
                 </div>
-                <div className="col-span-full hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div className="col-span-full hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                   {filteredPacks.map(pack => (
                     <ItemCard key={pack.id} item={{ ...pack, itemType: "samplePack" }} />
                   ))}

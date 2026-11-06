@@ -7,6 +7,8 @@ import { getRandomCuratedItems, CuratedCatalogItem } from "@/lib/services/galler
 import { CatalogItem } from "@/components/ItemCard";
 import heroBackground from "../../public/background.jpg";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   let curatedItems: CuratedCatalogItem[] = [];
   try {
