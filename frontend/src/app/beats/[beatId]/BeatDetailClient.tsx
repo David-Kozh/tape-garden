@@ -155,7 +155,7 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
                   )}
                 </ul>
               </CardContent>
-              <CardFooter className="!bg-brand-bglight-600 !dark:bg-brand-bgdark-600">
+              <CardFooter className="!bg-paper-600 !dark:bg-graphite-500">
                 {beat.producer.acceptingPayments ? (
                   <Button className="w-full" onClick={() => handleAddToCart(license)}>Add to Cart</Button>
                 ) : (
