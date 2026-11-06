@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   let curatedItems: CuratedCatalogItem[] = [];
   try {
-    curatedItems = await getRandomCuratedItems(2);
+    curatedItems = await getRandomCuratedItems(5);
   } catch (error) {
     console.error("Error fetching curated items:", error);
   }
@@ -55,8 +55,11 @@ export default async function Home() {
     },
   ];
 
-  // Merge: Take all real curated items, and if fewer than 2, fill the rest with defaultTracks
-  const displayTracks: CatalogItem[] = [...curatedItems, ...defaultTracks].slice(0, 2);
+  // Merge: Take up to 5 real curated items; if fewer than 2, fill up to 2 with defaultTracks
+  const displayTracks: CatalogItem[] =
+    curatedItems.length < 2
+      ? [...curatedItems, ...defaultTracks].slice(0, 2)
+      : curatedItems.slice(0, 5);
 
   return (
     <div className="flex-1 w-full relative text-zinc-900 selection:bg-emerald-500/20 selection:text-emerald-900 flex flex-col justify-between overflow-x-hidden antialiased md:px-4">
