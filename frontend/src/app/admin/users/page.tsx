@@ -75,7 +75,7 @@ export default function AdminUsersPage() {
 
   if (loading) {
     return (
-      <div className="space-y-4 p-8">
+      <div className="space-y-4">
         <Skeleton className="h-10 w-1/4" />
         <Skeleton className="h-[400px] w-full" />
       </div>
@@ -87,10 +87,10 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-8 p-8">
+    <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold tracking-tight">Producer Accounts</h2>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground mt-1 text-sm md:text-base">
           Manage producer accounts, adjust slot allocations, and suspend users if necessary.
         </p>
       </div>

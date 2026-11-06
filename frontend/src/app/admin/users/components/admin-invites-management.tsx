@@ -89,7 +89,7 @@ export function AdminInvitesManagement() {
       const generateInviteFn = httpsCallable<{ inviteeName: string }, { token: string }>(functions, "generateInvite");
       const result = await generateInviteFn({ inviteeName: inviteeName.trim() });
       const token = result.data.token;
-      
+
       const link = `${window.location.origin}/invite/${token}`;
       setLastGeneratedLink(link);
       setInviteeName("");
@@ -110,7 +110,7 @@ export function AdminInvitesManagement() {
 
   const handleRevoke = async (inviteId: string) => {
     if (!confirm("Are you sure you want to revoke this invite?")) return;
-    
+
     try {
       await updateDoc(doc(db, "invites", inviteId), { status: "expired" });
       toast.success("Invite revoked");
@@ -131,17 +131,18 @@ export function AdminInvitesManagement() {
     <div className="space-y-6 mt-16 pt-8 border-t">
       <div>
         <h3 className="text-xl font-semibold tracking-tight">Curated Invites</h3>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="text-muted-foreground mt-1 text-sm md:text-base">
           Generate direct invite links for producers to bypass the standard application pipeline.
         </p>
       </div>
 
-      <div className="bg-secondary/20 p-6 rounded-lg border space-y-4">
-        <h4 className="font-medium">Generate New Invite</h4>
-        <form onSubmit={handleGenerateInvite} className="flex items-end gap-4 max-w-xl">
-          <div className="space-y-2 flex-1">
-            <Input 
-              placeholder="Invitee Name (e.g., J Dilla)" 
+      <div className="bg-secondary/20 p-4 rounded-lg border space-y-2">
+        <h4 className="font-medium leading-tight">Generate New Invite</h4>
+        <form onSubmit={handleGenerateInvite} className="flex items-end gap-2 max-w-xl">
+          <div className="flex-1">
+            <Input
+              className="text-sm md:text-base"
+              placeholder="Invitee Name"
               value={inviteeName}
               onChange={(e) => setInviteeName(e.target.value)}
               disabled={isGenerating}
@@ -212,18 +213,18 @@ export function AdminInvitesManagement() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
+                      <Button
+                        variant="outline"
+                        size="sm"
                         title="Copy Link"
                         onClick={() => copyToClipboard(`${window.location.origin}/invite/${invite.id}`)}
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
                       {invite.status === "pending" && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="text-destructive hover:bg-destructive/10"
                           title="Revoke Invite"
                           onClick={() => handleRevoke(invite.id)}
