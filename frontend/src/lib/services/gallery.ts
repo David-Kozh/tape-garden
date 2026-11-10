@@ -96,7 +96,8 @@ export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<
       // Strip fileUrl for safety before returning to UI
       const safeLicenses = beat.licenses?.map((license: BeatLicense) => ({
         type: license.type,
-        price: license.price
+        price: license.price,
+        ...(typeof license.streamCap === "number" ? { streamCap: license.streamCap } : {}),
       })) as Omit<BeatLicense, "fileUrl">[];
 
       return {
@@ -135,7 +136,11 @@ export async function getBeatById(id: string): Promise<BeatWithProducer | null> 
   
   // We should not return fileUrl in public functions, so we strip it from licenses
   const safeLicenses = beatData.licenses?.map(license => {
-    return { type: license.type, price: license.price };
+    return {
+      type: license.type,
+      price: license.price,
+      ...(typeof license.streamCap === "number" ? { streamCap: license.streamCap } : {}),
+    };
   }) as Omit<BeatLicense, "fileUrl">[];
   
   const safeBeat = {
@@ -286,6 +291,7 @@ export async function getRandomCuratedItems(count: number = 2): Promise<CuratedC
       const safeLicenses = beat.licenses?.map((license: BeatLicense) => ({
         type: license.type,
         price: license.price,
+        ...(typeof license.streamCap === "number" ? { streamCap: license.streamCap } : {}),
       })) as Omit<BeatLicense, "fileUrl">[];
 
       return {

@@ -8,8 +8,16 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Edit3, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
-import type { Beat } from "@/types";
+import type { Beat, BeatLicense } from "@/types";
 import { toast } from "sonner";
+import {
+  LicenseSelector,
+  createDefaultLicenseItems,
+  validateLicenseItems,
+  DEFAULT_STREAM_CAP,
+  type LicenseFormItem,
+  type CustomizableLicenseType,
+} from "@/components/dashboard/LicenseSelector";
 
 export default function EditBeatPage() {
   const { user } = useAuth();
@@ -24,7 +32,10 @@ export default function EditBeatPage() {
   const [bpm, setBpm] = useState("");
   const [key, setKey] = useState("");
   const [tags, setTags] = useState("");
-  const [price, setPrice] = useState("");
+  const [licenses, setLicenses] = useState<LicenseFormItem[]>(() =>
+    createDefaultLicenseItems()
+  );
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const isTypingBpmRef = useRef(false);
 
   const handleBpmKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -75,7 +86,31 @@ export default function EditBeatPage() {
         setTags((data.tags || []).join(", "));
         
         if (data.licenses && data.licenses.length > 0) {
-          setPrice(data.licenses[0].price.toString());
+          const seen = new Set<CustomizableLicenseType>();
+          const mapped: LicenseFormItem[] = [];
+          for (const [idx, l] of data.licenses.entries()) {
+            const normalizedType: CustomizableLicenseType =
+              l.type === "premium-unlimited" ||
+              l.type === "unlimited" ||
+              l.type === "exclusive"
+                ? "premium-unlimited"
+                : "limited";
+            if (seen.has(normalizedType)) continue;
+            seen.add(normalizedType);
+            mapped.push({
+              id: `license-${normalizedType}-${idx}`,
+              type: normalizedType,
+              price: typeof l.price === "number" ? l.price.toString() : "",
+              streamCap:
+                typeof l.streamCap === "number"
+                  ? l.streamCap.toString()
+                  : String(DEFAULT_STREAM_CAP),
+            });
+          }
+          mapped.sort((a, b) => (a.type === "limited" ? -1 : b.type === "limited" ? 1 : 0));
+          if (mapped.length > 0) {
+            setLicenses(mapped.slice(0, 2));
+          }
         }
 
       } catch (err) {
@@ -92,8 +127,18 @@ export default function EditBeatPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !id) return;
-    if (!title.trim() || !bpm || !key.trim() || !price) {
-      setError("Title, BPM, key, and price are required.");
+    setAttemptedSubmit(true);
+
+    const licenseValidation = validateLicenseItems(licenses);
+    if (!title.trim() || !bpm || !key.trim()) {
+      setError("Title, BPM, and key are required.");
+      return;
+    }
+    if (!licenseValidation.valid) {
+      setError(
+        licenseValidation.globalError ||
+          "Please fix the license pricing or stream cap errors before saving."
+      );
       return;
     }
 
@@ -105,16 +150,32 @@ export default function EditBeatPage() {
       
       const parsedBpm = bpm ? parseInt(bpm, 10) : null;
       const parsedTags = tags.split(",").map(t => t.trim()).filter(Boolean);
-      const parsedPrice = parseFloat(price);
 
-      // Fetch existing licenses to update the price of the first one
+      // Fetch existing licenses to preserve fileUrl paths
       const beatDoc = await getDoc(beatRef);
       const data = beatDoc.data() as Beat;
-      const updatedLicenses = [...(data.licenses || [])];
-      
-      if (updatedLicenses.length > 0) {
-        updatedLicenses[0].price = parsedPrice;
-      }
+      const existingLicenses = data.licenses || [];
+      const fallbackFileUrl = existingLicenses[0]?.fileUrl || "";
+
+      const updatedLicenses: BeatLicense[] = licenseValidation.sortedLicenses.map(
+        (license) => {
+          const existingMatch = existingLicenses.find(
+            (el) =>
+              el.type === license.type ||
+              (license.type === "limited" && el.type === "non-exclusive") ||
+              (license.type === "premium-unlimited" &&
+                (el.type === "unlimited" || el.type === "exclusive"))
+          );
+          return {
+            type: license.type,
+            price: license.price,
+            ...(license.type === "limited" && typeof license.streamCap === "number"
+              ? { streamCap: license.streamCap }
+              : {}),
+            fileUrl: existingMatch?.fileUrl || fallbackFileUrl,
+          };
+        }
+      );
 
       await updateDoc(beatRef, {
         title,
@@ -143,7 +204,7 @@ export default function EditBeatPage() {
     );
   }
 
-  if (error && error !== "Title, BPM, key, and price are required.") {
+  if (error && (error === "Beat not found." || error === "You do not have permission to edit this beat." || error === "Could not load beat data.")) {
     return (
       <div className="max-w-2xl mx-auto mt-8">
         <Card className="border-destructive/50 bg-destructive/5">
@@ -251,26 +312,18 @@ export default function EditBeatPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Pricing</CardTitle>
-            <CardDescription>Update the price for the non-exclusive license tier.</CardDescription>
+            <CardTitle>Licensing &amp; Pricing</CardTitle>
+            <CardDescription>
+              Update the license tiers and pricing for your beat. Limited licenses must be priced lower than Premium-Unlimited.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2 max-w-xs">
-              <label htmlFor="price" className="text-sm font-medium">Price (USD) *</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                <input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  required
-                  className="flex h-10 w-full rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  disabled={isSaving}
-                />
-              </div>
-            </div>
+            <LicenseSelector
+              licenses={licenses}
+              onChange={setLicenses}
+              disabled={isSaving}
+              showAllErrors={attemptedSubmit}
+            />
           </CardContent>
         </Card>
 
@@ -290,7 +343,13 @@ export default function EditBeatPage() {
             <Button
               type="submit"
               size="lg"
-              disabled={isSaving || !title.trim() || !bpm || !key.trim() || !price}
+              disabled={
+                isSaving ||
+                !title.trim() ||
+                !bpm ||
+                !key.trim() ||
+                !validateLicenseItems(licenses).valid
+              }
               className="gap-2"
             >
               {isSaving ? (

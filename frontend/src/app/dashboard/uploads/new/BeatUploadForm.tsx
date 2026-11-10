@@ -11,6 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle, UploadCloud, CheckCircle2, Music, ImageIcon, Loader2, ArrowLeft } from "lucide-react";
 import type { User } from "@/types";
+import {
+  LicenseSelector,
+  createDefaultLicenseItems,
+  validateLicenseItems,
+  type LicenseFormItem,
+} from "@/components/dashboard/LicenseSelector";
 
 export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
   const { user } = useAuth();
@@ -25,7 +31,10 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
   const [bpm, setBpm] = useState("");
   const [key, setKey] = useState("");
   const [tags, setTags] = useState("");
-  const [price, setPrice] = useState("29.99");
+  const [licenses, setLicenses] = useState<LicenseFormItem[]>(() =>
+    createDefaultLicenseItems()
+  );
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [stemsFile, setStemsFile] = useState<File | null>(null);
@@ -172,8 +181,18 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (!title.trim() || !bpm || !key.trim() || !previewFile || !stemsFile || !price) {
+    setAttemptedSubmit(true);
+
+    const licenseValidation = validateLicenseItems(licenses);
+    if (!title.trim() || !bpm || !key.trim() || !previewFile || !stemsFile) {
       setError("Please fill in all required fields and select files.");
+      return;
+    }
+    if (!licenseValidation.valid) {
+      setError(
+        licenseValidation.globalError ||
+          "Please fix the license pricing or stream cap errors before publishing."
+      );
       return;
     }
 
@@ -218,14 +237,15 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
           key,
           tags: tags.split(",").map(t => t.trim()).filter(Boolean),
           ...(coverArtFileName ? { coverArtFile: coverArtFileName } : {}),
-          licenses: [
-            {
-              type: "non-exclusive",
-              price: parseFloat(price),
-              audioPreviewFile: previewFileName,
-              stemFile: stemsFileName
-            }
-          ]
+          licenses: licenseValidation.sortedLicenses.map((license) => ({
+            type: license.type,
+            price: license.price,
+            ...(license.type === "limited" && typeof license.streamCap === "number"
+              ? { streamCap: license.streamCap }
+              : {}),
+            audioPreviewFile: previewFileName,
+            stemFile: stemsFileName,
+          })),
         }
       });
       setUploadProgress(100);
@@ -458,27 +478,18 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Pricing</CardTitle>
-            <CardDescription>Set the price for the non-exclusive license tier.</CardDescription>
+            <CardTitle>Licensing &amp; Pricing</CardTitle>
+            <CardDescription>
+              Configure 1 to 2 license tiers. Limited licenses must be priced lower than Premium-Unlimited.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2 max-w-xs">
-              <label htmlFor="price" className="text-sm font-medium">Price (USD) *</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                <input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  required
-                  className="flex h-10 w-full rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="29.99"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  disabled={isUploading}
-                />
-              </div>
-            </div>
+            <LicenseSelector
+              licenses={licenses}
+              onChange={setLicenses}
+              disabled={isUploading}
+              showAllErrors={attemptedSubmit}
+            />
           </CardContent>
         </Card>
 
@@ -509,7 +520,15 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
           <Button
             type="submit"
             size="lg"
-            disabled={isUploading || !title.trim() || !bpm || !key.trim() || !previewFile || !stemsFile || !price}
+            disabled={
+              isUploading ||
+              !title.trim() ||
+              !bpm ||
+              !key.trim() ||
+              !previewFile ||
+              !stemsFile ||
+              !validateLicenseItems(licenses).valid
+            }
             className="gap-2 shrink-0"
           >
             {isUploading ? (

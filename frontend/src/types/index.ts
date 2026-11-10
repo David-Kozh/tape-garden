@@ -9,7 +9,12 @@ export type ProducerStatus = "pending" | "approved" | "suspended";
 
 export type ItemType = "beat" | "samplePack";
 
-export type LicenseType = "non-exclusive" | "exclusive" | "unlimited";
+export type LicenseType =
+  | "limited"
+  | "premium-unlimited"
+  | "non-exclusive"
+  | "exclusive"
+  | "unlimited";
 
 export type PurchaseStatus = "pending" | "completed" | "refunded";
 
@@ -50,6 +55,7 @@ export interface User {
 export interface BeatLicense {
   type: LicenseType;
   price: number;
+  streamCap?: number; // Stream limit for "limited" licenses (default 50,000)
   fileUrl: string; // GCS path to high-quality file / stems (Private bucket)
 }
 

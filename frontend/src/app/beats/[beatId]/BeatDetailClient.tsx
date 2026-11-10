@@ -125,12 +125,30 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
           {beat.licenses?.map((license) => (
             <Card key={license.type} className="flex flex-col">
               <CardHeader>
-                <CardTitle className="capitalize">{license.type}</CardTitle>
+                <CardTitle className="capitalize">
+                  {license.type.replace("-", " ")}
+                </CardTitle>
                 <CardDescription>License terms and usage rights</CardDescription>
               </CardHeader>
               <CardContent className="flex-1">
                 <div className="text-3xl font-bold mb-4">${license.price}</div>
                 <ul className="text-sm text-muted-foreground space-y-2 list-disc list-inside">
+                  {license.type === "limited" && (
+                    <>
+                      <li>High quality MP3/WAV + Stems</li>
+                      <li>
+                        Up to {(license.streamCap ?? 50000).toLocaleString()} streams
+                      </li>
+                      <li>Basic performance rights</li>
+                    </>
+                  )}
+                  {license.type === "premium-unlimited" && (
+                    <>
+                      <li>High quality MP3/WAV + Stems</li>
+                      <li>Unlimited streams</li>
+                      <li>Full commercial rights</li>
+                    </>
+                  )}
                   {license.type === "non-exclusive" && (
                     <>
                       <li>High quality MP3/WAV</li>

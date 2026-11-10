@@ -336,6 +336,7 @@ interface PublishBeatData {
     licenses: {
       type: string;
       price: number;
+      streamCap?: number;
       audioPreviewFile: string;
       stemFile: string;
     }[];
@@ -365,6 +366,19 @@ export const publishBeat = functions
 
     if (!uploadId || !metadata || !metadata.title || !metadata.licenses || metadata.licenses.length === 0) {
       throw new functions.https.HttpsError("invalid-argument", "Missing required fields to publish beat.");
+    }
+
+    if (metadata.licenses.length > 2) {
+      throw new functions.https.HttpsError("invalid-argument", "A maximum of 2 licenses is allowed.");
+    }
+
+    const limitedLic = metadata.licenses.find((l) => l.type === "limited");
+    const unlimitedLic = metadata.licenses.find((l) => l.type === "premium-unlimited");
+    if (limitedLic && unlimitedLic && limitedLic.price >= unlimitedLic.price) {
+      throw new functions.https.HttpsError(
+        "invalid-argument",
+        "Limited license price must be lower than Premium-Unlimited license price."
+      );
     }
 
     const db = getFirestore(admin.app(), "tape-garden-db");
@@ -432,50 +446,72 @@ export const publishBeat = functions
         coverArtUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(coverDestPath)}?alt=media`;
       }
 
-      for (const license of metadata.licenses) {
-        // Move preview
-        const previewSrcPath = `${stagingPrefix}${license.audioPreviewFile}`;
-        const previewDestPath = `previews/beats/${beatId}/${license.audioPreviewFile}`;
+      const sortedInputLicenses = [...metadata.licenses].sort((a, b) => a.price - b.price);
+      const movedPreviews = new Map<string, string>();
+      const movedStems = new Map<string, string>();
 
-        const previewSrcFile = bucket.file(previewSrcPath);
-        const [previewExists] = await previewSrcFile.exists();
-        if (!previewExists) {
-          throw new functions.https.HttpsError("failed-precondition", `Staging file missing: ${previewSrcPath}`);
+      for (const license of sortedInputLicenses) {
+        // Move preview (or reuse if already moved for a prior license on the same beat)
+        let previewUrlForLicense = movedPreviews.get(license.audioPreviewFile);
+        if (!previewUrlForLicense) {
+          const previewSrcPath = `${stagingPrefix}${license.audioPreviewFile}`;
+          const previewDestPath = `previews/beats/${beatId}/${license.audioPreviewFile}`;
+
+          const previewSrcFile = bucket.file(previewSrcPath);
+          const [previewExists] = await previewSrcFile.exists();
+          if (!previewExists) {
+            throw new functions.https.HttpsError("failed-precondition", `Staging file missing: ${previewSrcPath}`);
+          }
+
+          // Check size: 100MB max
+          const [previewMetadata] = await previewSrcFile.getMetadata();
+          if (Number(previewMetadata.size) > 100 * 1024 * 1024) {
+            throw new functions.https.HttpsError("invalid-argument", "Preview file exceeds 100MB limit.");
+          }
+
+          // Move preview file
+          await previewSrcFile.move(previewDestPath);
+
+          previewUrlForLicense = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(previewDestPath)}?alt=media`;
+          movedPreviews.set(license.audioPreviewFile, previewUrlForLicense);
         }
+        audioPreviewUrl = previewUrlForLicense;
 
-        // Check size: 100MB max
-        const [previewMetadata] = await previewSrcFile.getMetadata();
-        if (Number(previewMetadata.size) > 100 * 1024 * 1024) {
-          throw new functions.https.HttpsError("invalid-argument", "Preview file exceeds 100MB limit.");
-        }
-
-        // Move preview file
-        await previewSrcFile.move(previewDestPath);
-
-        // Save preview url (assuming it's public)
-        audioPreviewUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(previewDestPath)}?alt=media`;
-
-        // Move stems
-        const stemsSrcPath = `${stagingPrefix}${license.stemFile}`;
+        // Move stems (or copy from already-moved destination if shared across licenses)
         const stemsDestPath = `purchased/beats/${beatId}/${license.type}/${license.stemFile}`;
+        const existingMovedStemPath = movedStems.get(license.stemFile);
 
-        const stemsSrcFile = bucket.file(stemsSrcPath);
-        const [stemsExists] = await stemsSrcFile.exists();
-        if (!stemsExists) {
-          throw new functions.https.HttpsError("failed-precondition", `Staging file missing: ${stemsSrcPath}`);
+        if (existingMovedStemPath) {
+          await bucket.file(existingMovedStemPath).copy(bucket.file(stemsDestPath));
+        } else {
+          const stemsSrcPath = `${stagingPrefix}${license.stemFile}`;
+          const stemsSrcFile = bucket.file(stemsSrcPath);
+          const [stemsExists] = await stemsSrcFile.exists();
+          if (!stemsExists) {
+            throw new functions.https.HttpsError("failed-precondition", `Staging file missing: ${stemsSrcPath}`);
+          }
+
+          // Check size: 500MB max
+          const [stemsFileMeta] = await stemsSrcFile.getMetadata();
+          if (Number(stemsFileMeta.size) > 500 * 1024 * 1024) {
+            throw new functions.https.HttpsError("invalid-argument", "Stems file exceeds 500MB limit.");
+          }
+
+          await stemsSrcFile.move(stemsDestPath);
+          movedStems.set(license.stemFile, stemsDestPath);
         }
-
-        // Check size: 500MB max
-        const [stemsFileMeta] = await stemsSrcFile.getMetadata();
-        if (Number(stemsFileMeta.size) > 500 * 1024 * 1024) {
-          throw new functions.https.HttpsError("invalid-argument", "Stems file exceeds 500MB limit.");
-        }
-
-        await stemsSrcFile.move(stemsDestPath);
 
         finalLicenses.push({
           type: license.type,
           price: license.price,
+          ...(license.type === "limited"
+            ? {
+                streamCap:
+                  typeof license.streamCap === "number" && license.streamCap >= 1
+                    ? Math.floor(license.streamCap)
+                    : 50000,
+              }
+            : {}),
           fileUrl: stemsDestPath, // store internal path
         });
       }
