@@ -134,20 +134,20 @@ export function validateLicenseItems(items: LicenseFormItem[]): LicenseValidatio
 
   const sortedLicenses: ValidatedLicensePayload[] = valid
     ? [...items]
-        .map((item) => {
-          const price = Number.parseFloat(item.price);
-          const payload: ValidatedLicensePayload = {
-            type: item.type,
-            price: Math.round(price * 100) / 100,
-          };
-          if (item.type === "limited") {
-            const parsedCap = Number.parseInt(item.streamCap, 10);
-            payload.streamCap =
-              !Number.isNaN(parsedCap) && parsedCap >= 1 ? parsedCap : DEFAULT_STREAM_CAP;
-          }
-          return payload;
-        })
-        .sort((a, b) => a.price - b.price)
+      .map((item) => {
+        const price = Number.parseFloat(item.price);
+        const payload: ValidatedLicensePayload = {
+          type: item.type,
+          price: Math.round(price * 100) / 100,
+        };
+        if (item.type === "limited") {
+          const parsedCap = Number.parseInt(item.streamCap, 10);
+          payload.streamCap =
+            !Number.isNaN(parsedCap) && parsedCap >= 1 ? parsedCap : DEFAULT_STREAM_CAP;
+        }
+        return payload;
+      })
+      .sort((a, b) => a.price - b.price)
     : [];
 
   return {
@@ -305,7 +305,7 @@ export function LicenseSelector({
 
   return (
     <div className="space-y-4">
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {licenses.map((license, index) => {
           const isLimited = license.type === "limited";
           const isExpanded = Boolean(expandedIds[license.id]);
@@ -335,7 +335,7 @@ export function LicenseSelector({
           const formattedCap = Number.parseInt(license.streamCap, 10);
           const capDisplay =
             !Number.isNaN(formattedCap) && formattedCap > 0
-              ? `${formattedCap.toLocaleString()} stream cap`
+              ? `${formattedCap.toLocaleString()} streams`
               : "Custom stream cap";
 
           return (
@@ -343,10 +343,10 @@ export function LicenseSelector({
               key={license.id}
               className="rounded-lg border border-border bg-background/60 p-3.5 transition-colors space-y-3"
             >
-              <div className="flex flex-col sm:flex-row sm:items-end gap-3">
-                {/* License Type Select */}
-                <div className="flex-1 space-y-1.5">
-                  <div className="flex items-center justify-between gap-2">
+              {/* License Type Select + Inline Pencil Button */}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between w-full">
                     <label
                       htmlFor={typeSelectId}
                       className="text-xs font-medium text-muted-foreground uppercase tracking-wider"
@@ -355,10 +355,27 @@ export function LicenseSelector({
                     </label>
                     {isLimited && (
                       <span className="text-xs text-muted-foreground">
-                        {capDisplay}
+                        • {capDisplay}
                       </span>
                     )}
                   </div>
+                  {licenses.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 -my-1 -mr-2"
+                      onClick={() => handleRemoveLicense(license.id)}
+                      disabled={disabled}
+                      aria-label={`Remove ${isLimited ? "Limited" : "Premium-Unlimited"} license`}
+                      title="Remove license"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
                   <select
                     id={typeSelectId}
                     name={`license-type-${index}`}
@@ -370,57 +387,18 @@ export function LicenseSelector({
                       )
                     }
                     disabled={disabled}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-9 flex-1 min-w-0 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="limited">Limited</option>
                     <option value="premium-unlimited">Premium-Unlimited</option>
                   </select>
-                </div>
 
-                {/* License Price Input */}
-                <div className="w-full sm:w-44 space-y-1.5">
-                  <label
-                    htmlFor={priceInputId}
-                    className="text-xs font-medium text-muted-foreground uppercase tracking-wider block"
-                  >
-                    Price (USD) *
-                  </label>
-                  <div className="relative">
-                    <span
-                      aria-hidden="true"
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm"
-                    >
-                      $
-                    </span>
-                    <input
-                      id={priceInputId}
-                      name={`license-price-${index}`}
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      required
-                      placeholder={isLimited ? "29.99" : "79.99"}
-                      value={license.price}
-                      onChange={(e) =>
-                        handlePriceChange(license.id, e.target.value)
-                      }
-                      onBlur={() => handlePriceBlur(license.id)}
-                      disabled={disabled}
-                      aria-invalid={isPriceInvalid ? "true" : "false"}
-                      aria-describedby={describedByIds || undefined}
-                      className="flex h-10 w-full rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-destructive"
-                    />
-                  </div>
-                </div>
-
-                {/* Compact Action Buttons: Edit Stream Cap (Limited only) & Remove License */}
-                <div className="flex items-center gap-1.5 self-end sm:pb-0.5">
                   {isLimited && (
                     <Button
                       type="button"
                       variant={isExpanded || showStreamCapError ? "secondary" : "outline"}
                       size="icon"
-                      className="h-10 w-10 shrink-0"
+                      className={isExpanded || showStreamCapError ? "h-9 w-9 shrink-0 dark:opacity-85" : "h-9 w-9 shrink-0 dark:bg-graphite-600"}
                       onClick={() => toggleExpanded(license.id)}
                       disabled={disabled}
                       aria-expanded={isExpanded || showStreamCapError}
@@ -431,87 +409,104 @@ export function LicenseSelector({
                       <Pencil className="w-4 h-4" />
                     </Button>
                   )}
-
-                  {licenses.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-10 w-10 shrink-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => handleRemoveLicense(license.id)}
-                      disabled={disabled}
-                      aria-label={`Remove ${isLimited ? "Limited" : "Premium-Unlimited"} license`}
-                      title="Remove license"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
                 </div>
               </div>
-
-              {/* Price Error Message */}
-              {showPriceError && itemError?.price && (
-                <p
-                  id={priceErrorId}
-                  className="text-xs text-destructive flex items-center gap-1.5"
-                >
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                  <span>{itemError.price}</span>
-                </p>
-              )}
 
               {/* Expandable Stream Cap Customization (Limited License Only) */}
               {isLimited && (isExpanded || showStreamCapError) && (
                 <div
                   id={streamCapPanelId}
-                  className="pt-2.5 border-t border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                  className="pt-2 border-t border-border/60 space-y-1.5"
                 >
-                  <div className="space-y-0.5">
+                  <div className="flex items-center justify-between gap-2">
                     <label
                       htmlFor={streamCapInputId}
-                      className="text-xs font-medium text-foreground block"
+                      className="text-xs font-medium text-muted-foreground uppercase tracking-wider"
                     >
                       Stream Cap
                     </label>
-                    <p className="text-xs text-muted-foreground">
-                      Maximum number of monetized audio streams allowed under this limited license.
+                    <span className="text-[11px] text-muted-foreground">
+                      Max monetized streams
+                    </span>
+                  </div>
+                  <input
+                    id={streamCapInputId}
+                    name={`license-stream-cap-${index}`}
+                    type="number"
+                    min="1"
+                    step="1"
+                    required
+                    value={license.streamCap}
+                    onChange={(e) =>
+                      handleStreamCapChange(license.id, e.target.value)
+                    }
+                    onBlur={() => markTouched(`${license.id}-streamCap`)}
+                    disabled={disabled}
+                    aria-invalid={showStreamCapError ? "true" : "false"}
+                    aria-describedby={
+                      showStreamCapError ? streamCapErrorId : undefined
+                    }
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-destructive"
+                  />
+                  {showStreamCapError && itemError?.streamCap && (
+                    <p
+                      id={streamCapErrorId}
+                      className="text-xs text-destructive flex items-center gap-1"
+                    >
+                      <AlertCircle
+                        className="w-3 h-3 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span>{itemError.streamCap}</span>
                     </p>
-                  </div>
-                  <div className="w-full sm:w-44 space-y-1">
-                    <input
-                      id={streamCapInputId}
-                      name={`license-stream-cap-${index}`}
-                      type="number"
-                      min="1"
-                      step="1"
-                      required
-                      value={license.streamCap}
-                      onChange={(e) =>
-                        handleStreamCapChange(license.id, e.target.value)
-                      }
-                      onBlur={() => markTouched(`${license.id}-streamCap`)}
-                      disabled={disabled}
-                      aria-invalid={showStreamCapError ? "true" : "false"}
-                      aria-describedby={
-                        showStreamCapError ? streamCapErrorId : undefined
-                      }
-                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-destructive"
-                    />
-                    {showStreamCapError && itemError?.streamCap && (
-                      <p
-                        id={streamCapErrorId}
-                        className="text-xs text-destructive flex items-center gap-1"
-                      >
-                        <AlertCircle
-                          className="w-3 h-3 shrink-0"
-                          aria-hidden="true"
-                        />
-                        <span>{itemError.streamCap}</span>
-                      </p>
-                    )}
-                  </div>
+                  )}
                 </div>
               )}
+
+              {/* License Price Input */}
+              <div className="space-y-1.5">
+                <label
+                  htmlFor={priceInputId}
+                  className="text-xs font-medium text-muted-foreground uppercase tracking-wider block"
+                >
+                  Price (USD) *
+                </label>
+                <div className="relative">
+                  <span
+                    aria-hidden="true"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm"
+                  >
+                    $
+                  </span>
+                  <input
+                    id={priceInputId}
+                    name={`license-price-${index}`}
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    required
+                    placeholder={isLimited ? "29.99" : "79.99"}
+                    value={license.price}
+                    onChange={(e) =>
+                      handlePriceChange(license.id, e.target.value)
+                    }
+                    onBlur={() => handlePriceBlur(license.id)}
+                    disabled={disabled}
+                    aria-invalid={isPriceInvalid ? "true" : "false"}
+                    aria-describedby={describedByIds || undefined}
+                    className="flex h-9 w-full rounded-md border border-input bg-background pl-8 pr-3 py-1.5 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 aria-[invalid=true]:border-destructive"
+                  />
+                </div>
+                {showPriceError && itemError?.price && (
+                  <p
+                    id={priceErrorId}
+                    className="text-xs text-destructive flex items-center gap-1.5"
+                  >
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                    <span>{itemError.price}</span>
+                  </p>
+                )}
+              </div>
             </div>
           );
         })}
