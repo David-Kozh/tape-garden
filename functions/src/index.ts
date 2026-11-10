@@ -372,6 +372,11 @@ export const publishBeat = functions
       throw new functions.https.HttpsError("invalid-argument", "A maximum of 2 licenses is allowed.");
     }
 
+    const uniqueLicenseTypes = new Set(metadata.licenses.map((l) => l.type));
+    if (uniqueLicenseTypes.size !== metadata.licenses.length) {
+      throw new functions.https.HttpsError("invalid-argument", "Each license must have a unique license type.");
+    }
+
     const limitedLic = metadata.licenses.find((l) => l.type === "limited");
     const unlimitedLic = metadata.licenses.find((l) => l.type === "premium-unlimited");
     if (limitedLic && unlimitedLic && limitedLic.price >= unlimitedLic.price) {
