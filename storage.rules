@@ -45,6 +45,10 @@ service firebase.storage {
       allow read, write: if false; // Accessed via Cloud Functions or signed URLs
     }
 
+    match /purchased/licenses/{purchaseId}/{allPaths=**} {
+      allow read, write: if false; // Accessed via Cloud Functions or signed URLs
+    }
+
     // Public avatars, writable only by the owner
     match /avatars/{userId}/{allPaths=**} {
       allow read: if true;

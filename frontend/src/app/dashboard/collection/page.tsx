@@ -6,8 +6,9 @@ import { db, functions } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import Link from "next/link";
-import { Download, Library, ExternalLink, Loader2 } from "lucide-react";
+import { Download, FileText, Library, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface Purchase {
   id: string;
@@ -17,7 +18,8 @@ interface Purchase {
   producerId: string;
   producerName: string;
   buyerId: string;
-  licenseType: string;
+  licenseType?: string | null;
+  licenseFileUrl?: string;
   price: number;
   createdAt: Date;
 }
@@ -27,6 +29,7 @@ export default function CollectionPage() {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [downloadingLicenseId, setDownloadingLicenseId] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPurchases() {
@@ -64,7 +67,7 @@ export default function CollectionPage() {
     try {
       setDownloadingId(purchaseId);
       const generateDownloadUrl = httpsCallable(functions, "generateDownloadUrl");
-      const result = await generateDownloadUrl({ purchaseId });
+      const result = await generateDownloadUrl({ purchaseId, downloadType: "files" });
       const { downloadUrl } = result.data as { downloadUrl: string, expiresAt: number };
       
       // Open the URL in a new tab to trigger download
@@ -72,9 +75,26 @@ export default function CollectionPage() {
     } catch (error: unknown) {
       console.error("Error generating download URL:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to generate download link.";
-      alert(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handleDownloadLicense = async (purchaseId: string) => {
+    try {
+      setDownloadingLicenseId(purchaseId);
+      const generateDownloadUrl = httpsCallable(functions, "generateDownloadUrl");
+      const result = await generateDownloadUrl({ purchaseId, downloadType: "license" });
+      const { downloadUrl } = result.data as { downloadUrl: string; expiresAt: number };
+
+      window.open(downloadUrl, "_blank");
+    } catch (error: unknown) {
+      console.error("Error generating license download URL:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to open license PDF.";
+      toast.error(errorMessage);
+    } finally {
+      setDownloadingLicenseId(null);
     }
   };
 
@@ -140,27 +160,46 @@ export default function CollectionPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center rounded-md bg-secondary/50 px-2 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-inset ring-secondary capitalize">
-                        {purchase.licenseType}
+                        {purchase.itemType === "samplePack"
+                          ? "Royalty-Free"
+                          : (purchase.licenseType || "Standard").replace("-", " ")}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-muted-foreground">
                       {purchase.createdAt.toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Button 
-                        variant="secondary" 
-                        size="sm" 
-                        className="gap-2"
-                        onClick={() => handleDownload(purchase.id)}
-                        disabled={downloadingId === purchase.id}
-                      >
-                        {downloadingId === purchase.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Download className="w-4 h-4" />
-                        )}
-                        {downloadingId === purchase.id ? "Preparing..." : "Download"}
-                      </Button>
+                      <div className="inline-flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1.5"
+                          onClick={() => handleDownloadLicense(purchase.id)}
+                          disabled={downloadingLicenseId === purchase.id}
+                          title="View Official License PDF"
+                        >
+                          {downloadingLicenseId === purchase.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <FileText className="w-4 h-4" />
+                          )}
+                          {downloadingLicenseId === purchase.id ? "Opening..." : "License PDF"}
+                        </Button>
+                        <Button 
+                          variant="secondary" 
+                          size="sm" 
+                          className="gap-2"
+                          onClick={() => handleDownload(purchase.id)}
+                          disabled={downloadingId === purchase.id}
+                        >
+                          {downloadingId === purchase.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Download className="w-4 h-4" />
+                          )}
+                          {downloadingId === purchase.id ? "Preparing..." : "Download"}
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}

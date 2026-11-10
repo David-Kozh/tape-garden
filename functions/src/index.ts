@@ -6,6 +6,10 @@ import { defineSecret } from "firebase-functions/params";
 import Stripe from "stripe";
 import { Resend } from "resend";
 import { algoliasearch } from "algoliasearch";
+import {
+  renderLicensePdfBuffer,
+  resolveSellerLegalNameFromStripe,
+} from "./licenses/generateLicensePdf.js";
 
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
@@ -1029,21 +1033,24 @@ export const deleteSamplePack = functions
 /**
  * Cloud Function Trigger: onPurchaseCreated
  * Automatically executes when a new purchase document is created.
- * Aggregates purchase data into ProducerSalesSummary and AdminSalesSummary.
+ * 1. Aggregates purchase data into ProducerSalesSummary and AdminSalesSummary.
+ * 2. Resolves buyer & seller legal names, generates an immutable PDF license,
+ *    stores it in Cloud Storage, links it on the purchase record, and emails the buyer.
  */
 export const onPurchaseCreatedHandler = functions
   .region("us-east4")
-  .runWith({ maxInstances: 10 })
+  .runWith({ maxInstances: 10, secrets: [stripeSecretKey, resendApiKey] })
   .firestore
   .database("tape-garden-db")
   .document("purchases/{purchaseId}")
   .onCreate(async (snap, context) => {
+    const purchaseId = context.params.purchaseId;
     const purchaseData = snap.data();
     if (!purchaseData) return;
 
     // Optional safety guard in case 'pending' purchases are recorded.
     if (purchaseData.status !== "completed") {
-      console.log(`[onPurchaseCreated] Purchase ${context.params.purchaseId} is not completed. Skipping aggregation.`);
+      console.log(`[onPurchaseCreated] Purchase ${purchaseId} is not completed. Skipping aggregation and license generation.`);
       return;
     }
 
@@ -1122,20 +1129,173 @@ export const onPurchaseCreatedHandler = functions
           });
         }
       });
-      console.log(`[onPurchaseCreated] Successfully aggregated purchase ${context.params.purchaseId}`);
+      console.log(`[onPurchaseCreated] Successfully aggregated purchase ${purchaseId}`);
     } catch (error) {
-      console.error(`[onPurchaseCreated] Error aggregating purchase ${context.params.purchaseId}:`, error);
+      console.error(`[onPurchaseCreated] Error aggregating purchase ${purchaseId}:`, error);
       throw error;
+    }
+
+    // Generate immutable PDF license, store in Cloud Storage, update purchase doc, and email receipt
+    if (purchaseData.licenseFileUrl) {
+      console.log(`[onPurchaseCreated] License already exists for ${purchaseId}, skipping generation.`);
+      return;
+    }
+
+    try {
+      const storage = getStorage(admin.app());
+      const bucket = storage.bucket();
+
+      // Resolve buyer, producer, and item metadata (using purchase fields first, with Firestore fallback)
+      let buyerLegalName: string = purchaseData.buyerLegalName || "";
+      let buyerEmail: string = purchaseData.buyerEmail || "";
+      if ((!buyerLegalName || !buyerEmail) && purchaseData.buyerId) {
+        const buyerDoc = await db.collection("users").doc(purchaseData.buyerId).get();
+        if (buyerDoc.exists) {
+          const buyerData = buyerDoc.data()!;
+          if (!buyerLegalName) buyerLegalName = buyerData.displayName || buyerData.email || "Licensed Buyer";
+          if (!buyerEmail) buyerEmail = buyerData.email || "";
+        }
+      }
+      if (!buyerLegalName) buyerLegalName = "Licensed Buyer";
+
+      let producerName: string = purchaseData.producerName || "";
+      let producerStripeAccountId: string | null = purchaseData.producerStripeAccountId || null;
+      if (!producerName || !producerStripeAccountId) {
+        const producerDoc = await db.collection("users").doc(producerId).get();
+        if (producerDoc.exists) {
+          const producerData = producerDoc.data()!;
+          if (!producerName) producerName = producerData.displayName || "Tape Garden Producer";
+          if (!producerStripeAccountId) producerStripeAccountId = producerData.stripeAccountId || null;
+        }
+      }
+      if (!producerName) producerName = "Tape Garden Producer";
+
+      let itemName: string = purchaseData.itemName || "";
+      let streamCap: number | null =
+        typeof purchaseData.streamCap === "number" ? purchaseData.streamCap : null;
+
+      if (!itemName || (purchaseData.itemType === "beat" && purchaseData.licenseType === "limited" && streamCap === null)) {
+        if (purchaseData.itemType === "beat" && purchaseData.itemId) {
+          const beatDoc = await db.collection("beats").doc(purchaseData.itemId).get();
+          if (beatDoc.exists) {
+            const beatData = beatDoc.data()!;
+            if (!itemName) itemName = beatData.title || "Untitled Beat";
+            if (streamCap === null && purchaseData.licenseType === "limited") {
+              const matchedLic = beatData.licenses?.find(
+                (l: { type: string; streamCap?: number }) => l.type === "limited"
+              );
+              streamCap = typeof matchedLic?.streamCap === "number" ? matchedLic.streamCap : 50000;
+            }
+          }
+        } else if (purchaseData.itemType === "samplePack" && purchaseData.itemId) {
+          const packDoc = await db.collection("samplePacks").doc(purchaseData.itemId).get();
+          if (packDoc.exists) {
+            const packData = packDoc.data()!;
+            if (!itemName) itemName = packData.title || "Untitled Sample Pack";
+          }
+        }
+      }
+      if (!itemName) {
+        itemName = purchaseData.itemType === "samplePack" ? "Sample Pack" : "Instrumental Beat";
+      }
+
+      // Resolve seller's legal name from Stripe Connect if Stripe secret is configured
+      let sellerLegalName: string = purchaseData.sellerLegalName || "";
+      if (!sellerLegalName) {
+        const stripeKey = stripeSecretKey.value();
+        if (stripeKey && producerStripeAccountId) {
+          const stripe = new Stripe(stripeKey, { apiVersion: "2026-09-30.endive" });
+          sellerLegalName = await resolveSellerLegalNameFromStripe(
+            stripe,
+            producerStripeAccountId,
+            producerName
+          );
+        } else {
+          sellerLegalName = producerName;
+        }
+      }
+
+      const createdAtDate =
+        purchaseData.createdAt && typeof purchaseData.createdAt.toDate === "function"
+          ? purchaseData.createdAt.toDate()
+          : now;
+      const effectiveDate = createdAtDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        timeZone: "UTC",
+      });
+
+      const pdfBuffer = await renderLicensePdfBuffer({
+        purchaseId,
+        effectiveDate,
+        itemType: purchaseData.itemType,
+        itemName,
+        licenseType: purchaseData.licenseType || null,
+        price: Number(price || 0),
+        streamCap,
+        buyerLegalName,
+        sellerLegalName,
+        producerName,
+      });
+
+      const licenseStoragePath = `purchased/licenses/${purchaseId}/license-${purchaseId}.pdf`;
+      const licenseFile = bucket.file(licenseStoragePath);
+
+      await licenseFile.save(pdfBuffer, {
+        resumable: false,
+        contentType: "application/pdf",
+        metadata: {
+          cacheControl: "private, max-age=31536000, immutable",
+        },
+      });
+
+      await snap.ref.update({
+        licenseFileUrl: licenseStoragePath,
+        buyerLegalName,
+        sellerLegalName,
+        itemName,
+        producerName,
+        ...(streamCap !== null ? { streamCap } : {}),
+        licenseGeneratedAt: FieldValue.serverTimestamp(),
+      });
+
+      console.log(`[onPurchaseCreated] Generated and stored license PDF at ${licenseStoragePath}`);
+
+      if (buyerEmail && resendApiKey.value()) {
+        const resend = new Resend(resendApiKey.value());
+        const licenseLabel =
+          purchaseData.itemType === "samplePack"
+            ? "Royalty-Free Sample Pack License"
+            : `${purchaseData.licenseType || "Standard"} License`;
+
+        await resend.emails.send({
+          from: "Tape Garden <notifications@mail.tapegarden.shop>",
+          to: buyerEmail,
+          subject: `Tape Garden Purchase Receipt & License — ${itemName}`,
+          html: `<p>Hi ${buyerLegalName},</p><p>Thank you for your purchase on Tape Garden.</p><ul><li><strong>${itemName}</strong> by ${producerName} (${licenseLabel}) — $${Number(price || 0).toFixed(2)}</li></ul><p>Your official executed PDF license agreement is attached to this email. You can also download your audio files and license agreement anytime from your <a href="https://tapegarden--tape-garden.us-east4.hosted.app/dashboard/collection">collection page</a>.</p>`,
+          attachments: [
+            {
+              filename: `TapeGarden-License-${purchaseId}.pdf`,
+              content: pdfBuffer,
+            },
+          ],
+        });
+        console.log(`[onPurchaseCreated] Sent purchase receipt & license PDF to ${buyerEmail}`);
+      }
+    } catch (licenseError) {
+      console.error(`[onPurchaseCreated] Error generating or emailing license for ${purchaseId}:`, licenseError);
     }
   });
 
 interface GenerateDownloadUrlData {
   purchaseId: string;
+  downloadType?: "files" | "license";
 }
 
 /**
  * Cloud Function HTTPS Callable: generateDownloadUrl
- * Generates a time-limited pre-signed URL for a purchased item.
+ * Generates a time-limited pre-signed URL for a purchased item or its PDF license.
  */
 export const generateDownloadUrl = functions
   .region("us-east4")
@@ -1145,7 +1305,7 @@ export const generateDownloadUrl = functions
       throw new functions.https.HttpsError("unauthenticated", "You must be logged in to download items.");
     }
     const uid = context.auth.uid;
-    const { purchaseId } = (data || {}) as GenerateDownloadUrlData;
+    const { purchaseId, downloadType = "files" } = (data || {}) as GenerateDownloadUrlData;
 
     if (!purchaseId) {
       throw new functions.https.HttpsError("invalid-argument", "Missing purchaseId.");
@@ -1165,7 +1325,36 @@ export const generateDownloadUrl = functions
       }
 
       const purchaseData = purchaseDoc.data()!;
-      if (purchaseData.buyerId !== uid) {
+      const isAdmin = context.auth.token.role === "admin" || Boolean(context.auth.token.admin);
+      const isBuyer = purchaseData.buyerId === uid;
+      const isSeller = purchaseData.producerId === uid;
+
+      if (downloadType === "license") {
+        if (!isBuyer && !isSeller && !isAdmin) {
+          throw new functions.https.HttpsError("permission-denied", "You do not have permission to view this license.");
+        }
+        if (purchaseData.status !== "completed") {
+          throw new functions.https.HttpsError("failed-precondition", "Purchase is not completed.");
+        }
+        if (!purchaseData.licenseFileUrl) {
+          throw new functions.https.HttpsError("not-found", "License PDF is still being generated or unavailable.");
+        }
+
+        const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+        const [downloadUrl] = await bucket.file(purchaseData.licenseFileUrl).getSignedUrl({
+          action: "read",
+          expires: expiresAt,
+          responseDisposition: `inline; filename="TapeGarden-License-${purchaseId}.pdf"`,
+          responseType: "application/pdf",
+        });
+
+        return {
+          downloadUrl,
+          expiresAt,
+        };
+      }
+
+      if (!isBuyer) {
         throw new functions.https.HttpsError("permission-denied", "You do not own this purchase.");
       }
       if (purchaseData.status !== "completed") {
@@ -1425,7 +1614,7 @@ export const createCheckoutSession = functions
             throw new functions.https.HttpsError("failed-precondition", `Producer for beat ${beatData.title} cannot accept payments.`);
           }
 
-          const license = beatData.licenses?.find((l: { type: string; price: number }) => l.type === item.licenseType);
+          const license = beatData.licenses?.find((l: { type: string; price: number; streamCap?: number }) => l.type === item.licenseType);
           if (!license) continue;
 
           lineItems.push({
@@ -1442,8 +1631,16 @@ export const createCheckoutSession = functions
           serializedCartItems.push({
             itemId: item.itemId,
             itemType: "beat",
+            itemName: beatData.title,
             licenseType: item.licenseType,
+            streamCap:
+              item.licenseType === "limited"
+                ? typeof license.streamCap === "number"
+                  ? license.streamCap
+                  : 50000
+                : null,
             producerId: beatData.producerId,
+            producerName: producerData.displayName || "Producer",
             producerStripeAccountId: producerData.stripeAccountId,
             price: license.price,
           });
@@ -1473,7 +1670,9 @@ export const createCheckoutSession = functions
           serializedCartItems.push({
             itemId: item.itemId,
             itemType: "samplePack",
+            itemName: packData.title,
             producerId: packData.producerId,
+            producerName: producerData.displayName || "Producer",
             producerStripeAccountId: producerData.stripeAccountId,
             price: packData.price,
           });
@@ -1563,6 +1762,8 @@ export const stripeWebhook = functions
           const cart = JSON.parse(session.metadata.cart);
           const buyerId = session.metadata.buyerId;
           const transferGroup = session.metadata.transferGroup;
+          const buyerEmail = session.customer_details?.email || null;
+          const buyerLegalName = session.customer_details?.name?.trim() || null;
 
           // Retrieve payment intent to get the latest charge for source_transaction
           const paymentIntentId = session.payment_intent as string;
@@ -1602,10 +1803,16 @@ export const stripeWebhook = functions
 
               await purchaseRef.set({
                 buyerId,
+                buyerEmail,
+                buyerLegalName,
                 producerId: item.producerId,
+                producerName: item.producerName || null,
+                producerStripeAccountId: item.producerStripeAccountId || null,
                 itemId: item.itemId,
+                itemName: item.itemName || null,
                 itemType: item.itemType,
                 licenseType: item.licenseType || null,
+                streamCap: typeof item.streamCap === "number" ? item.streamCap : null,
                 price: item.price,
                 platformFee,
                 producerPayout,
@@ -1620,26 +1827,7 @@ export const stripeWebhook = functions
             }
           }
 
-          try {
-            const buyerEmail = session.customer_details?.email;
-            if (buyerEmail) {
-              const resend = new Resend(resendApiKey.value());
-
-              const itemsHtml = cart.map((item: { itemType: string; licenseType?: string; price: number }) => `<li>${item.itemType} ${item.licenseType ? `(${item.licenseType})` : ""} - $${item.price}</li>`).join("");
-
-              await resend.emails.send({
-                from: "Tape Garden <notifications@mail.tapegarden.shop>",
-                to: buyerEmail,
-                subject: "Tape Garden Purchase Receipt",
-                html: `<p>Thank you for your purchase.</p><ul>${itemsHtml}</ul><p>You can download your files anytime from your <a href="https://tapegarden--tape-garden.us-east4.hosted.app/dashboard/collection">purchases page</a>.</p>`
-              });
-              console.log(`[stripeWebhook] Sent purchase receipt to ${buyerEmail}`);
-            }
-          } catch (e) {
-            console.error("[stripeWebhook] Failed to send receipt email:", e);
-          }
-
-          console.log(`[stripeWebhook] Checkout session ${session.id} fully processed.`);
+          console.log(`[stripeWebhook] Checkout session ${session.id} fully processed. License generation and email dispatched via onPurchaseCreated.`);
         }
       }
 

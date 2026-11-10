@@ -118,12 +118,18 @@ export interface SamplePack {
 export interface Purchase {
   id: string;
   buyerId: string; // Reference to users.uid
+  buyerEmail?: string; // Snapshot of buyer email at checkout
+  buyerLegalName?: string; // Snapshot of buyer legal name from Stripe Checkout
   producerId: string; // Reference to users.uid
   producerName?: string; // Denormalized for display
+  sellerLegalName?: string; // Snapshot of producer legal name from Stripe Connect
   itemType: ItemType;
   itemId: string; // Reference to beats.id or samplePacks.id
   itemName?: string; // Denormalized for display
   licenseType?: LicenseType; // Present only if itemType == 'beat'
+  streamCap?: number | null; // Snapshot of stream cap for limited beat licenses
+  licenseFileUrl?: string; // Private GCS path to generated PDF license agreement
+  licenseGeneratedAt?: Date | string; // Timestamp when PDF license was generated
   price: number; // Total amount paid by buyer
   platformFee: number; // Platform fee percentage / cut
   producerPayout: number; // Net amount transferred to producer via Stripe Connect
