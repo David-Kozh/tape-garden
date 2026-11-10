@@ -501,17 +501,15 @@ export const publishBeat = functions
           movedStems.set(license.stemFile, stemsDestPath);
         }
 
+        const streamCap =
+          typeof license.streamCap === "number" && license.streamCap >= 1
+            ? Math.floor(license.streamCap)
+            : 50000;
+
         finalLicenses.push({
           type: license.type,
           price: license.price,
-          ...(license.type === "limited"
-            ? {
-                streamCap:
-                  typeof license.streamCap === "number" && license.streamCap >= 1
-                    ? Math.floor(license.streamCap)
-                    : 50000,
-              }
-            : {}),
+          ...(license.type === "limited" ? { streamCap } : {}),
           fileUrl: stemsDestPath, // store internal path
         });
       }
