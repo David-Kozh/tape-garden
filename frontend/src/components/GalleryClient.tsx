@@ -7,6 +7,7 @@ import { FeaturedCard } from "@/components/FeaturedCard";
 import { ProducerCard } from "@/components/ProducerCard";
 import { getPublishedBeats, getApprovedProducers, BeatWithProducer } from "@/lib/services/gallery";
 import { getPublishedSamplePacks, SamplePackWithProducer } from "@/lib/services/samplePacks";
+import { searchAlgoliaBeats, isAlgoliaConfigured } from "@/lib/algolia";
 import { User } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,10 +33,13 @@ export function GalleryClient() {
         : "beats";
 
   const [beats, setBeats] = useState<BeatWithProducer[]>([]);
+  const [algoliaBeats, setAlgoliaBeats] = useState<BeatWithProducer[]>([]);
+  const [isSearchingBeats, setIsSearchingBeats] = useState(false);
   const [packs, setPacks] = useState<SamplePackWithProducer[]>([]);
   const [producers, setProducers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [beatTags, setBeatTags] = useState<string[]>([]);
   const [packTags, setPackTags] = useState<string[]>([]);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -43,10 +47,24 @@ export function GalleryClient() {
   const activeTags = view === "beats" ? beatTags : packTags;
   const availableTags = view === "beats" ? AVAILABLE_BEAT_GENRES : AVAILABLE_PACK_CATEGORIES;
   const filterTitle = view === "beats" ? "Filter by Genre" : "Filter by Category";
+  const algoliaEnabled = isAlgoliaConfigured();
 
-  // Fetch data
+  // Debounce search query (250ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch default catalog data from Firestore
   useEffect(() => {
     async function loadData() {
+      // When actively searching beats via Algolia, skip redundant Firestore beat fetches
+      if (view === "beats" && algoliaEnabled && debouncedSearchQuery.trim() !== "") {
+        return;
+      }
+
       setIsLoading(true);
       try {
         if (view === "beats") {
@@ -67,7 +85,42 @@ export function GalleryClient() {
     }
 
     loadData();
-  }, [view, beatTags, packTags]);
+  }, [view, beatTags, packTags, debouncedSearchQuery, algoliaEnabled]);
+
+  // Execute typo-tolerant Algolia search when view === "beats" and query is non-empty
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function runAlgoliaSearch() {
+      if (view !== "beats" || !algoliaEnabled || debouncedSearchQuery.trim() === "") {
+        setIsSearchingBeats(false);
+        return;
+      }
+
+      setIsSearchingBeats(true);
+      try {
+        const hits = await searchAlgoliaBeats(debouncedSearchQuery, beatTags);
+        if (!isCancelled) {
+          setAlgoliaBeats(hits);
+        }
+      } catch (error) {
+        console.error("Error searching beats via Algolia:", error);
+        if (!isCancelled) {
+          setAlgoliaBeats([]);
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsSearchingBeats(false);
+        }
+      }
+    }
+
+    runAlgoliaSearch();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [view, debouncedSearchQuery, beatTags, algoliaEnabled]);
 
   const handleViewChange = (newView: "beats" | "packs" | "artists") => {
     const params = new URLSearchParams(searchParams.toString());
@@ -95,10 +148,15 @@ export function GalleryClient() {
     }
   };
 
-  // Client-side search filtering (since Firestore native prefix search is limited and case-sensitive)
-  const filteredBeats = beats.filter(b =>
-    b.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const isAlgoliaSearchActive =
+    view === "beats" && algoliaEnabled && debouncedSearchQuery.trim() !== "";
+
+  // Use Algolia hits when searching on Beats tab (if configured); otherwise fall back to client-side filtering
+  const filteredBeats = isAlgoliaSearchActive
+    ? algoliaBeats
+    : beats.filter(b =>
+        b.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
 
   const filteredPacks = packs.filter(p =>
     p.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -107,6 +165,8 @@ export function GalleryClient() {
   const filteredProducers = producers.filter(p =>
     p.displayName.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const isViewLoading = isLoading || (view === "beats" && isSearchingBeats);
 
   const searchPlaceholder =
     view === "beats"
@@ -177,7 +237,7 @@ export function GalleryClient() {
         </div>
       </div>
 
-      {isLoading ? (
+      {isViewLoading ? (
         <div className="flex justify-center items-center min-h-[40vh]">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
@@ -198,8 +258,21 @@ export function GalleryClient() {
                 </div>
               </>
             ) : (
-              <div className="col-span-full text-center text-muted-foreground py-12">
-                No beats found matching your criteria.
+              <div className="col-span-full flex flex-col items-center justify-center text-center text-muted-foreground py-12 gap-3">
+                <p>No beats found matching your criteria. Try alternate keywords or reset your filters.</p>
+                {(searchQuery.trim() !== "" || beatTags.length > 0) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setDebouncedSearchQuery("");
+                      setBeatTags([]);
+                    }}
+                  >
+                    Reset Search & Filters
+                  </Button>
+                )}
               </div>
             )
           )}

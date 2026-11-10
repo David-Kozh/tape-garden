@@ -81,26 +81,35 @@ export async function getPublishedBeats(options: GetBeatsOptions = {}): Promise<
     }
   }
 
-  const beatsWithProducers: BeatWithProducer[] = beats.map((beat: Beat) => {
-    const producer = producersMap.get(beat.producerId);
-    
-    // Strip fileUrl for safety before returning to UI
-    const safeLicenses = beat.licenses?.map((license: BeatLicense) => ({
-      type: license.type,
-      price: license.price
-    })) as Omit<BeatLicense, "fileUrl">[];
+  const beatsWithProducers: BeatWithProducer[] = beats
+    .filter((beat: Beat) => {
+      const producer = producersMap.get(beat.producerId);
+      return (
+        producer?.role === "producer" &&
+        producer?.producerProfile?.status === "approved" &&
+        producer?.producerProfile?.stripeStatus === "active"
+      );
+    })
+    .map((beat: Beat) => {
+      const producer = producersMap.get(beat.producerId);
+      
+      // Strip fileUrl for safety before returning to UI
+      const safeLicenses = beat.licenses?.map((license: BeatLicense) => ({
+        type: license.type,
+        price: license.price
+      })) as Omit<BeatLicense, "fileUrl">[];
 
-    return {
-      ...beat,
-      licenses: safeLicenses,
-      producer: {
-        uid: beat.producerId,
-        displayName: producer?.displayName || "Unknown Producer",
-        avatarUrl: producer?.producerProfile?.avatarUrl,
-        acceptingPayments: producer?.producerProfile?.stripeStatus === "active",
-      }
-    };
-  });
+      return {
+        ...beat,
+        licenses: safeLicenses,
+        producer: {
+          uid: beat.producerId,
+          displayName: producer?.displayName || "Unknown Producer",
+          avatarUrl: producer?.producerProfile?.avatarUrl,
+          acceptingPayments: true,
+        }
+      };
+    });
 
   return JSON.parse(JSON.stringify({
     beats: beatsWithProducers,

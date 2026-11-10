@@ -5,10 +5,15 @@ import { getStorage } from "firebase-admin/storage";
 import { defineSecret } from "firebase-functions/params";
 import Stripe from "stripe";
 import { Resend } from "resend";
+import { algoliasearch } from "algoliasearch";
 
 const stripeSecretKey = defineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
 const resendApiKey = defineSecret("RESEND_API_KEY");
+const algoliaAppId = defineSecret("ALGOLIA_APP_ID");
+const algoliaAdminKey = defineSecret("ALGOLIA_ADMIN_KEY");
+
+const ALGOLIA_BEATS_INDEX = "beats";
 
 // Initialize Firebase Admin SDK
 admin.initializeApp();
@@ -1946,5 +1951,261 @@ export const acceptInvite = functions
       console.error("[acceptInvite] Error:", error);
       if (error instanceof functions.https.HttpsError) throw error;
       throw new functions.https.HttpsError("internal", "An error occurred while accepting the invite.");
+    }
+  });
+
+export interface AlgoliaBeatRecord {
+  objectID: string;
+  title: string;
+  producerId: string;
+  producerName: string;
+  tags: string[];
+  bpm: number | null;
+  key: string;
+  price: number;
+  audioPreviewUrl: string;
+  coverArtUrl: string;
+  curated: boolean;
+  createdAt: number;
+}
+
+export function buildAlgoliaBeatRecord(
+  beatId: string,
+  beatData: admin.firestore.DocumentData,
+  producerName: string
+): AlgoliaBeatRecord {
+  const createdAtVal = beatData.createdAt;
+  let createdAtMs = Date.now();
+  if (createdAtVal && typeof createdAtVal.toMillis === "function") {
+    createdAtMs = createdAtVal.toMillis();
+  } else if (typeof createdAtVal === "string" || typeof createdAtVal === "number") {
+    const parsed = new Date(createdAtVal).getTime();
+    if (!isNaN(parsed)) createdAtMs = parsed;
+  }
+
+  const licenses = Array.isArray(beatData.licenses) ? beatData.licenses : [];
+  const price = typeof licenses[0]?.price === "number" ? licenses[0].price : 29.99;
+
+  return {
+    objectID: beatId,
+    title: beatData.title || "",
+    producerId: beatData.producerId || "",
+    producerName: producerName || "Unknown Producer",
+    tags: Array.isArray(beatData.tags) ? beatData.tags : [],
+    bpm: typeof beatData.bpm === "number" ? beatData.bpm : null,
+    key: beatData.key || "",
+    price,
+    audioPreviewUrl: beatData.audioPreviewUrl || "",
+    coverArtUrl: beatData.coverArtUrl || "",
+    curated: Boolean(beatData.curated),
+    createdAt: createdAtMs,
+  };
+}
+
+function didAlgoliaBeatFieldsChange(
+  before: admin.firestore.DocumentData,
+  after: admin.firestore.DocumentData
+): boolean {
+  if (before.status !== after.status) return true;
+  if (before.title !== after.title) return true;
+  if (before.producerId !== after.producerId) return true;
+  if (before.bpm !== after.bpm) return true;
+  if (before.key !== after.key) return true;
+  if ((before.coverArtUrl || "") !== (after.coverArtUrl || "")) return true;
+  if ((before.audioPreviewUrl || "") !== (after.audioPreviewUrl || "")) return true;
+  if (Boolean(before.curated) !== Boolean(after.curated)) return true;
+
+  const beforePrice = Array.isArray(before.licenses) ? before.licenses[0]?.price : undefined;
+  const afterPrice = Array.isArray(after.licenses) ? after.licenses[0]?.price : undefined;
+  if (beforePrice !== afterPrice) return true;
+
+  const beforeTags = Array.isArray(before.tags) ? before.tags : [];
+  const afterTags = Array.isArray(after.tags) ? after.tags : [];
+  if (beforeTags.length !== afterTags.length) return true;
+  for (let i = 0; i < beforeTags.length; i++) {
+    if (beforeTags[i] !== afterTags[i]) return true;
+  }
+
+  return false;
+}
+
+/**
+ * Cloud Function Trigger: onBeatWritten
+ * Synchronizes beat records in the Algolia `beats` index when a beat document
+ * in `tape-garden-db` is created, updated, or deleted.
+ * Strictly indexes only beats where status === "published" AND producer's stripeStatus === "active".
+ */
+export const onBeatWritten = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10, secrets: [algoliaAppId, algoliaAdminKey] })
+  .firestore
+  .database("tape-garden-db")
+  .document("beats/{beatId}")
+  .onWrite(async (change, context) => {
+    const beatId = context.params.beatId;
+    const appId = algoliaAppId.value();
+    const adminKey = algoliaAdminKey.value();
+
+    if (!appId || !adminKey) {
+      console.warn("[onBeatWritten] Algolia credentials not configured. Skipping sync.");
+      return;
+    }
+
+    const client = algoliasearch(appId, adminKey);
+
+    try {
+      // 1. Deleted or non-published beat -> remove from Algolia
+      if (!change.after.exists) {
+        await client.deleteObject({ indexName: ALGOLIA_BEATS_INDEX, objectID: beatId });
+        console.log(`[onBeatWritten] Deleted beat ${beatId} from Algolia.`);
+        return;
+      }
+
+      const afterData = change.after.data()!;
+      if (afterData.status !== "published") {
+        // Only call deleteObject if it didn't exist before or was previously published
+        if (!change.before.exists || change.before.data()?.status === "published") {
+          await client.deleteObject({ indexName: ALGOLIA_BEATS_INDEX, objectID: beatId });
+          console.log(`[onBeatWritten] Removed non-published beat ${beatId} (status: ${afterData.status}) from Algolia.`);
+        }
+        return;
+      }
+
+      // 2. No-op guard if already published and no indexed fields changed
+      if (change.before.exists && !didAlgoliaBeatFieldsChange(change.before.data()!, afterData)) {
+        return;
+      }
+
+      // 3. Fetch producer to check stripeStatus === "active" and get displayName
+      const db = getFirestore(admin.app(), "tape-garden-db");
+      const producerId = afterData.producerId;
+      if (!producerId) {
+        await client.deleteObject({ indexName: ALGOLIA_BEATS_INDEX, objectID: beatId });
+        return;
+      }
+
+      const producerDoc = await db.collection("users").doc(producerId).get();
+      if (!producerDoc.exists) {
+        await client.deleteObject({ indexName: ALGOLIA_BEATS_INDEX, objectID: beatId });
+        console.log(`[onBeatWritten] Producer ${producerId} not found; removed beat ${beatId} from Algolia.`);
+        return;
+      }
+
+      const producerData = producerDoc.data()!;
+      const isAcceptingPayments =
+        producerData.role === "producer" &&
+        producerData.producerProfile?.status === "approved" &&
+        producerData.producerProfile?.stripeStatus === "active";
+
+      if (!isAcceptingPayments) {
+        await client.deleteObject({ indexName: ALGOLIA_BEATS_INDEX, objectID: beatId });
+        console.log(`[onBeatWritten] Producer ${producerId} is not actively accepting payments; removed beat ${beatId} from Algolia.`);
+        return;
+      }
+
+      const record = buildAlgoliaBeatRecord(beatId, afterData, producerData.displayName || "Unknown Producer");
+      await client.saveObject({
+        indexName: ALGOLIA_BEATS_INDEX,
+        body: record as unknown as Record<string, unknown>,
+      });
+      console.log(`[onBeatWritten] Synced beat ${beatId} ("${record.title}") to Algolia.`);
+    } catch (error) {
+      console.error(`[onBeatWritten] Error syncing beat ${beatId} to Algolia:`, error);
+      throw error;
+    }
+  });
+
+/**
+ * Cloud Function Trigger: onProducerUpdated
+ * Watches `users/{userId}` for changes to `displayName` or payment eligibility
+ * (`role`, `producerProfile.status`, `producerProfile.stripeStatus`).
+ * Early-exits immediately if none of those fields changed.
+ */
+export const onProducerUpdated = functions
+  .region("us-east4")
+  .runWith({ maxInstances: 10, secrets: [algoliaAppId, algoliaAdminKey] })
+  .firestore
+  .database("tape-garden-db")
+  .document("users/{userId}")
+  .onWrite(async (change, context) => {
+    const userId = context.params.userId;
+
+    // Ignore pure user creation (a newly created user has 0 published beats)
+    if (!change.before.exists && change.after.exists) {
+      return;
+    }
+
+    const beforeData = change.before.exists ? change.before.data()! : null;
+    const afterData = change.after.exists ? change.after.data()! : null;
+
+    const wasEligible = Boolean(
+      beforeData &&
+      beforeData.role === "producer" &&
+      beforeData.producerProfile?.status === "approved" &&
+      beforeData.producerProfile?.stripeStatus === "active"
+    );
+
+    const isEligible = Boolean(
+      afterData &&
+      afterData.role === "producer" &&
+      afterData.producerProfile?.status === "approved" &&
+      afterData.producerProfile?.stripeStatus === "active"
+    );
+
+    const beforeName = beforeData?.displayName || "";
+    const afterName = afterData?.displayName || "";
+
+    // Fast early exit: if eligibility didn't change, and either they aren't eligible or their displayName didn't change
+    if (wasEligible === isEligible && (!isEligible || beforeName === afterName)) {
+      return;
+    }
+
+    const appId = algoliaAppId.value();
+    const adminKey = algoliaAdminKey.value();
+    if (!appId || !adminKey) {
+      console.warn("[onProducerUpdated] Algolia credentials not configured. Skipping sync.");
+      return;
+    }
+
+    const db = getFirestore(admin.app(), "tape-garden-db");
+    const client = algoliasearch(appId, adminKey);
+
+    try {
+      if (isEligible && afterData) {
+        // Producer became eligible OR updated their displayName while eligible -> batch upsert published beats
+        const beatsSnap = await db.collection("beats")
+          .where("producerId", "==", userId)
+          .where("status", "==", "published")
+          .get();
+
+        if (beatsSnap.empty) return;
+
+        const objects = beatsSnap.docs.map((doc) =>
+          buildAlgoliaBeatRecord(doc.id, doc.data(), afterData.displayName || "Unknown Producer") as unknown as Record<string, unknown>
+        );
+
+        await client.saveObjects({
+          indexName: ALGOLIA_BEATS_INDEX,
+          objects,
+        });
+        console.log(`[onProducerUpdated] Synced ${objects.length} published beats for producer ${userId} to Algolia.`);
+      } else if (wasEligible && !isEligible) {
+        // Producer lost eligibility or was deleted -> remove all their beats from Algolia
+        const beatsSnap = await db.collection("beats")
+          .where("producerId", "==", userId)
+          .get();
+
+        if (beatsSnap.empty) return;
+
+        const objectIDs = beatsSnap.docs.map((doc) => doc.id);
+        await client.deleteObjects({
+          indexName: ALGOLIA_BEATS_INDEX,
+          objectIDs,
+        });
+        console.log(`[onProducerUpdated] Removed ${objectIDs.length} beats for producer ${userId} from Algolia.`);
+      }
+    } catch (error) {
+      console.error(`[onProducerUpdated] Error syncing beats for producer ${userId}:`, error);
+      throw error;
     }
   });
