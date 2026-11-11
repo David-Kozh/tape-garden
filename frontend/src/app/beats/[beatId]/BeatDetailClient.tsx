@@ -3,7 +3,7 @@
 import { BeatWithProducer } from "@/lib/services/gallery";
 import { useAudio } from "@/context/AudioContext";
 import { useCart } from "@/context/CartContext";
-import { Play, Pause, User, Music2, Tag, Key } from "lucide-react";
+import { Play, Pause, User, Metronome, Music3, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -95,11 +95,11 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
           <div className="flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-border">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Music2 className="w-4 h-4" />
+                <Metronome className="w-4 h-4" />
                 <span className="font-mono">{beat.bpm} BPM</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Key className="w-4 h-4" />
+                <Music3 className="w-4 h-4" />
                 <span className="font-mono">{beat.key}</span>
               </div>
             </div>
