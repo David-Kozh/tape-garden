@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AlertCircle, UploadCloud, CheckCircle2, Music, ImageIcon, Loader2, ArrowLeft } from "lucide-react";
 import type { User } from "@/types";
+import { normalizeBeatKey } from "@/lib/utils/format";
 import {
   LicenseSelector,
   createDefaultLicenseItems,
@@ -183,8 +184,11 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
     if (!user) return;
     setAttemptedSubmit(true);
 
+    const normalizedKey = normalizeBeatKey(key);
+    setKey(normalizedKey);
+
     const licenseValidation = validateLicenseItems(licenses);
-    if (!title.trim() || !bpm || !key.trim() || !previewFile || !stemsFile) {
+    if (!title.trim() || !bpm || !normalizedKey || !previewFile || !stemsFile) {
       setError("Please fill in all required fields and select files.");
       return;
     }
@@ -234,7 +238,7 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
         metadata: {
           title,
           bpm: bpm ? parseInt(bpm, 10) : 0,
-          key,
+          key: normalizedKey,
           tags: tags.split(",").map(t => t.trim()).filter(Boolean),
           ...(coverArtFileName ? { coverArtFile: coverArtFileName } : {}),
           licenses: licenseValidation.sortedLicenses.map((license) => ({
@@ -364,9 +368,10 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
                   type="text"
                   required
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="C minor"
+                  placeholder="Cm"
                   value={key}
                   onChange={(e) => setKey(e.target.value)}
+                  onBlur={() => setKey((prev) => normalizeBeatKey(prev))}
                   disabled={isUploading}
                 />
               </div>

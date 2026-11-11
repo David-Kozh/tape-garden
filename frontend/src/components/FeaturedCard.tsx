@@ -1,6 +1,6 @@
 "use client";
 
-import { Volume2, PlayCircle, PauseCircle } from "lucide-react";
+import { Volume2, PlayCircle, PauseCircle, Music2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -135,7 +135,7 @@ export function FeaturedCard({ item, showProducer = true, curated = false }: Fea
                     {item.bpm && (
                       <Badge
                         variant="secondary"
-                        className="text-[9px] md:text-[10px] font-mono text-muted-foreground tracking-wider bg-transparent group-hover:!bg-leaf-500/10 px-1.5 py-0 leading-tight rounded border border-muted-foreground/50"
+                        className="text-[9px] md:text-[10px] font-mono text-muted-foreground tracking-wider bg-transparent group-hover:!bg-leaf-500/10 px-1.5 pb-0 pt-0.5 leading-tight rounded border border-muted-foreground/50"
                       >
                         {item.bpm} BPM
                       </Badge>
@@ -143,8 +143,9 @@ export function FeaturedCard({ item, showProducer = true, curated = false }: Fea
                     {item.key && (
                       <Badge
                         variant="secondary"
-                        className="text-[9px] md:text-[10px] font-mono text-muted-foreground tracking-wider bg-transparent group-hover:!bg-leaf-500/10 px-1.5 py-0 leading-tight rounded border border-muted-foreground/50"
+                        className="text-[9px] md:text-[10px] font-mono text-muted-foreground tracking-wider bg-transparent group-hover:!bg-leaf-500/10 px-1.5 pb-0 pt-0.5 leading-tight rounded border border-muted-foreground/50"
                       >
+                        <Music2 className="size-2.5 mb-0.5" />
                         {item.key}
                       </Badge>
                     )}

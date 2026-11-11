@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Edit3, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import type { Beat, BeatLicense } from "@/types";
+import { normalizeBeatKey } from "@/lib/utils/format";
 import { toast } from "sonner";
 import {
   LicenseSelector,
@@ -129,8 +130,11 @@ export default function EditBeatPage() {
     if (!user || !id) return;
     setAttemptedSubmit(true);
 
+    const normalizedKey = normalizeBeatKey(key);
+    setKey(normalizedKey);
+
     const licenseValidation = validateLicenseItems(licenses);
-    if (!title.trim() || !bpm || !key.trim()) {
+    if (!title.trim() || !bpm || !normalizedKey) {
       setError("Title, BPM, and key are required.");
       return;
     }
@@ -180,7 +184,7 @@ export default function EditBeatPage() {
       await updateDoc(beatRef, {
         title,
         bpm: parsedBpm,
-        key,
+        key: normalizedKey,
         tags: parsedTags,
         licenses: updatedLicenses,
         updatedAt: new Date()
@@ -286,10 +290,11 @@ export default function EditBeatPage() {
                   id="key"
                   type="text"
                   required
-                  placeholder="C minor"
+                  placeholder="Cm"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   value={key}
                   onChange={(e) => setKey(e.target.value)}
+                  onBlur={() => setKey((prev) => normalizeBeatKey(prev))}
                   disabled={isSaving}
                 />
               </div>
