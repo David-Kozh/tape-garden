@@ -1250,7 +1250,7 @@ export const onPurchaseCreatedHandler = functions
         },
       });
 
-      await snap.ref.update({
+      await db.collection("purchases").doc(purchaseId).update({
         licenseFileUrl: licenseStoragePath,
         buyerLegalName,
         sellerLegalName,
@@ -1336,12 +1336,20 @@ export const generateDownloadUrl = functions
         if (purchaseData.status !== "completed") {
           throw new functions.https.HttpsError("failed-precondition", "Purchase is not completed.");
         }
-        if (!purchaseData.licenseFileUrl) {
-          throw new functions.https.HttpsError("not-found", "License PDF is still being generated or unavailable.");
+        let resolvedLicensePath: string = purchaseData.licenseFileUrl || "";
+        if (!resolvedLicensePath) {
+          const canonicalLicensePath = `purchased/licenses/${purchaseId}/license-${purchaseId}.pdf`;
+          const [exists] = await bucket.file(canonicalLicensePath).exists();
+          if (exists) {
+            resolvedLicensePath = canonicalLicensePath;
+            await purchaseRef.update({ licenseFileUrl: canonicalLicensePath });
+          } else {
+            throw new functions.https.HttpsError("not-found", "License PDF is still being generated or unavailable.");
+          }
         }
 
         const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-        const [downloadUrl] = await bucket.file(purchaseData.licenseFileUrl).getSignedUrl({
+        const [downloadUrl] = await bucket.file(resolvedLicensePath).getSignedUrl({
           action: "read",
           expires: expiresAt,
           responseDisposition: `inline; filename="TapeGarden-License-${purchaseId}.pdf"`,
