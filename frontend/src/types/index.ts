@@ -130,6 +130,9 @@ export interface Purchase {
   streamCap?: number | null; // Snapshot of stream cap for limited beat licenses
   licenseFileUrl?: string; // Private GCS path to generated PDF license agreement
   licenseGeneratedAt?: Date | string; // Timestamp when PDF license was generated
+  upgradedFromPurchaseId?: string | null; // Reference to prior limited purchase when upgraded
+  upgradedToPurchaseId?: string | null; // Reference to new unlimited purchase if superseded
+  priorPricePaid?: number | null; // Original limited license price credited toward upgrade
   price: number; // Total amount paid by buyer
   platformFee: number; // Platform fee percentage / cut
   producerPayout: number; // Net amount transferred to producer via Stripe Connect

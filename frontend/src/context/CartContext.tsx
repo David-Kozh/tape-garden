@@ -12,6 +12,10 @@ export interface CartItem {
   title: string;
   producerId: string;
   coverArtUrl?: string;
+  isUpgrade?: boolean;
+  upgradeFromPurchaseId?: string;
+  originalLicensePrice?: number;
+  creditApplied?: number;
 }
 
 interface CartContextProps {
@@ -80,11 +84,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addItem = useCallback((item: CartItem) => {
-    const exists = storeItems.some(
+    const exactMatchIndex = storeItems.findIndex(
       (i) => i.itemId === item.itemId && i.licenseType === item.licenseType
     );
-    if (exists) return;
-    updateStore([...storeItems, item]);
+    if (exactMatchIndex !== -1) {
+      // Update existing entry if upgrade metadata changed
+      const updated = [...storeItems];
+      updated[exactMatchIndex] = item;
+      updateStore(updated);
+      return;
+    }
+    // For beats, replace any other license tier for the same beat so only 1 license per beat is in the cart
+    const filtered = item.itemType === "beat"
+      ? storeItems.filter((i) => !(i.itemType === "beat" && i.itemId === item.itemId))
+      : storeItems;
+    updateStore([...filtered, item]);
   }, [storeItems, updateStore]);
 
   const removeItem = useCallback((itemId: string, licenseType?: string) => {

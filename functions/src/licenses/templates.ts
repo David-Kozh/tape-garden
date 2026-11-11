@@ -25,6 +25,7 @@ export interface BeatLicenseTemplateInput {
   beatTitle: string;
   licenseType: "limited" | "premium-unlimited" | string;
   price: number;
+  priorPricePaid?: number | null;
   streamCap?: number | null;
 }
 
@@ -63,7 +64,15 @@ export function compileBeatLicenseTemplate(
     ? "Unlimited commercial music videos and unlimited for-profit live performances"
     : "1 commercial music video and 1 for-profit live performance";
 
-  const formattedPrice = `$${Number(input.price || 0).toFixed(2)} USD`;
+  const hasUpgradeCredit =
+    typeof input.priorPricePaid === "number" && input.priorPricePaid > 0;
+  const totalConsideration = hasUpgradeCredit
+    ? Number(input.price || 0) + Number(input.priorPricePaid)
+    : Number(input.price || 0);
+
+  const formattedPrice = hasUpgradeCredit
+    ? `$${totalConsideration.toFixed(2)} USD ($${Number(input.priorPricePaid).toFixed(2)} prior Limited credit + $${Number(input.price || 0).toFixed(2)} upgrade paid)`
+    : `$${Number(input.price || 0).toFixed(2)} USD`;
 
   return {
     title: "NON-EXCLUSIVE BEAT LICENSE AGREEMENT",

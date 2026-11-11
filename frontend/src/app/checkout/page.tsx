@@ -27,6 +27,8 @@ export default function CheckoutPage() {
         itemId: item.itemId,
         itemType: item.itemType,
         licenseType: item.licenseType,
+        isUpgrade: Boolean(item.isUpgrade),
+        upgradeFromPurchaseId: item.upgradeFromPurchaseId,
       }));
 
       const result = await createCheckoutSession({ items: formattedItems, origin: window.location.origin });
@@ -81,18 +83,31 @@ export default function CheckoutPage() {
                 )}
               </div>
               <div className="flex-1 flex flex-col justify-center">
-                <Link href={`/beats/${item.itemId}`} className="font-bold text-lg hover:underline truncate">
+                <Link
+                  href={item.itemType === "samplePack" ? `/sample-packs/${item.itemId}` : `/beats/${item.itemId}`}
+                  className="font-bold text-lg hover:underline truncate"
+                >
                   {item.title}
                 </Link>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1 flex-wrap">
                   <span className="capitalize">{item.itemType}</span>
                   {item.licenseType && (
                     <>
                       <span>•</span>
-                      <span className="capitalize">{item.licenseType} License</span>
+                      <span className="capitalize">{item.licenseType.replace("-", " ")} License</span>
                     </>
                   )}
+                  {item.isUpgrade && (
+                    <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                      License Upgrade
+                    </span>
+                  )}
                 </div>
+                {item.isUpgrade && typeof item.originalLicensePrice === "number" && typeof item.creditApplied === "number" && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Unlimited: ${item.originalLicensePrice.toFixed(2)} − Prior Limited Credit: ${item.creditApplied.toFixed(2)}
+                  </div>
+                )}
               </div>
               <div className="flex flex-col items-end justify-center gap-2">
                 <span className="font-bold text-xl">${item.price.toFixed(2)}</span>

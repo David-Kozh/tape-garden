@@ -1233,6 +1233,10 @@ export const onPurchaseCreatedHandler = functions
         itemName,
         licenseType: purchaseData.licenseType || null,
         price: Number(price || 0),
+        priorPricePaid:
+          typeof purchaseData.priorPricePaid === "number"
+            ? purchaseData.priorPricePaid
+            : null,
         streamCap,
         buyerLegalName,
         sellerLegalName,
@@ -1576,7 +1580,9 @@ export const verifyStripeAccount = functions
 interface CartItem {
   itemId: string;
   itemType: "beat" | "samplePack";
-  licenseType?: string; // only for beats
+  licenseType?: string;
+  isUpgrade?: boolean;
+  upgradeFromPurchaseId?: string;
 }
 
 /**
@@ -1608,6 +1614,23 @@ export const createCheckoutSession = functions
       const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
       const serializedCartItems = [];
 
+      // Fetch buyer's existing completed purchases once to enforce upgrade/duplicate/downgrade rules
+      const buyerPurchasesSnap = await db.collection("purchases")
+        .where("buyerId", "==", uid)
+        .get();
+      const buyerCompletedPurchases = buyerPurchasesSnap.docs
+        .map((d) => ({
+          id: d.id,
+          ...(d.data() as {
+            itemId?: string;
+            itemType?: string;
+            licenseType?: string;
+            price?: number;
+            status?: string;
+          }),
+        }))
+        .filter((p) => p.status === "completed");
+
       // Calculate totals and verify items securely
       for (const item of items) {
         if (item.itemType === "beat") {
@@ -1625,13 +1648,83 @@ export const createCheckoutSession = functions
           const license = beatData.licenses?.find((l: { type: string; price: number; streamCap?: number }) => l.type === item.licenseType);
           if (!license) continue;
 
+          // Check existing purchases for this exact beatId
+          const priorBeatPurchases = buyerCompletedPurchases.filter(
+            (p) => p.itemType === "beat" && p.itemId === item.itemId
+          );
+
+          const alreadyOwnsUnlimited = priorBeatPurchases.some(
+            (p) =>
+              p.licenseType === "premium-unlimited" ||
+              p.licenseType === "unlimited" ||
+              p.licenseType === "exclusive"
+          );
+          if (alreadyOwnsUnlimited) {
+            throw new functions.https.HttpsError(
+              "already-exists",
+              `You already own the Unlimited license for "${beatData.title}".`
+            );
+          }
+
+          const priorLimitedPurchases = priorBeatPurchases.filter(
+            (p) => p.licenseType === "limited"
+          );
+
+          if (item.licenseType === "limited" && priorLimitedPurchases.length > 0) {
+            throw new functions.https.HttpsError(
+              "already-exists",
+              `You already own the Limited license for "${beatData.title}". You can upgrade to Unlimited from your Collection.`
+            );
+          }
+
+          let finalPrice = license.price;
+          let upgradedFromPurchaseId: string | null = null;
+          let priorPricePaid: number | null = null;
+
+          if (
+            (item.licenseType === "premium-unlimited" || item.licenseType === "unlimited") &&
+            (priorLimitedPurchases.length > 0 || item.isUpgrade || item.upgradeFromPurchaseId)
+          ) {
+            // Find matching prior limited purchase for this exact beatId
+            const matchedPrior = item.upgradeFromPurchaseId
+              ? priorLimitedPurchases.find((p) => p.id === item.upgradeFromPurchaseId)
+              : priorLimitedPurchases[0];
+
+            if (!matchedPrior) {
+              throw new functions.https.HttpsError(
+                "failed-precondition",
+                `No eligible Limited license purchase found to upgrade for "${beatData.title}".`
+              );
+            }
+
+            const paidLimitedPrice = Number(matchedPrior.price || 0);
+            const computedUpgradePrice =
+              Math.round((Number(license.price) - paidLimitedPrice) * 100) / 100;
+
+            // Prevent downgrades, $0 charges, or accidental refunds if producer lowered Unlimited price
+            if (computedUpgradePrice < 0.5) {
+              throw new functions.https.HttpsError(
+                "failed-precondition",
+                `Upgrade unavailable for "${beatData.title}": the Unlimited license price ($${Number(license.price).toFixed(2)}) must be at least $0.50 higher than your original Limited purchase ($${paidLimitedPrice.toFixed(2)}).`
+              );
+            }
+
+            finalPrice = computedUpgradePrice;
+            upgradedFromPurchaseId = matchedPrior.id;
+            priorPricePaid = paidLimitedPrice;
+          }
+
+          const productDisplayName = upgradedFromPurchaseId
+            ? `${beatData.title} (Upgrade to ${item.licenseType} License)`
+            : `${beatData.title} (${item.licenseType} License)`;
+
           lineItems.push({
             price_data: {
               currency: "usd",
               product_data: {
-                name: `${beatData.title} (${item.licenseType} License)`,
+                name: productDisplayName,
               },
-              unit_amount: Math.round(license.price * 100),
+              unit_amount: Math.round(finalPrice * 100),
             },
             quantity: 1,
           });
@@ -1650,7 +1743,13 @@ export const createCheckoutSession = functions
             producerId: beatData.producerId,
             producerName: producerData.displayName || "Producer",
             producerStripeAccountId: producerData.stripeAccountId,
-            price: license.price,
+            price: finalPrice,
+            ...(upgradedFromPurchaseId
+              ? {
+                upgradedFromPurchaseId,
+                priorPricePaid,
+              }
+              : {}),
           });
 
         } else if (item.itemType === "samplePack") {
@@ -1821,6 +1920,9 @@ export const stripeWebhook = functions
                 itemType: item.itemType,
                 licenseType: item.licenseType || null,
                 streamCap: typeof item.streamCap === "number" ? item.streamCap : null,
+                upgradedFromPurchaseId: item.upgradedFromPurchaseId || null,
+                priorPricePaid:
+                  typeof item.priorPricePaid === "number" ? item.priorPricePaid : null,
                 price: item.price,
                 platformFee,
                 producerPayout,
@@ -1832,6 +1934,20 @@ export const stripeWebhook = functions
                 payoutStatus: "paid",
                 createdAt: admin.firestore.FieldValue.serverTimestamp(),
               });
+
+              if (item.upgradedFromPurchaseId) {
+                try {
+                  await db.collection("purchases").doc(item.upgradedFromPurchaseId).update({
+                    upgradedToPurchaseId: purchaseId,
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                  });
+                } catch (upgradeLinkErr) {
+                  console.warn(
+                    `[stripeWebhook] Could not mark prior purchase ${item.upgradedFromPurchaseId} as upgraded:`,
+                    upgradeLinkErr
+                  );
+                }
+              }
             }
           }
 

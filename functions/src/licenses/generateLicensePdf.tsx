@@ -54,6 +54,7 @@ export interface GeneratePurchaseLicenseInput {
   itemName: string;
   licenseType?: string | null;
   price: number;
+  priorPricePaid?: number | null;
   streamCap?: number | null;
   buyerLegalName: string;
   sellerLegalName: string;
@@ -221,6 +222,7 @@ export async function renderLicensePdfBuffer(
           beatTitle: input.itemName,
           licenseType: input.licenseType || "limited",
           price: input.price,
+          priorPricePaid: input.priorPricePaid,
           streamCap: input.streamCap,
         });
 
