@@ -49,6 +49,11 @@ service cloud.firestore {
       );
       
       allow delete: if isAdmin();
+
+      // Subcollection for saved beats and sample packs
+      match /savedItems/{itemId} {
+        allow read, write: if isOwner(uid);
+      }
     }
 
     // 2. Beats collection security

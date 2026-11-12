@@ -215,3 +215,22 @@ export interface Feedback {
   status: FeedbackStatus;
   createdAt: Date | string;
 }
+
+/**
+ * 9. Saved Items Subcollection Definition
+ * Matches subcollection `/users/{userId}/savedItems/{itemId}`
+ */
+export interface SavedItem {
+  id: string; // Document ID (matches itemId)
+  itemId: string;
+  itemType: ItemType;
+  title: string;
+  producerId: string;
+  producerName?: string;
+  coverArtUrl?: string;
+  audioPreviewUrl?: string;
+  price?: number;
+  bpm?: number;
+  key?: string;
+  savedAt: Date | string;
+}

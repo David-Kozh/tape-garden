@@ -5,12 +5,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlayCircle, PauseCircle, MoreVertical, Flag, Star, Music, PackageOpen } from "lucide-react";
+import { PlayCircle, PauseCircle, MoreVertical, Flag, Star, Music, PackageOpen, Bookmark } from "lucide-react";
 import { BeatWithProducer } from "@/lib/services/gallery";
 import { SamplePackWithProducer } from "@/lib/services/samplePacks";
 import { useAudio } from "@/context/AudioContext";
 import { useAuth } from "@/context/AuthContext";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useSaved } from "@/context/SavedContext";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -28,8 +29,10 @@ interface ItemCardProps {
 
 export function ItemCard({ item, showProducer = true }: ItemCardProps) {
   const { currentTrack, isPlaying, play, togglePlayPause } = useAudio();
-  const { role } = useAuth();
+  const { user, role } = useAuth();
+  const { isSaved, toggleSave } = useSaved();
 
+  const isItemSaved = isSaved(item.id);
   const isCurrentItem = currentTrack?.id === item.id;
   const [isCurated, setIsCurated] = useState(item.curated ?? false);
   const [isFlagDialogOpen, setIsFlagDialogOpen] = useState(false);
@@ -48,6 +51,30 @@ export function ItemCard({ item, showProducer = true }: ItemCardProps) {
     } catch {
       toast.error("Failed to update curated status");
     }
+  };
+
+  const handleToggleSave = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await toggleSave({
+      itemId: item.id,
+      itemType: item.itemType,
+      title: item.title,
+      producerId: item.producer.uid,
+      producerName: item.producer.displayName,
+      coverArtUrl: item.coverArtUrl,
+      audioPreviewUrl: item.audioPreviewUrl,
+      price:
+        item.itemType === "beat"
+          ? item.licenses?.[0]?.price
+            ? Number(item.licenses[0].price)
+            : 29.99
+          : typeof item.price === "number"
+            ? item.price
+            : parseFloat(item.price || "0"),
+      bpm: item.itemType === "beat" ? item.bpm : undefined,
+      key: item.itemType === "beat" ? item.key : undefined,
+    });
   };
 
   const handleFlagSubmit = async () => {
@@ -131,22 +158,31 @@ export function ItemCard({ item, showProducer = true }: ItemCardProps) {
         </div>
         */}
 
-        {/* Admin Menu */}
-        {role === "admin" && (
+        {/* Actions Menu */}
+        {user && (
           <div className="absolute top-2 right-2 z-30">
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button variant="secondary" size="icon" className="h-6 w-6 rounded-full bg-graphite-800/60 dark:bg-background/60 backdrop-blur-sm hover:bg-graphite-800/80 dark:hover:bg-background/80" />}>
                 <MoreVertical className="h-4 w-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleToggleCurated}>
-                  <Star className="mr-2 h-4 w-4" />
-                  {isCurated ? "Remove from Curated" : "Add to Curated"}
+                <DropdownMenuItem onClick={handleToggleSave}>
+                  <Bookmark className={`mr-2 h-4 w-4 ${isItemSaved ? "fill-primary text-primary" : ""}`} />
+                  {isItemSaved ? "Remove from Saved" : "Save for later"}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsFlagDialogOpen(true)} className="text-destructive focus:text-destructive">
-                  <Flag className="mr-2 h-4 w-4" />
-                  Flag for Moderation
-                </DropdownMenuItem>
+                {role === "admin" && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleToggleCurated}>
+                      <Star className="mr-2 h-4 w-4" />
+                      {isCurated ? "Remove from Curated" : "Add to Curated"}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsFlagDialogOpen(true)} className="text-destructive focus:text-destructive">
+                      <Flag className="mr-2 h-4 w-4" />
+                      Flag for Moderation
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Inter, Outfit, Lexend } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/context/AuthContext";
+import { SavedProvider } from "@/context/SavedContext";
 import { AudioProvider } from "@/context/AudioContext";
 import { CartProvider } from "@/context/CartContext";
 import { AudioPlayer } from "@/components/AudioPlayer";
@@ -64,13 +65,15 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
           <TexturedBackground />
           <AuthProvider>
-            <CartProvider>
-              <AudioProvider>
-                <Navbar />
-                {children}
-                <AudioPlayer />
-              </AudioProvider>
-            </CartProvider>
+            <SavedProvider>
+              <CartProvider>
+                <AudioProvider>
+                  <Navbar />
+                  {children}
+                  <AudioPlayer />
+                </AudioProvider>
+              </CartProvider>
+            </SavedProvider>
           </AuthProvider>
           <Toaster />
         </ThemeProvider>

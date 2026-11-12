@@ -3,7 +3,8 @@
 import { SamplePackWithProducer } from "@/lib/services/samplePacks";
 import { useAudio } from "@/context/AudioContext";
 import { useCart } from "@/context/CartContext";
-import { Play, Pause, User, Tag, PackageOpen } from "lucide-react";
+import { useSaved } from "@/context/SavedContext";
+import { Play, Pause, User, Tag, PackageOpen, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,8 +20,10 @@ interface SamplePackDetailClientProps {
 export function SamplePackDetailClient({ pack }: SamplePackDetailClientProps) {
   const { currentTrack, isPlaying, play, togglePlayPause } = useAudio();
   const { addItem } = useCart();
+  const { isSaved, toggleSave } = useSaved();
 
   const isCurrentPack = currentTrack?.id === pack.id;
+  const isPackSaved = isSaved(pack.id);
 
   const handlePlayClick = () => {
     if (isCurrentPack) {
@@ -36,6 +39,19 @@ export function SamplePackDetailClient({ pack }: SamplePackDetailClientProps) {
         itemType: "samplePack",
       });
     }
+  };
+
+  const handleToggleSave = () => {
+    toggleSave({
+      itemId: pack.id,
+      itemType: "samplePack",
+      title: pack.title,
+      producerId: pack.producer.uid,
+      producerName: pack.producer.displayName,
+      coverArtUrl: pack.coverArtUrl,
+      audioPreviewUrl: pack.audioPreviewUrl,
+      price: typeof pack.price === "number" ? pack.price : parseFloat(pack.price || "0"),
+    });
   };
 
   const handleAddToCart = () => {
@@ -86,17 +102,34 @@ export function SamplePackDetailClient({ pack }: SamplePackDetailClientProps) {
               </Link>
             </div>
 
-            <Button size="lg" className="rounded-full h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shrink-0" onClick={handlePlayClick}>
-              {isCurrentPack && isPlaying ? (
-                <>
-                  <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> Pause Preview
-                </>
-              ) : (
-                <>
-                  <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> Play Preview
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="icon"
+                className={`rounded-full h-12 sm:h-14 w-12 sm:w-14 transition-all duration-200 ${
+                  isPackSaved
+                    ? "border-primary/50 bg-primary/10 text-primary hover:bg-primary/20"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                onClick={handleToggleSave}
+                title={isPackSaved ? "Remove from saved" : "Save for later"}
+                aria-label={isPackSaved ? "Remove from saved" : "Save for later"}
+              >
+                <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 ${isPackSaved ? "fill-current" : ""}`} />
+              </Button>
+
+              <Button size="lg" className="rounded-full h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg gap-2 bg-secondary text-secondary-foreground hover:bg-secondary/90 shrink-0" onClick={handlePlayClick}>
+                {isCurrentPack && isPlaying ? (
+                  <>
+                    <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> Pause Preview
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> Play Preview
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-4 pt-4 border-t border-border">

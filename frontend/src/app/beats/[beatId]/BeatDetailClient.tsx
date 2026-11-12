@@ -3,7 +3,8 @@
 import { BeatWithProducer } from "@/lib/services/gallery";
 import { useAudio } from "@/context/AudioContext";
 import { useCart } from "@/context/CartContext";
-import { Play, Pause, User, Metronome, Music3, Tag } from "lucide-react";
+import { useSaved } from "@/context/SavedContext";
+import { Play, Pause, User, Metronome, Music3, Tag, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,8 +20,10 @@ interface BeatDetailClientProps {
 export function BeatDetailClient({ beat }: BeatDetailClientProps) {
   const { currentTrack, isPlaying, play, togglePlayPause } = useAudio();
   const { addItem } = useCart();
+  const { isSaved, toggleSave } = useSaved();
 
   const isCurrentBeat = currentTrack?.id === beat.id;
+  const isBeatSaved = isSaved(beat.id);
 
   const handlePlayClick = () => {
     if (isCurrentBeat) {
@@ -28,6 +31,21 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
     } else {
       play({ ...beat, itemType: "beat" });
     }
+  };
+
+  const handleToggleSave = () => {
+    toggleSave({
+      itemId: beat.id,
+      itemType: "beat",
+      title: beat.title,
+      producerId: beat.producer.uid,
+      producerName: beat.producer.displayName,
+      coverArtUrl: beat.coverArtUrl,
+      audioPreviewUrl: beat.audioPreviewUrl,
+      price: beat.licenses?.[0]?.price ? Number(beat.licenses[0].price) : 29.99,
+      bpm: beat.bpm,
+      key: beat.key,
+    });
   };
 
   const handleAddToCart = (license: { type: string; price: number }) => {
@@ -79,17 +97,34 @@ export function BeatDetailClient({ beat }: BeatDetailClientProps) {
               </Link>
             </div>
 
-            <Button size="lg" className="rounded-full h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg gap-2 shrink-0" onClick={handlePlayClick}>
-              {isCurrentBeat && isPlaying ? (
-                <>
-                  <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> Pause
-                </>
-              ) : (
-                <>
-                  <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> Play Preview
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="icon"
+                className={`rounded-full h-12 sm:h-14 w-12 sm:w-14 transition-all duration-200 ${
+                  isBeatSaved
+                    ? "border-primary/50 bg-primary/10 text-primary hover:bg-primary/20"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                onClick={handleToggleSave}
+                title={isBeatSaved ? "Remove from saved" : "Save for later"}
+                aria-label={isBeatSaved ? "Remove from saved" : "Save for later"}
+              >
+                <Bookmark className={`w-5 h-5 sm:w-6 sm:h-6 ${isBeatSaved ? "fill-current" : ""}`} />
+              </Button>
+
+              <Button size="lg" className="rounded-full h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg gap-2 shrink-0" onClick={handlePlayClick}>
+                {isCurrentBeat && isPlaying ? (
+                  <>
+                    <Pause className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> Pause
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-5 h-5 sm:w-6 sm:h-6 fill-current" /> Play Preview
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
 
           <div className="flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-border">
