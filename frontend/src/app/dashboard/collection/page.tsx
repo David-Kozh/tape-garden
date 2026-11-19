@@ -23,10 +23,13 @@ import {
   Pause,
   Trash2,
   Music2,
+  MoreVertical,
+  Flag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { toast } from "sonner";
 import type { SavedItem } from "@/types";
 
@@ -353,21 +356,6 @@ export default function CollectionPage() {
                           <td className="px-6 py-4 text-right">
                             <div className="inline-flex items-center justify-end gap-2">
                               <Button
-                                variant="outline"
-                                size="sm"
-                                className="gap-1.5"
-                                onClick={() => handleDownloadLicense(purchase.id)}
-                                disabled={downloadingLicenseId === purchase.id}
-                                title="View Official License PDF"
-                              >
-                                {downloadingLicenseId === purchase.id ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <FileText className="w-4 h-4" />
-                                )}
-                                {downloadingLicenseId === purchase.id ? "Opening..." : "License PDF"}
-                              </Button>
-                              <Button
                                 variant="secondary"
                                 size="sm"
                                 className="gap-2"
@@ -381,6 +369,56 @@ export default function CollectionPage() {
                                 )}
                                 {downloadingId === purchase.id ? "Preparing..." : "Download"}
                               </Button>
+                              <Popover>
+                                <PopoverTrigger
+                                  render={
+                                    <Button
+                                      variant="ghost"
+                                      size="icon-sm"
+                                      aria-label="More actions"
+                                      title="More actions"
+                                    />
+                                  }
+                                >
+                                  <MoreVertical className="w-4 h-4" />
+                                </PopoverTrigger>
+                                <PopoverContent align="end" className="w-44 flex flex-col gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full justify-start gap-2 font-normal"
+                                    onClick={() => handleDownloadLicense(purchase.id)}
+                                    disabled={downloadingLicenseId === purchase.id}
+                                    title="View Official License PDF"
+                                  >
+                                    {downloadingLicenseId === purchase.id ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <FileText className="w-4 h-4" />
+                                    )}
+                                    {downloadingLicenseId === purchase.id ? "Opening..." : "License PDF"}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="w-full justify-start gap-2 font-normal text-destructive hover:text-destructive"
+                                    render={
+                                      <Link
+                                        href={`/report?type=item_issue&itemType=${encodeURIComponent(
+                                          purchase.itemType
+                                        )}&itemId=${encodeURIComponent(
+                                          purchase.itemId
+                                        )}&producerId=${encodeURIComponent(
+                                          purchase.producerId
+                                        )}&itemTitle=${encodeURIComponent(purchase.itemName)}`}
+                                      />
+                                    }
+                                  >
+                                    <Flag className="w-4 h-4" />
+                                    Report Item
+                                  </Button>
+                                </PopoverContent>
+                              </Popover>
                             </div>
                           </td>
                         </tr>

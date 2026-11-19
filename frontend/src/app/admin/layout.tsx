@@ -61,6 +61,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             Moderation
           </Link>
           <Link
+            href="/admin/reports"
+            className={`pb-1 border-b-2 ${pathname === "/admin/reports" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+          >
+            Reports
+          </Link>
+          <Link
             href="/admin/feedback"
             className={`pb-1 border-b-2 ${pathname === "/admin/feedback" ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           >
