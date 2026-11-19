@@ -132,8 +132,8 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
   const handleStemsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 500 * 1024 * 1024) {
-        setError("Stems file exceeds 500MB limit.");
+      if (file.size > 250 * 1024 * 1024) {
+        setError("Stems file exceeds 250MB limit.");
         return;
       }
       setStemsFile(file);
@@ -428,7 +428,7 @@ export function BeatUploadForm({ onCancel }: { onCancel: () => void }) {
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center gap-2">
                 <UploadCloud className="w-4 h-4 text-secondary" />
-                Stems Archive (.zip) * <span className="text-xs text-muted-foreground font-normal">(Max 200MB)</span>
+                Stems Archive (.zip) * <span className="text-xs text-muted-foreground font-normal">(Max 250MB)</span>
               </label>
               <div className="flex items-center gap-4">
                 <Button

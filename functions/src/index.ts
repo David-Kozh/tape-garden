@@ -500,10 +500,10 @@ export const publishBeat = functions
             throw new functions.https.HttpsError("failed-precondition", `Staging file missing: ${stemsSrcPath}`);
           }
 
-          // Check size: 500MB max
+          // Check size: 250MB max
           const [stemsFileMeta] = await stemsSrcFile.getMetadata();
-          if (Number(stemsFileMeta.size) > 500 * 1024 * 1024) {
-            throw new functions.https.HttpsError("invalid-argument", "Stems file exceeds 500MB limit.");
+          if (Number(stemsFileMeta.size) > 250 * 1024 * 1024) {
+            throw new functions.https.HttpsError("invalid-argument", "Stems file exceeds 250MB limit.");
           }
 
           await stemsSrcFile.move(stemsDestPath);

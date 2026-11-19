@@ -41,7 +41,7 @@ export default function NewUploadPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground text-center">
-            Max 200MB archive size
+            Max 250MB archive size
           </CardContent>
         </Card>
 
