@@ -76,6 +76,6 @@ node_modules/
 skills-lock.json
 
 # Local Dev files
-docs/
+/docs/
 templates/
 service-account-firebase-adminsdk.json

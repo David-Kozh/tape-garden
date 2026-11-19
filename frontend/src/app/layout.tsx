@@ -62,7 +62,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${outfit.variable} ${lexend.variable} antialiased`}
     >
       <body className="min-h-screen flex flex-col relative">
-        <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" disableTransitionOnChange>
           <TexturedBackground />
           <AuthProvider>
             <SavedProvider>

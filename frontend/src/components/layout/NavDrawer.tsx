@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
+// import { useTheme } from "next-themes";
 import {
   Menu,
   Compass,
@@ -15,13 +15,14 @@ import {
   Shield,
   Sparkles,
   Info,
+  HelpCircle,
   LogIn,
   LogOut,
   ShoppingBag,
   User,
   MessageSquare,
-  Moon,
-  Sun,
+  // Moon,
+  // Sun,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -39,18 +40,17 @@ import {
 export function NavDrawer() {
   const [open, setOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  // const [mounted, setMounted] = useState(false);
   const { user, role, loading, logout } = useAuth();
   const { itemCount } = useCart();
-  const { resolvedTheme, setTheme } = useTheme();
+  // const { resolvedTheme, setTheme } = useTheme();
   const pathname = usePathname();
   const router = useRouter();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isDark = mounted && resolvedTheme === "dark";
+  // useEffect(() => {
+  //   setMounted(true);
+  // }, []);
+  // const isDark = mounted && resolvedTheme === "dark";
 
   const handleLinkClick = () => {
     setOpen(false);
@@ -337,15 +337,15 @@ export function NavDrawer() {
                       <span>Apply as Producer</span>
                     </Link>
                     <Link
-                      href="/about"
+                      href="/docs/learn-more"
                       onClick={handleLinkClick}
-                      className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/about")
+                      className={`flex items-center gap-4 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isItemActive("/docs/learn-more")
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "hover:bg-foreground/10 hover:text-primary"
                         }`}
                     >
                       <Info className="w-5 h-5 shrink-0" />
-                      <span>About Us</span>
+                      <span>Learn More</span>
                     </Link>
                   </div>
                 </div>
@@ -353,8 +353,21 @@ export function NavDrawer() {
             </div>
           </div>
 
-          {/* Footer with Theme Toggle & Sign Out / Log In */}
+          {/* Footer with Help Link & Sign Out / Log In */}
           <DrawerFooter className="p-0 pt-4 border-t border-border/40 mt-auto">
+            <Link
+              href="/docs/help"
+              onClick={handleLinkClick}
+              className={`flex items-center gap-4 px-3 py-2.5 w-full text-sm font-medium rounded-lg transition-colors ${isItemActive("/docs/help")
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "hover:bg-foreground/10 hover:text-primary"
+                }`}
+            >
+              <HelpCircle className="w-5 h-5 shrink-0" />
+              <span>Help</span>
+            </Link>
+
+            {/* Deprecated: Dark mode is locked in for now; kept commented in case we re-enable theme switching later.
             <button
               type="button"
               onClick={() => setTheme(isDark ? "light" : "dark")}
@@ -368,6 +381,7 @@ export function NavDrawer() {
               )}
               <span>{isDark ? "Light Mode" : "Dark Mode"}</span>
             </button>
+            */}
 
             {user ? (
               <button
