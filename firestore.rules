@@ -168,5 +168,13 @@ service cloud.firestore {
       allow read, update: if isAdmin();
       allow create, delete: if false; // Creation is handled by generateInvite Cloud Function
     }
+
+    // 11. Report Cases collection security (public create, admin-only read/update/delete)
+    match /reportCases/{caseId} {
+      allow create: if request.resource.data.status == 'open' &&
+        request.resource.data.type in ['copyright_infringement', 'producer_report', 'item_issue'] &&
+        request.resource.data.caseNotes.size() == 0;
+      allow read, update, delete: if isAdmin();
+    }
   }
 }

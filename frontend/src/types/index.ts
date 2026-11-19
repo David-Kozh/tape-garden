@@ -234,3 +234,86 @@ export interface SavedItem {
   key?: string;
   savedAt: Date | string;
 }
+
+export type ReportCaseType =
+  | "copyright_infringement"
+  | "producer_report"
+  | "item_issue";
+
+export type ReportCaseStatus =
+  | "open"
+  | "under_review"
+  | "pending_counter_notice"
+  | "content_removed"
+  | "resolved"
+  | "dismissed";
+
+export interface CaseNoteEntry {
+  fromStatus?: ReportCaseStatus;
+  newStatus: ReportCaseStatus;
+  action: string; // e.g. "takedown_executed", "warning_issued", "dismissed"
+  note: string;
+  actorId: string; // Admin UID or "system"
+  createdAt: Date | string;
+}
+
+export interface ReportCaseBase {
+  id: string;
+  type: ReportCaseType;
+  status: ReportCaseStatus;
+  reporter: {
+    uid?: string; // Present if submitted by a signed-in user
+    name: string;
+    email: string;
+  };
+  description: string;
+  caseNotes: CaseNoteEntry[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+export interface CopyrightInfringementCase extends ReportCaseBase {
+  type: "copyright_infringement";
+  target: {
+    itemType: ItemType;
+    itemId: string;
+    producerId: string;
+    itemTitle?: string; // Denormalized for admin queue
+  };
+  originalWorkUrl?: string;
+  rightsHolderAttestation: boolean;
+  counterNoticeDeadline?: Date | string;
+}
+
+export interface ProducerReportCase extends ReportCaseBase {
+  type: "producer_report";
+  target: {
+    producerId: string;
+    producerName?: string;
+  };
+  reason: "impersonation" | "fraud" | "harassment" | "other";
+}
+
+export interface ItemIssueCase extends ReportCaseBase {
+  type: "item_issue";
+  target: {
+    itemType: ItemType;
+    itemId: string;
+    producerId: string;
+    itemTitle?: string;
+  };
+  reason:
+    | "corrupted_file"
+    | "misleading_metadata"
+    | "inappropriate_content"
+    | "other";
+}
+
+/**
+ * 10. Report Cases Collection Definition
+ * Matches collection `/reportCases`
+ */
+export type ReportCase =
+  | CopyrightInfringementCase
+  | ProducerReportCase
+  | ItemIssueCase;
